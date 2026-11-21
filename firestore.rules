@@ -1,12 +1,29 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Each person can only read and write their own saved offers.
+    // A saved offer belongs to one signed-in (anonymous) user. Nobody else can
+    // read, list or write it. Everything else in the database is closed.
     match /users/{uid}/proofs/{proofId} {
-      allow read, delete: if request.auth != null && request.auth.uid == uid;
-      allow create: if request.auth != null && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['site', 'capturedAt', 'remindOn', 'quotes', 'sha256', 'savedAt'])
-        && request.resource.data.quotes is list && request.resource.data.quotes.size() <= 30;
+      function isOwner() {
+        return request.auth != null && request.auth.uid == uid;
+      }
+      function validProof() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['site', 'capturedAt', 'remindOn', 'quotes', 'sha256', 'savedAt'])
+          && d.keys().hasAll(['site', 'capturedAt', 'quotes', 'sha256'])
+          && d.site is string && d.site.size() <= 253
+          && d.capturedAt is string && d.capturedAt.size() <= 40
+          && (!('remindOn' in d) || (d.remindOn is string && d.remindOn.size() == 10))
+          && d.quotes is list && d.quotes.size() <= 30
+          && d.sha256 is string && d.sha256.size() == 64
+          && d.savedAt == request.time;
+      }
+      allow read, delete: if isOwner();
+      allow create: if isOwner() && validProof();
+      allow update: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -21,3 +21,4 @@ button.link { border: 0; background: none; color: var(--green); padding: 6px 0; 
 .badge.rules { background: #eee; color: #555; }
 #consent { background: #fff8e5; border: 1px solid #f0d98a; padding: 10px 12px; border-radius: 10px; }
 #cancelOut ol { padding-left: 18px; }
+ol.plain { list-style: none; padding: 0; }

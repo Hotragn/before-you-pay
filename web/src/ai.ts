@@ -7,6 +7,7 @@ import {
   type GenerativeModel,
 } from 'firebase/ai';
 import { getFirebaseApp } from './firebase';
+import { defaults, type Settings } from './settings';
 import type { PageSnapshot, RawFinding } from './types';
 
 // Two models, two modes, on purpose.
@@ -63,10 +64,15 @@ export const cancelStepsSchema = Schema.object({
 
 let privateModel: GenerativeModel | undefined;
 let publicModel: GenerativeModel | undefined;
+let redactedModel: GenerativeModel | undefined;
 
-export function models() {
+let modelFor = '';
+let current: Settings = defaults;
+export function useSettings(s: Settings) { current = s; }
+
+export function models(settings: Settings = current) {
+  if (modelFor !== settings.cloud_model) { publicModel = undefined; redactedModel = undefined; modelFor = settings.cloud_model; }
   const app = getFirebaseApp();
-  if (!app) return undefined;
   const ai = getAI(app, { backend: new GoogleAIBackend() });
   privateModel ??= getGenerativeModel(ai, {
     mode: InferenceMode.ONLY_ON_DEVICE,
@@ -82,18 +88,45 @@ export function models() {
   publicModel ??= getGenerativeModel(ai, {
     mode: InferenceMode.ONLY_IN_CLOUD,
     inCloudParams: {
-      model: 'gemini-3.5-flash-lite',
+      model: settings.cloud_model,
       generationConfig: { responseMimeType: 'application/json', responseSchema: cancelStepsSchema },
     },
   });
-  return { privateModel, publicModel };
+  // Only used after the user agrees, on a copy with personal details removed.
+  redactedModel ??= getGenerativeModel(ai, {
+    mode: InferenceMode.ONLY_IN_CLOUD,
+    inCloudParams: {
+      model: settings.cloud_model,
+      systemInstruction: PAGE_INSTRUCTIONS,
+      generationConfig: { responseMimeType: 'application/json', responseJsonSchema: findingsJsonSchema },
+    },
+  });
+  return { privateModel, publicModel, redactedModel };
+}
+
+type Availability = 'unavailable' | 'downloadable' | 'downloading' | 'available' | 'no-api';
+
+// Ask Chrome directly whether an on-device model can run here, so we can show
+// an honest message instead of waiting for an error.
+export async function onDeviceAvailability(): Promise<Availability> {
+  const LM = (globalThis as unknown as { LanguageModel?: { availability(o?: object): Promise<Availability> } }).LanguageModel;
+  if (!LM) return 'no-api';
+  try {
+    return await LM.availability({
+      expectedInputs: [{ type: 'text', languages: ['en'] }],
+      expectedOutputs: [{ type: 'text', languages: ['en'] }],
+    });
+  } catch {
+    return 'unavailable';
+  }
 }
 
 // Must be called from a click handler (Chrome needs a user gesture to start
 // the model download).
 export async function prepareOnDevice(onProgress: (p: number) => void): Promise<boolean> {
+  const a = await onDeviceAvailability();
+  if (a === 'no-api' || a === 'unavailable') return false;
   const m = models();
-  if (!m) return false;
   try {
     await m.privateModel.initializeDeviceModel(onProgress);
     return true;
@@ -102,14 +135,13 @@ export async function prepareOnDevice(onProgress: (p: number) => void): Promise<
   }
 }
 
-export function pageToPrompt(page: PageSnapshot, maxChars = 6000): string {
+export function pageToPrompt(page: PageSnapshot, maxChars = current.max_page_chars): string {
   const boxes = page.checkboxes.map((c) => `[${c.checked ? 'x' : ' '}] ${c.label}`).join('\n');
   return `Page: ${page.title}\n\n${page.text.slice(0, maxChars)}\n\nCheckboxes:\n${boxes}`;
 }
 
 export async function analyzeOnDevice(page: PageSnapshot): Promise<{ findings: RawFinding[]; source: string }> {
   const m = models();
-  if (!m) throw new Error('Firebase is not configured');
   const result = await m.privateModel.generateContent(pageToPrompt(page));
   const parsed = JSON.parse(result.response.text()) as { findings: RawFinding[] };
   return { findings: parsed.findings ?? [], source: result.response.inferenceSource ?? 'on_device' };
@@ -126,10 +158,16 @@ export interface CancelSteps {
 // checkout page.
 export async function cancelStepsInCloud(termsText: string): Promise<{ data: CancelSteps; source: string }> {
   const m = models();
-  if (!m) throw new Error('Firebase is not configured');
   const prompt = `This is a company's public terms or cancellation page. Explain, as short steps,
 how a customer cancels a subscription, how much notice is needed, and the refund policy.
 Copy the sentences you relied on into "quotes", word for word.\n\n${termsText.slice(0, 60000)}`;
   const result = await m.publicModel.generateContent(prompt);
   return { data: JSON.parse(result.response.text()) as CancelSteps, source: result.response.inferenceSource ?? 'in_cloud' };
+}
+
+export async function analyzeRedactedInCloud(redactedPage: PageSnapshot): Promise<{ findings: RawFinding[]; source: string }> {
+  const m = models();
+  const result = await m.redactedModel.generateContent(pageToPrompt(redactedPage));
+  const parsed = JSON.parse(result.response.text()) as { findings: RawFinding[] };
+  return { findings: parsed.findings ?? [], source: result.response.inferenceSource ?? 'in_cloud' };
 }

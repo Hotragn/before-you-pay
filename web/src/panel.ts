@@ -1,10 +1,10 @@
-import { analyzeOnDevice, cancelStepsInCloud, models, prepareOnDevice } from './ai';
-import { hasFirebaseConfig } from './firebase';
+import { analyzeOnDevice, analyzeRedactedInCloud, cancelStepsInCloud, prepareOnDevice, useSettings } from './ai';
+import { defaults, loadSettings, type Settings } from './settings';
 import { mergeFindings } from './merge';
 import { redact } from './redact';
 import { ruleFindings } from './rules';
 import { snapshotDocument } from './snapshot';
-import { buildProof, saveProof } from './store';
+import { buildProof, listProofs, saveProof } from './store';
 import type { Finding, PageSnapshot } from './types';
 import { verifyFindings } from './verify';
 
@@ -13,6 +13,8 @@ const inExtension = window.parent !== window;
 
 let page: PageSnapshot | undefined;
 let findings: Finding[] = [];
+let settings: Settings = defaults;
+loadSettings().then((s) => { settings = s; useSettings(s); });
 
 const LABELS: Record<string, string> = {
   due_today: 'Due today',
@@ -63,12 +65,8 @@ async function checkOnDevice() {
     $('status').textContent = 'Reading the page...';
     return;
   }
-  if (!hasFirebaseConfig) {
-    $('status').textContent = 'Firebase is not configured yet (see README). Showing the basic check only.';
-    return;
-  }
   $('status').textContent = 'Getting the on-device model ready...';
-  const ready = await prepareOnDevice((p) => ($('status').textContent = `Downloading the on-device model: ${Math.round(p * 100)}%`));
+  const ready = settings.on_device_enabled && await prepareOnDevice((p) => ($('status').textContent = `Downloading the on-device model: ${Math.round(p * 100)}%`));
   if (!ready) {
     $('consent').hidden = false;
     $('status').textContent = '';
@@ -90,26 +88,13 @@ async function checkOnDevice() {
 async function sendRedacted() {
   if (!page) return;
   $('consent').hidden = true;
-  const m = models();
-  if (!m) return;
   const safe: PageSnapshot = { ...page, text: redact(page.text), checkboxes: page.checkboxes.map((c) => ({ ...c, label: redact(c.label) })) };
-  // The redacted copy goes through the public (cloud) model with the same
-  // findings instructions. Quotes are still checked against the real page.
-  const { getAI, getGenerativeModel, GoogleAIBackend, InferenceMode } = await import('firebase/ai');
-  const { getFirebaseApp } = await import('./firebase');
-  const { findingsJsonSchema, pageToPrompt } = await import('./ai');
-  const cloud = getGenerativeModel(getAI(getFirebaseApp()!, { backend: new GoogleAIBackend() }), {
-    mode: InferenceMode.ONLY_IN_CLOUD,
-    inCloudParams: { model: 'gemini-3.5-flash-lite', generationConfig: { responseMimeType: 'application/json', responseJsonSchema: findingsJsonSchema } },
-  });
   $('status').textContent = 'Reading a redacted copy in the cloud...';
   try {
-    const r = await cloud.generateContent(
-      'List money commitments on this checkout page. Quote the page word for word. Never calculate dates.\n\n' + pageToPrompt(safe),
-    );
-    const raw = JSON.parse(r.response.text()).findings ?? [];
-    findings = mergeFindings(findings, verifyFindings(raw, page, 'in_cloud'));
-    $('status').textContent = 'Read a redacted copy in the cloud.';
+    const { findings: raw, source } = await analyzeRedactedInCloud(safe);
+    // Quotes are checked against the redacted copy, since that is what the model saw.
+    findings = mergeFindings(findings, verifyFindings(raw, safe, source === 'on_device' ? 'on_device' : 'in_cloud'));
+    $('status').textContent = 'Read a redacted copy in the cloud. Your email, card and address were removed first.';
     render();
   } catch (e) {
     $('status').textContent = `Cloud read failed: ${(e as Error).message}`;
@@ -121,7 +106,8 @@ async function readTerms() {
   if (!link) return;
   $('cancelOut').textContent = 'Fetching the terms page...';
   let text: string;
-  if (inExtension) {
+  renderSaved();
+if (inExtension) {
     text = await new Promise((resolve) => {
       const onMsg = (ev: MessageEvent) => {
         if (ev.data?.type === 'byp:terms') { window.removeEventListener('message', onMsg); resolve(ev.data.text as string); }
@@ -133,7 +119,6 @@ async function readTerms() {
     const html = await (await fetch(link.href)).text();
     text = new DOMParser().parseFromString(html, 'text/html').body.innerText || html.replace(/<[^>]+>/g, ' ');
   }
-  if (!hasFirebaseConfig) { $('cancelOut').textContent = 'Firebase is not configured yet (see README).'; return; }
   $('cancelOut').textContent = 'Gemini is reading the public terms...';
   try {
     const { data, source } = await cancelStepsInCloud(text);
@@ -152,12 +137,13 @@ async function remind() {
   let remindOn: string | undefined;
   if (trial?.convertsOn) {
     const d = new Date(trial.convertsOn + 'T12:00:00');
-    d.setDate(d.getDate() - 2);
+    d.setDate(d.getDate() - settings.reminder_days_before);
     remindOn = d.toISOString().slice(0, 10);
   }
   const proof = await buildProof(page, findings, remindOn);
   const where = await saveProof(proof);
   window.parent.postMessage({ type: 'byp:reminder', remindOn, site: proof.site }, '*');
+  renderSaved();
   $('saved').textContent = `Saved ${proof.quotes.length} quotes ${where === 'firestore' ? 'to your account' : 'on this device'}. Reminder set for ${remindOn}. Fingerprint ${proof.sha256.slice(0, 12)}.`;
 }
 
@@ -170,6 +156,27 @@ async function demo() {
   load(snapshotDocument(frame.contentDocument!, new URL('/demo-store/index.html', location.href).href));
 }
 
+async function renderSaved() {
+  const list = await listProofs();
+  const ol = $('savedList');
+  ol.innerHTML = '';
+  $('savedWrap').hidden = !list.length;
+  for (const p of list) {
+    const li = document.createElement('li');
+    li.className = 'card';
+    const head = document.createElement('div');
+    head.className = 'head';
+    head.textContent = `${p.site}: remind ${p.remindOn ?? 'not set'}`;
+    li.append(head);
+    for (const q of p.quotes) { const b = document.createElement('blockquote'); b.textContent = q.quote; li.append(b); }
+    const meta = document.createElement('p');
+    meta.className = 'muted';
+    meta.textContent = `Saved ${new Date(p.capturedAt).toLocaleString()}, fingerprint ${p.sha256.slice(0, 12)}`;
+    li.append(meta);
+    ol.append(li);
+  }
+}
+
 window.addEventListener('message', (ev) => {
   if (ev.source === window.parent && ev.data?.type === 'byp:snapshot') load(ev.data.snapshot as PageSnapshot);
 });
@@ -179,4 +186,5 @@ $('sendRedacted').onclick = sendRedacted;
 $('stayLocal').onclick = () => ($('consent').hidden = true);
 $('readTerms').onclick = readTerms;
 $('remind').onclick = remind;
+renderSaved();
 if (inExtension) { $('demo').hidden = true; window.parent.postMessage({ type: 'byp:ready' }, '*'); }

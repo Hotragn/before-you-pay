@@ -1,34 +1,33 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider, type AppCheck } from 'firebase/app-check';
+import { firebaseConfig, recaptchaEnterpriseSiteKey } from './config';
 
-const env = import.meta.env;
+export { firebaseConfig };
 
-export const firebaseConfig = {
-  apiKey: env.VITE_FIREBASE_API_KEY,
-  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: env.VITE_FIREBASE_APP_ID,
-};
-
-export const hasFirebaseConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.appId);
+const isLocalDev = ['localhost', '127.0.0.1'].includes(location.hostname);
 
 let app: FirebaseApp | undefined;
+let appCheck: AppCheck | undefined;
 
-export function getFirebaseApp(): FirebaseApp | undefined {
-  if (!hasFirebaseConfig) return undefined;
+export function getFirebaseApp(): FirebaseApp {
   if (app) return app;
   app = initializeApp(firebaseConfig);
-  // App Check is enforced for Firebase AI Logic. On localhost we use the debug
-  // provider (the token prints in the console and is registered by hand in the
-  // Firebase console). On the hosted site we use reCAPTCHA v3.
-  if (env.VITE_APPCHECK_DEBUG === 'true') {
-    (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN: boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+  // App Check is enforced for Firebase AI Logic. On localhost the reCAPTCHA key
+  // is not allowed, so we switch to the debug provider: the SDK prints a debug
+  // token in the console, and you register it in the Firebase console
+  // (App Check > Apps > Manage debug tokens). Never commit that token.
+  if (isLocalDev) {
+    (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN: boolean | string }).FIREBASE_APPCHECK_DEBUG_TOKEN =
+      localStorage.getItem('byp.appCheckDebugToken') || true;
   }
-  initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider(env.VITE_RECAPTCHA_SITE_KEY || 'missing-site-key'),
+  appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(recaptchaEnterpriseSiteKey),
     isTokenAutoRefreshEnabled: true,
   });
   return app;
+}
+
+export function getAppCheckInstance(): AppCheck | undefined {
+  getFirebaseApp();
+  return appCheck;
 }

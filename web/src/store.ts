@@ -1,4 +1,4 @@
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getFirebaseApp } from './firebase';
 import type { Finding, PageSnapshot } from './types';
@@ -28,13 +28,30 @@ export async function buildProof(page: PageSnapshot, findings: Finding[], remind
   return { site, capturedAt: page.capturedAt, remindOn, quotes, sha256: await sha256(body) };
 }
 
+async function currentUid(): Promise<string> {
+  const auth = getAuth(getFirebaseApp());
+  await auth.authStateReady();
+  return (auth.currentUser ?? (await signInAnonymously(auth)).user).uid;
+}
+
+export async function listProofs(): Promise<ProofOfOffer[]> {
+  try {
+    const uid = await currentUid();
+    const snap = await getDocs(query(collection(getFirestore(getFirebaseApp()), 'users', uid, 'proofs'), orderBy('capturedAt', 'desc'), limit(20)));
+    return snap.docs.map((d) => d.data() as ProofOfOffer);
+  } catch (e) {
+    console.warn('Could not read saved offers from Firestore', e);
+    return JSON.parse(localStorage.getItem('byp.proofs') ?? '[]');
+  }
+}
+
 export async function saveProof(proof: ProofOfOffer): Promise<'firestore' | 'local'> {
   const app = getFirebaseApp();
   if (app) {
     try {
-      const auth = getAuth(app);
-      const user = auth.currentUser ?? (await signInAnonymously(auth)).user;
-      await addDoc(collection(getFirestore(app), 'users', user.uid, 'proofs'), { ...proof, savedAt: serverTimestamp() });
+      const uid = await currentUid();
+      const user = { uid };
+      await addDoc(collection(getFirestore(app), 'users', user.uid, 'proofs'), { ...JSON.parse(JSON.stringify(proof)), savedAt: serverTimestamp() });
       return 'firestore';
     } catch (e) {
       console.warn('Firestore save failed, keeping it on this device', e);

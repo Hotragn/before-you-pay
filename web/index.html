@@ -9,9 +9,5 @@
   <p><a href="/panel.html">Open the checker</a> &middot; <a href="/demo-store/index.html">Demo store</a></p>
   <h2>Your saved offers</h2>
   <ol id="proofs" class="muted"><li>Nothing saved yet.</li></ol>
-  <script type="module">
-    const all = JSON.parse(localStorage.getItem('byp.proofs') ?? '[]');
-    if (all.length) document.getElementById('proofs').innerHTML = all.map(p =>
-      `<li><strong>${p.site}</strong>, saved ${p.capturedAt.slice(0,10)}, remind ${p.remindOn ?? '-'}<br>${p.quotes.map(q => '&ldquo;' + q.quote.replace(/</g,'&lt;') + '&rdquo;').join('<br>')}</li>`).join('');
-  </script>
+  <script type="module" src="/src/home.ts"></script>
 </body></html>

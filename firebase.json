@@ -1,12 +1,28 @@
 {
   "hosting": {
     "public": "web/dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "headers": [
-      { "source": "/panel.html", "headers": [
-        { "key": "Content-Security-Policy", "value": "frame-ancestors 'self' chrome-extension:" }
-      ] }
+      {
+        "source": "/panel.html",
+        "headers": [
+          {
+            "key": "Content-Security-Policy",
+            "value": "frame-ancestors 'self' chrome-extension:"
+          }
+        ]
+      }
     ]
   },
-  "firestore": { "rules": "firestore.rules" }
+  "firestore": {
+    "rules": "firestore.rules",
+    "database": "(default)"
+  },
+  "remoteconfig": {
+    "template": "remoteconfig.template.json"
+  }
 }
