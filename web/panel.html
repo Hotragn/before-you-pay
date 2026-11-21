@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Before You Pay</title>
+<link rel="stylesheet" href="/src/panel.css" />
+</head>
+<body>
+  <header>
+    <h1>Before You Pay</h1>
+    <p id="site" class="muted">Open a checkout or signup page, then press Check this page.</p>
+  </header>
+  <section id="actions">
+    <button id="check" class="primary">Check this page on my device</button>
+    <button id="demo" class="link">No page? Try the demo store</button>
+    <p id="status" class="muted"></p>
+  </section>
+  <section id="consent" hidden>
+    <p><strong>This computer has no on-device model.</strong> Your page has not left this device.
+    You can send a copy with emails, card numbers, phone numbers and addresses removed to Gemini in the cloud, or stay with the basic check.</p>
+    <button id="sendRedacted">Send a redacted copy</button>
+    <button id="stayLocal" class="link">Stay with the basic check</button>
+  </section>
+  <ol id="cards"></ol>
+  <section id="cancel" hidden>
+    <h2>How to cancel later</h2>
+    <p class="muted">The cancellation terms are a public page, so Gemini in the cloud reads them. Nothing about you is sent.</p>
+    <button id="readTerms">Read the cancellation terms</button>
+    <div id="cancelOut"></div>
+  </section>
+  <section id="save" hidden>
+    <button id="remind" class="primary">Remind me 2 days before it charges, and save proof</button>
+    <p id="saved" class="muted"></p>
+  </section>
+  <iframe id="sandbox" hidden title="demo"></iframe>
+  <script type="module" src="/src/panel.ts"></script>
+</body>
+</html>

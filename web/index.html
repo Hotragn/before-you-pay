@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Before You Pay</title><link rel="stylesheet" href="/src/panel.css" /></head>
+<body style="max-width:640px;margin:auto">
+  <h1>Before You Pay</h1>
+  <p>See what a checkout page is really signing you up for, in the page's own words, before you click.
+  The page is read by the AI model on your computer. Only public terms pages go to the cloud.</p>
+  <p><a href="/panel.html">Open the checker</a> &middot; <a href="/demo-store/index.html">Demo store</a></p>
+  <h2>Your saved offers</h2>
+  <ol id="proofs" class="muted"><li>Nothing saved yet.</li></ol>
+  <script type="module">
+    const all = JSON.parse(localStorage.getItem('byp.proofs') ?? '[]');
+    if (all.length) document.getElementById('proofs').innerHTML = all.map(p =>
+      `<li><strong>${p.site}</strong>, saved ${p.capturedAt.slice(0,10)}, remind ${p.remindOn ?? '-'}<br>${p.quotes.map(q => '&ldquo;' + q.quote.replace(/</g,'&lt;') + '&rdquo;').join('<br>')}</li>`).join('');
+  </script>
+</body></html>

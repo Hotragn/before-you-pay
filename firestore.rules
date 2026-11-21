@@ -1,0 +1,12 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Each person can only read and write their own saved offers.
+    match /users/{uid}/proofs/{proofId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['site', 'capturedAt', 'remindOn', 'quotes', 'sha256', 'savedAt'])
+        && request.resource.data.quotes is list && request.resource.data.quotes.size() <= 30;
+    }
+  }
+}

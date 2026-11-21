@@ -1,0 +1,72 @@
+import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { JSDOM } from 'jsdom';
+import { resolve } from 'node:path';
+import { ruleFindings } from './rules';
+import { verifyFindings, quoteAppears, addTrial } from './verify';
+import { redact } from './redact';
+import { snapshotDocument } from './snapshot';
+import type { PageSnapshot } from './types';
+
+function demoSnapshot(): PageSnapshot {
+  const dom = new JSDOM(readFileSync(resolve(__dirname, '../demo-store/index.html'), 'utf8'));
+  // jsdom has no layout, so innerText is missing; fall back to textContent.
+  Object.defineProperty(dom.window.HTMLElement.prototype, 'innerText', { get() { return this.textContent; } });
+  const s = snapshotDocument(dom.window.document, 'https://demo.example/checkout');
+  return { ...s, capturedAt: '2026-11-22T15:00:00.000Z' };
+}
+
+describe('basic check on the demo store', () => {
+  const page = demoSnapshot();
+  const found = verifyFindings(ruleFindings(page), page, 'rules');
+
+  it('finds the trial and computes the date in code', () => {
+    const t = found.find((f) => f.kind === 'trial_conversion');
+    expect(t?.amount).toBe('$14.99');
+    expect(t?.convertsOn).toBe('2026-12-06');
+    expect(t?.verification).toBe('verified');
+  });
+  it('finds both pre-ticked add-ons and ignores the unticked box', () => {
+    const addons = found.filter((f) => f.kind === 'prechecked_addon').map((f) => f.amount);
+    expect(addons).toEqual(['$4.99', '$2.99']);
+  });
+  it('finds auto renewal and the cancel link', () => {
+    expect(found.some((f) => f.kind === 'auto_renew')).toBe(true);
+    expect(found.some((f) => f.kind === 'cancel_path')).toBe(true);
+  });
+});
+
+describe('verification', () => {
+  const page = demoSnapshot();
+  it('rejects a paraphrased quote', () => {
+    expect(quoteAppears('The trial lasts two weeks', page)).toBe(false);
+    const [f] = verifyFindings([{ kind: 'recurring_charge', quote: 'The plan costs $9.99 a month', amount: '$9.99' }], page, 'on_device');
+    expect(f.verification).toBe('unverified');
+  });
+  it('rejects an amount that is not on the page even with a real quote', () => {
+    const [f] = verifyFindings([{ kind: 'recurring_charge', quote: 'Tunebox Plus is $14.99/month', amount: '$19.99' }], page, 'on_device');
+    expect(f.verification).toBe('unverified');
+  });
+  it('does date math across month ends', () => {
+    expect(addTrial(new Date('2026-01-31T12:00:00Z'), 7, 'day')?.toISOString().slice(0, 10)).toBe('2026-02-07');
+    expect(addTrial(new Date('2026-11-22T12:00:00Z'), 999, 'day')).toBeUndefined();
+  });
+});
+
+describe('redaction for the consented cloud fallback', () => {
+  it('removes email, card ending and street address', () => {
+    const out = redact('Jordan, jordan.avery@example.com, Visa ending 4242, 12 Elm Street');
+    expect(out).not.toMatch(/example\.com|4242|Elm Street/);
+  });
+});
+
+describe('fees and duplicates', () => {
+  const page = demoSnapshot();
+  const found = verifyFindings(ruleFindings(page), page, 'rules');
+  it('finds the one-time activation fee', () => {
+    expect(found.find((f) => f.kind === 'fee')?.amount).toBe('$1.99');
+  });
+  it('does not report a ticked add-on twice', () => {
+    expect(found.filter((f) => f.quote.includes('Priority Support')).length).toBe(1);
+  });
+});
