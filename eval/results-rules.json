@@ -1,0 +1,284 @@
+{
+  "mode": "rules",
+  "summary": {
+    "pages": 16,
+    "amountPrecision": 0.6842105263157895,
+    "amountRecall": 0.3939393939393939,
+    "trialAccuracy": 0.3333333333333333,
+    "trialPages": 3,
+    "renewAccuracy": 0.75,
+    "linkAccuracy": 1,
+    "unverifiedFindings": 0
+  },
+  "rows": [
+    {
+      "id": "f01-streaming",
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": true,
+        "renewOk": false,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "trial_conversion $13.99 | Watch anywhere.Step 3 of 3: Confirm your planStandard Plan7-day free t",
+        "prechecked_addon $4.99 | Add 4K Ultra HD + spatial audio (+$4.99/mo)",
+        "cancel_path  | How to cancel",
+        "cancel_path  | Terms of service"
+      ]
+    },
+    {
+      "id": "f02-meal-kit",
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 2,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "auto_renew  | Add a dessert to every box ($5.99/week) Yes, send me recipes and deals",
+        "cancel_path  | Terms of service",
+        "cancel_path  | Skip or cancel deliveries"
+      ]
+    },
+    {
+      "id": "f03-fitness-app",
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": false,
+        "renewOk": false,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "cancel_path  | Terms of service"
+      ]
+    },
+    {
+      "id": "f04-cloud-storage",
+      "s": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 2,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "auto_renew  | Not a real business.NimbusvaultUpgrade to Vault 2 TB$8.33/mo, billed a",
+        "auto_renew  | You can turn off auto-renewal any time in Account Settings.",
+        "prechecked_addon $2.49 | Add Ransomware Rollback Protection - $2.49/mo, billed with your plan",
+        "cancel_path  | Cancel subscription",
+        "cancel_path  | Terms"
+      ]
+    },
+    {
+      "id": "f05-news",
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "auto_renew  | By subscribing, you authorize us to charge your payment method $1 toda",
+        "cancel_path  | Cancel anytime",
+        "cancel_path  | Subscriber terms"
+      ]
+    },
+    {
+      "id": "f06-software",
+      "s": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "fee $149.00 | Not a real business.Draftwell Studio 5Professional writing and layout ",
+        "cancel_path  | License agreement and terms"
+      ]
+    },
+    {
+      "id": "f07-dating",
+      "s": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "auto_renew  | Unlimited matches.Premium Weekly50% off your first week: $4.99Then $9.",
+        "prechecked_addon $2.99 | Profile Boost - be seen first in your area ($2.99/week)",
+        "cancel_path  | Terms of service"
+      ]
+    },
+    {
+      "id": "f08-car-wash",
+      "s": {
+        "tp": 2,
+        "fp": 1,
+        "fn": 2,
+        "trialOk": null,
+        "renewOk": false,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "fee $24.99 | Not a real business.Tidewater Car Wash ClubUnlimited Washes Membership",
+        "prechecked_addon $3 | Add Tire Shine to every wash (+$3/month)",
+        "cancel_path  | Membership terms and cancellation"
+      ]
+    },
+    {
+      "id": "f09-vpn",
+      "s": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "recurring_charge $71.76 | Not a real business.Harborline VPNPrivate, fast and simple.2-Year Plan",
+        "auto_renew  | Your subscription will automatically renew at $99.99 per year after th",
+        "cancel_path  | Terms of service"
+      ]
+    },
+    {
+      "id": "f10-language-learning",
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "cancel_path  | Terms of service"
+      ]
+    },
+    {
+      "id": "f11-pet-food",
+      "s": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "auto_renew  | Not a real business.WagglebowlFresh, vet-formulated dog food delivered",
+        "prechecked_addon $8.99 | Add dental chews to every delivery ($8.99 every 4 weeks)",
+        "cancel_path  | Autoship terms"
+      ]
+    },
+    {
+      "id": "f12-gym",
+      "s": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "fee $39.99 | Not a real business.Ironbridge FitnessJoin online - Downtown locationM",
+        "auto_renew  | Membership continues month to month until cancelled with 30 days writt",
+        "cancel_path  | Cancellation policy"
+      ]
+    },
+    {
+      "id": "f13-kids-learning",
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": false,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "recurring_charge $7.99 | Not a real business.Brightsprout KidsReading, math and science games f"
+      ]
+    },
+    {
+      "id": "f14-photo-editing",
+      "s": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "trialOk": false,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "trial_conversion $2.99 | Not a real business.LumacraftPro photo editing with AI toolsLumacraft ",
+        "trial_conversion $22.99 | Unless you cancel before the end of your 30-day trial, your subscripti",
+        "auto_renew  | The Annual Plan is a 12-month commitment and renews automatically each",
+        "cancel_path  | Terms of use",
+        "cancel_path  | Cancellation terms"
+      ]
+    },
+    {
+      "id": "f15-ticketing",
+      "s": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "fee $68.00 | Not a real business.StagepassThe Velvet Static - Live at Riverside Hal",
+        "cancel_path  | Purchase terms"
+      ]
+    },
+    {
+      "id": "f16-hotel",
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "found": [
+        "prechecked_addon $24.00 | Add Booking Protection - refundable cancellation up to 24 hours before",
+        "cancel_path  | Cancellation policy",
+        "cancel_path  | Terms of service"
+      ]
+    }
+  ]
+}

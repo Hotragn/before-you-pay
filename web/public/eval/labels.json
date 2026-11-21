@@ -1,0 +1,199 @@
+{
+ "f01-streaming": {
+  "trial": {
+   "length": 7,
+   "unit": "day",
+   "paid_amount": "$13.99"
+  },
+  "recurring": [
+   "$13.99",
+   "$4.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [
+   "$4.99"
+  ],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "f02-meal-kit": {
+  "trial": null,
+  "recurring": [
+   "$69.90"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [
+   "$9.99"
+  ],
+  "has_cancel_or_terms_link": true
+ },
+ "f03-fitness-app": {
+  "trial": {
+   "length": 14,
+   "unit": "day",
+   "paid_amount": "$79.99"
+  },
+  "recurring": [
+   "$79.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "f04-cloud-storage": {
+  "trial": null,
+  "recurring": [
+   "$8.33",
+   "$99.99",
+   "$2.49"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [
+   "$2.49"
+  ],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "f05-news": {
+  "trial": null,
+  "recurring": [
+   "$17"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "f06-software": {
+  "trial": null,
+  "recurring": [],
+  "auto_renew": false,
+  "prechecked_paid_addons": [],
+  "fees": [
+   "$2.50"
+  ],
+  "has_cancel_or_terms_link": true
+ },
+ "f07-dating": {
+  "trial": null,
+  "recurring": [
+   "$9.99",
+   "$2.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [
+   "$2.99"
+  ],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "f08-car-wash": {
+  "trial": null,
+  "recurring": [
+   "$24.99",
+   "$3"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [
+   "$3"
+  ],
+  "fees": [
+   "$5.00"
+  ],
+  "has_cancel_or_terms_link": true
+ },
+ "f09-vpn": {
+  "trial": null,
+  "recurring": [
+   "$99.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "f10-language-learning": {
+  "trial": null,
+  "recurring": [],
+  "auto_renew": false,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "f11-pet-food": {
+  "trial": null,
+  "recurring": [
+   "$59.90",
+   "$8.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [
+   "$8.99"
+  ],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "f12-gym": {
+  "trial": null,
+  "recurring": [
+   "$39.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [
+   "$29.00",
+   "$49.00"
+  ],
+  "has_cancel_or_terms_link": true
+ },
+ "f13-kids-learning": {
+  "trial": null,
+  "recurring": [
+   "$7.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": false
+ },
+ "f14-photo-editing": {
+  "trial": {
+   "length": 30,
+   "unit": "day",
+   "paid_amount": "$22.99"
+  },
+  "recurring": [
+   "$22.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "f15-ticketing": {
+  "trial": null,
+  "recurring": [],
+  "auto_renew": false,
+  "prechecked_paid_addons": [],
+  "fees": [
+   "$25.00",
+   "$3.00",
+   "$4.95"
+  ],
+  "has_cancel_or_terms_link": true
+ },
+ "f16-hotel": {
+  "trial": null,
+  "recurring": [],
+  "auto_renew": false,
+  "prechecked_paid_addons": [
+   "$24.00"
+  ],
+  "fees": [
+   "$35.00"
+  ],
+  "has_cancel_or_terms_link": true
+ }
+}

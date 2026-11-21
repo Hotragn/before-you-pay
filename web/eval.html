@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><title>Before You Pay: evaluation</title><link rel="stylesheet" href="/src/panel.css" /></head>
+<body style="max-width:900px;margin:auto">
+  <h1>Evaluation on labeled demo pages</h1>
+  <p class="muted">Every page here is made up and labeled by hand. Only findings that pass the quote and amount checks count.</p>
+  <p>
+    <button id="rules">Basic check</button>
+    <button id="device">On-device model</button>
+    <button id="cloud">Cloud, redacted copy</button>
+  </p>
+  <p id="status" class="muted"></p>
+  <pre id="out" style="white-space:pre-wrap;font-size:12px"></pre>
+  <script type="module" src="/src/eval.ts"></script>
+</body>
+</html>

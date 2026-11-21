@@ -8,3 +8,4 @@ dist/
 firebase-debug.log
 serviceAccount*.json
 extension/app-url.js
+scripts/node_modules/
