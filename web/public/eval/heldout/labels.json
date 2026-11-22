@@ -1,0 +1,83 @@
+{
+ "h01-podcast-app": {
+  "trial": {
+   "length": 30,
+   "unit": "day",
+   "paid_amount": "$11.99"
+  },
+  "recurring": [
+   "$11.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "h02-tv-streaming": {
+  "trial": null,
+  "recurring": [
+   "$0.99",
+   "$10.99",
+   "$6.00"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [
+   "$6.00"
+  ],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "h03-meal-box": {
+  "trial": null,
+  "recurring": [
+   "$59.94",
+   "$12.00"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [
+   "$12.00"
+  ],
+  "fees": [
+   "$9.99"
+  ],
+  "has_cancel_or_terms_link": true
+ },
+ "h04-workout-app": {
+  "trial": {
+   "length": 1,
+   "unit": "week",
+   "paid_amount": "$6.99"
+  },
+  "recurring": [
+   "$6.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "h05-dating-trial": {
+  "trial": null,
+  "recurring": [
+   "$29"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "h06-antivirus": {
+  "trial": null,
+  "recurring": [
+   "$39.99",
+   "$79.99",
+   "$19.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [
+   "$19.99"
+  ],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ }
+}
