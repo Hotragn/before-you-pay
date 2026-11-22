@@ -24,6 +24,7 @@ export async function buildProof(page: PageSnapshot, findings: Finding[], remind
   const quotes = findings
     .filter((f) => f.verification === 'verified' && f.kind !== 'cancel_path')
     .map((f) => ({ kind: f.kind, quote: redact(f.quote).slice(0, 500), ...(f.amount ? { amount: f.amount.slice(0, 20) } : {}) }))
+    .filter((q, i, all) => all.findIndex((o) => o.quote === q.quote) === i)
     .slice(0, 10);
   const site = new URL(page.url).hostname;
   const body = JSON.stringify({ site, capturedAt: page.capturedAt, quotes });

@@ -69,6 +69,7 @@ let redactedModel: GenerativeModel | undefined;
 let modelFor = '';
 let current: Settings = defaults;
 export function useSettings(s: Settings) { current = s; }
+export function currentSettings(): Settings { return current; }
 
 export function models(settings: Settings = current) {
   if (modelFor !== settings.cloud_model) { publicModel = undefined; redactedModel = undefined; modelFor = settings.cloud_model; }
@@ -135,16 +136,31 @@ export async function prepareOnDevice(onProgress: (p: number) => void): Promise<
   }
 }
 
+// Fine print usually sits at the bottom of a checkout page, so a long page
+// keeps its start and its last part instead of being cut at the end.
+function parseFindings(text: string): RawFinding[] {
+  try {
+    return (JSON.parse(text) as { findings?: RawFinding[] }).findings ?? [];
+  } catch {
+    throw new Error('The model sent back something that was not a list of findings. Try again.');
+  }
+}
+
+export function clip(text: string, maxChars: number): string {
+  if (text.length <= maxChars) return text;
+  const tail = Math.min(2500, Math.floor(maxChars / 2));
+  return `${text.slice(0, maxChars - tail)}\n[...]\n${text.slice(-tail)}`;
+}
+
 export function pageToPrompt(page: PageSnapshot, maxChars = current.max_page_chars): string {
   const boxes = page.checkboxes.map((c) => `[${c.checked ? 'x' : ' '}] ${c.label}`).join('\n');
-  return `Page: ${page.title}\n\n${page.text.slice(0, maxChars)}\n\nCheckboxes:\n${boxes}`;
+  return `Page: ${page.title}\n\n${clip(page.text, maxChars)}\n\nCheckboxes:\n${boxes}`;
 }
 
 export async function analyzeOnDevice(page: PageSnapshot): Promise<{ findings: RawFinding[]; source: string }> {
   const m = models();
   const result = await m.privateModel.generateContent(pageToPrompt(page));
-  const parsed = JSON.parse(result.response.text()) as { findings: RawFinding[] };
-  return { findings: parsed.findings ?? [], source: result.response.inferenceSource ?? 'on_device' };
+  return { findings: parseFindings(result.response.text()), source: result.response.inferenceSource ?? 'on_device' };
 }
 
 export interface CancelSteps {
@@ -167,7 +183,6 @@ Copy the sentences you relied on into "quotes", word for word.\n\n${termsText.sl
 
 export async function analyzeRedactedInCloud(redactedPage: PageSnapshot): Promise<{ findings: RawFinding[]; source: string }> {
   const m = models();
-  const result = await m.redactedModel.generateContent(pageToPrompt(redactedPage));
-  const parsed = JSON.parse(result.response.text()) as { findings: RawFinding[] };
-  return { findings: parsed.findings ?? [], source: result.response.inferenceSource ?? 'in_cloud' };
+  const result = await m.redactedModel.generateContent(pageToPrompt(redactedPage, current.max_page_chars * 2));
+  return { findings: parseFindings(result.response.text()), source: result.response.inferenceSource ?? 'in_cloud' };
 }

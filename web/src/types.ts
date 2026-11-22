@@ -1,5 +1,5 @@
 // A snapshot of the page the user is about to pay on. Built by the extension's
-// content script (or by the paste box on the web app). It can contain personal
+// content script (or from the demo store in the web app). It can contain personal
 // data, so it is only ever given to the on-device model.
 export interface PageSnapshot {
   url: string;

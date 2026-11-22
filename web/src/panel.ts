@@ -66,7 +66,9 @@ function render() {
   $('summary').hidden = !line;
   $('summary').textContent = line;
   $('cancel').hidden = !page?.links.length;
-  $('save').hidden = !findings.some((f) => f.kind === 'trial_conversion' && f.convertsOn);
+  const hasTrial = findings.some((f) => f.kind === 'trial_conversion' && f.convertsOn && f.verification === 'verified');
+  $('save').hidden = !findings.some((f) => f.verification === 'verified' && f.kind !== 'cancel_path');
+  $('remind').textContent = hasTrial ? 'Remind me before the first charge and save what it said' : 'Save what this page said';
 }
 
 function load(snapshot: PageSnapshot) {
@@ -128,7 +130,7 @@ async function readOnDevice() {
       : `Read in the cloud in ${secs} s.`);
     render();
   } catch (e) {
-    status(`The on-device read did not work: ${(e as Error).message}`);
+    status(`The on-device read did not work: ${plain(e)}`);
   }
 }
 
@@ -148,7 +150,7 @@ async function sendRedacted() {
     status('Read a redacted copy in the cloud. Emails, card details, phone numbers and street addresses were removed first.');
     render();
   } catch (e) {
-    status(`The cloud read did not work: ${(e as Error).message}`);
+    status(`The cloud read did not work: ${plain(e)}`);
   }
 }
 
@@ -171,7 +173,8 @@ function fetchTermsText(href: string): Promise<string> {
 }
 
 async function readTerms() {
-  const link = page?.links[0];
+  // Prefer a link about cancelling over a general terms link.
+  const link = page?.links.find((l) => /cancel/i.test(l.text)) ?? page?.links[0];
   if (!link) return;
   const out = $('cancelOut');
   out.textContent = `Fetching ${link.href}`;
@@ -190,8 +193,17 @@ async function readTerms() {
     for (const s of data.steps) { const li = document.createElement('li'); li.textContent = s; out.querySelector('ol')!.append(li); }
     out.querySelector('p')!.textContent = [data.noticeNeeded, data.refundPolicy].filter(Boolean).join(' ');
   } catch (e) {
-    out.textContent = `Could not read the terms: ${(e as Error).message}`;
+    out.textContent = `Could not read the terms: ${plain(e)}`;
   }
+}
+
+// Turn SDK errors into something a person can act on.
+function plain(e: unknown): string {
+  const m = (e as Error)?.message ?? String(e);
+  if (/\b429\b|quota/i.test(m)) return 'Gemini in the cloud is busy right now (this demo runs on a free quota). Try again in a minute.';
+  if (/App ?Check|recaptcha/i.test(m)) return 'This page could not prove it is the real app (App Check). Reload and try again.';
+  if (/Failed to fetch|NetworkError|offline/i.test(m)) return 'You seem to be offline.';
+  return m.slice(0, 200);
 }
 
 async function remind() {

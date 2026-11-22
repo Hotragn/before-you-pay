@@ -11,9 +11,13 @@ export function summaryLine(findings: Finding[]): string {
   const addons = v.filter((f) => f.kind === 'prechecked_addon' && f.amount);
   const fees = v.filter((f) => f.kind === 'fee' && f.amount);
   const parts: string[] = [];
+  const due = v.find((f) => f.kind === 'due_today' && f.amount);
   if (trial) {
     const day = new Date(trial.convertsOn + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    parts.push(`Free today, then ${trial.amount} from ${day}`);
+    const today = due && value(due.amount) > 0 ? `${due.amount} today` : 'Free today';
+    parts.push(`${today}, then ${trial.amount} from ${day}`);
+  } else if (due && value(due.amount) > 0) {
+    parts.push(`${due.amount} due today`);
   }
   if (addons.length) {
     const sum = addons.reduce((s, f) => s + value(f.amount), 0);

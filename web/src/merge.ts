@@ -33,6 +33,9 @@ export function mergeFindings(...lists: Finding[][]): Finding[] {
       convertsOn: win.convertsOn ?? (lose.verification === 'verified' ? lose.convertsOn : undefined),
     });
   }
+  // "Becomes $14.99 on Dec 6" already says it recurs at $14.99.
+  const trialAmounts = new Set([...out.values()].filter((f) => f.kind === 'trial_conversion' && f.amount).map((f) => money(f.amount)));
+  for (const [k, f] of out) if (f.kind === 'recurring_charge' && f.amount && trialAmounts.has(money(f.amount))) out.delete(k);
   // Cancel and terms links from the basic check come from real links on the page.
   // When we have those, a model's cancel_path card only repeats them in prose.
   const hasRealLinks = [...out.values()].some((f) => f.kind === 'cancel_path' && f.source === 'rules');

@@ -6,6 +6,8 @@ import { ruleFindings } from './rules';
 import { verifyFindings, quoteAppears, addTrial } from './verify';
 import { redact } from './redact';
 import { mergeFindings } from './merge';
+import { clip } from './ai';
+import { summaryLine } from './summary';
 import { snapshotDocument } from './snapshot';
 import type { PageSnapshot } from './types';
 
@@ -89,5 +91,23 @@ describe('review fixes', () => {
     const a = { kind: 'cancel_path', quote: 'How to cancel', source: 'rules', verification: 'verified' } as any;
     const b = { kind: 'cancel_path', quote: 'See terms and How to cancel.', source: 'in_cloud', verification: 'verified' } as any;
     expect(mergeFindings([a], [b])).toHaveLength(1);
+  });
+});
+
+describe('judge review fixes', () => {
+  it('a long page keeps its fine print at the end', () => {
+    const text = 'top '.repeat(3000) + 'Renews at $9.99/month.';
+    const out = clip(text, 6000);
+    expect(out.length).toBeLessThan(6100);
+    expect(out).toContain('Renews at $9.99/month.');
+  });
+  it('the summary does not say free when money is due today', () => {
+    const f = (o: object) => ({ verification: 'verified', source: 'in_cloud', quote: 'q', ...o }) as any;
+    expect(summaryLine([f({ kind: 'due_today', amount: '$7.98' }), f({ kind: 'trial_conversion', amount: '$9.99', convertsOn: '2026-11-29' })])).toMatch(/^\$7\.98 today, then \$9\.99/);
+  });
+  it('a recurring card that repeats the trial price is folded into the trial card', () => {
+    const t = { kind: 'trial_conversion', quote: 'a', amount: '$14.99', trialLength: 14, source: 'rules', verification: 'verified' } as any;
+    const r = { kind: 'recurring_charge', quote: 'b', amount: '$14.99', source: 'rules', verification: 'verified' } as any;
+    expect(mergeFindings([t, r]).map((x) => x.kind)).toEqual(['trial_conversion']);
   });
 });
