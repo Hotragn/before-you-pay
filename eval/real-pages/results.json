@@ -1,0 +1,469 @@
+{
+ "note": "Per-page results of the real-page study. Sites are named by category only. Page text is not published. Cloud for p05 is from a single rerun after a server error.",
+ "run": "2026-11-22, live site, code as of this commit minus the snapshot start-and-end change",
+ "results": {
+  "basic": {
+   "p01": {
+    "category": "music streaming",
+    "amounts_caught": [
+     "12.99",
+     "18.99",
+     "21.99",
+     "6.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [
+     "0.00"
+    ],
+    "trial_reported": [],
+    "trial_right": false,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 4,
+    "fp": 1,
+    "fn": 0
+   },
+   "p02": {
+    "category": "TV streaming A",
+    "amounts_caught": [
+     "11.99",
+     "12.99",
+     "19.99",
+     "21.99",
+     "35.99",
+     "6.49",
+     "99.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [
+     "119.94",
+     "71.94"
+    ],
+    "trial_reported": [
+     {
+      "length": 3,
+      "unit": "day",
+      "amount": null
+     }
+    ],
+    "trial_right": false,
+    "renew_right": false,
+    "link_right": true,
+    "tp": 7,
+    "fp": 2,
+    "fn": 0
+   },
+   "p03": {
+    "category": "news",
+    "amounts_caught": [
+     "7.50",
+     "8.50"
+    ],
+    "amounts_missed": [
+     "1.00",
+     "2.00",
+     "30.00",
+     "34.00",
+     "4.00",
+     "8.00"
+    ],
+    "extra_amounts": [],
+    "trial_reported": [],
+    "trial_right": null,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 2,
+    "fp": 0,
+    "fn": 6
+   },
+   "p04": {
+    "category": "TV streaming B",
+    "amounts_caught": [
+     "12.99",
+     "129.99",
+     "19.99",
+     "199.99",
+     "8.99",
+     "89.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [],
+    "trial_right": null,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 6,
+    "fp": 0,
+    "fn": 0
+   },
+   "p05": {
+    "category": "creative software",
+    "amounts_caught": [
+     "11.99",
+     "14.99",
+     "19.99",
+     "199.99",
+     "22.99",
+     "24.99",
+     "29.99",
+     "34.99",
+     "4.99",
+     "49.99",
+     "54.99",
+     "59.99",
+     "69.99",
+     "9.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [
+     {
+      "length": 7,
+      "unit": "day",
+      "amount": null
+     }
+    ],
+    "trial_right": true,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 14,
+    "fp": 0,
+    "fn": 0
+   },
+   "p06": {
+    "category": "video streaming",
+    "amounts_caught": [
+     "15.99",
+     "26.99",
+     "8.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [
+     {
+      "length": 1,
+      "unit": "month",
+      "amount": "$8.99"
+     }
+    ],
+    "trial_right": false,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 3,
+    "fp": 0,
+    "fn": 0
+   },
+   "p07": {
+    "category": "cloud storage",
+    "amounts_caught": [
+     "15.00",
+     "24.00",
+     "9.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [],
+    "trial_right": null,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 3,
+    "fp": 0,
+    "fn": 0
+   },
+   "p08": {
+    "category": "audiobooks",
+    "amounts_caught": [
+     "0.99",
+     "8.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [],
+    "trial_right": false,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 2,
+    "fp": 0,
+    "fn": 0
+   },
+   "p09": {
+    "category": "TV streaming C",
+    "amounts_caught": [
+     "13.99",
+     "2.99",
+     "8.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [],
+    "trial_right": null,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 3,
+    "fp": 0,
+    "fn": 0
+   },
+   "p10": {
+    "category": "radio",
+    "amounts_caught": [
+     "5.00",
+     "8.00"
+    ],
+    "amounts_missed": [
+     "11.99",
+     "25.99"
+    ],
+    "extra_amounts": [
+     "1.00"
+    ],
+    "trial_reported": [],
+    "trial_right": false,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 2,
+    "fp": 1,
+    "fn": 2
+   }
+  },
+  "cloud": {
+   "p01": {
+    "category": "music streaming",
+    "amounts_caught": [
+     "12.99",
+     "18.99",
+     "21.99",
+     "6.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [
+     "0.00"
+    ],
+    "trial_reported": [
+     {
+      "length": 3,
+      "unit": "month",
+      "amount": "$12.99"
+     }
+    ],
+    "trial_right": true,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 4,
+    "fp": 1,
+    "fn": 0
+   },
+   "p02": {
+    "category": "TV streaming A",
+    "amounts_caught": [
+     "11.99",
+     "12.99",
+     "19.99",
+     "21.99",
+     "35.99",
+     "6.49",
+     "99.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [
+     "119.94",
+     "71.94"
+    ],
+    "trial_reported": [
+     {
+      "length": 3,
+      "unit": "day",
+      "amount": "$99.99"
+     }
+    ],
+    "trial_right": true,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 7,
+    "fp": 2,
+    "fn": 0
+   },
+   "p03": {
+    "category": "news",
+    "amounts_caught": [
+     "4.00",
+     "7.50",
+     "8.00",
+     "8.50"
+    ],
+    "amounts_missed": [
+     "1.00",
+     "2.00",
+     "30.00",
+     "34.00"
+    ],
+    "extra_amounts": [],
+    "trial_reported": [],
+    "trial_right": null,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 4,
+    "fp": 0,
+    "fn": 4
+   },
+   "p04": {
+    "category": "TV streaming B",
+    "amounts_caught": [
+     "12.99",
+     "129.99",
+     "19.99",
+     "199.99",
+     "8.99",
+     "89.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [],
+    "trial_right": null,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 6,
+    "fp": 0,
+    "fn": 0
+   },
+   "p05": {
+    "category": "creative software",
+    "amounts_caught": [
+     "11.99",
+     "14.99",
+     "19.99",
+     "199.99",
+     "22.99",
+     "24.99",
+     "29.99",
+     "34.99",
+     "4.99",
+     "49.99",
+     "54.99",
+     "59.99",
+     "69.99",
+     "9.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [
+     {
+      "length": 7,
+      "unit": "day",
+      "amount": null
+     }
+    ],
+    "trial_right": true,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 14,
+    "fp": 0,
+    "fn": 0
+   },
+   "p06": {
+    "category": "video streaming",
+    "amounts_caught": [
+     "15.99",
+     "26.99",
+     "8.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [
+     {
+      "length": 1,
+      "unit": "month",
+      "amount": "$8.99"
+     }
+    ],
+    "trial_right": false,
+    "renew_right": true,
+    "link_right": false,
+    "tp": 3,
+    "fp": 0,
+    "fn": 0
+   },
+   "p07": {
+    "category": "cloud storage",
+    "amounts_caught": [
+     "15.00",
+     "24.00",
+     "9.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [],
+    "trial_right": null,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 3,
+    "fp": 0,
+    "fn": 0
+   },
+   "p08": {
+    "category": "audiobooks",
+    "amounts_caught": [
+     "0.99",
+     "8.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [
+     {
+      "length": 30,
+      "unit": "day",
+      "amount": "$8.99"
+     }
+    ],
+    "trial_right": true,
+    "renew_right": true,
+    "link_right": false,
+    "tp": 2,
+    "fp": 0,
+    "fn": 0
+   },
+   "p09": {
+    "category": "TV streaming C",
+    "amounts_caught": [
+     "13.99",
+     "2.99",
+     "8.99"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [],
+    "trial_reported": [],
+    "trial_right": null,
+    "renew_right": true,
+    "link_right": true,
+    "tp": 3,
+    "fp": 0,
+    "fn": 0
+   },
+   "p10": {
+    "category": "radio",
+    "amounts_caught": [
+     "11.99",
+     "25.99",
+     "5.00",
+     "8.00"
+    ],
+    "amounts_missed": [],
+    "extra_amounts": [
+     "1.00"
+    ],
+    "trial_reported": [
+     {
+      "length": 1,
+      "unit": "month",
+      "amount": "$5"
+     }
+    ],
+    "trial_right": true,
+    "renew_right": true,
+    "link_right": false,
+    "tp": 4,
+    "fp": 1,
+    "fn": 0
+   }
+  }
+ }
+}

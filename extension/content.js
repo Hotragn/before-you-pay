@@ -18,7 +18,10 @@
       } catch (e) { return false; }
     });
   // Same as personalDetails() in web/src/snapshot.ts: kinds only, never values.
-  const text = (document.body.innerText || '').slice(0, 20000);
+  // Long pages keep their start and end (fine print is usually at the bottom).
+  // Same as keepEnds() in web/src/snapshot.ts.
+  const full = document.body.innerText || '';
+  const text = full.length <= 20000 ? full : `${full.slice(0, 14000)}\n[...]\n${full.slice(-6000)}`;
   const kinds = new Set();
   for (const el of document.querySelectorAll('input, select, textarea')) {
     if (['hidden', 'checkbox', 'radio', 'submit'].includes(el.type)) continue;

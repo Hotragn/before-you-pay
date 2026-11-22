@@ -11,7 +11,7 @@ import { planParts, dropMeasuringSession } from './nano';
 import { redactionCounts } from './redact';
 import { markQuote } from './highlight';
 import { summaryLine } from './summary';
-import { snapshotDocument } from './snapshot';
+import { keepEnds, snapshotDocument } from './snapshot';
 import type { PageSnapshot } from './types';
 
 function demoSnapshot(): PageSnapshot {
@@ -182,6 +182,12 @@ describe('Gemini Nano limits', () => {
     expect(plan.prompts[plan.prompts.length - 1]).toContain('Sentence number 2999 ');
     delete (globalThis as any).LanguageModel;
     dropMeasuringSession();
+  });
+  it('a page over the snapshot cap keeps its last sentence', () => {
+    const long = 'x'.repeat(30000) + ' Cancel fee $9.';
+    const kept = keepEnds(long);
+    expect(kept.length).toBeLessThan(20010);
+    expect(kept.endsWith('Cancel fee $9.')).toBe(true);
   });
   it('counts what redaction removes', () => {
     expect(redactionCounts('a@b.com and c@d.org, card 4111 1111 1111 1111')).toEqual({ email: 2, 'card number': 1 });

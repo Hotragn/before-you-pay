@@ -11,7 +11,7 @@ Demo store (fake, made for this project): https://before-you-pay-9b8c6.web.app/d
 
 ## The Wi-Fi off test
 
-This is the test I care about most. Open the side panel on a checkout page, turn Wi-Fi off, and press **Check this page**. The status line says "Read on this computer in N s with no internet connection. The page was not sent anywhere." Every card is marked ON DEVICE. Every model card is marked ON DEVICE. Then press **Read the cancellation terms** and the panel tells you that part needs the cloud and will wait until you are back online.
+This is the test I care about most. Open the side panel on a checkout page, turn Wi-Fi off, and press **Check this page**. The status line says "Read on this computer in N s with no internet connection. The page was not sent anywhere." Every card the model wrote is marked ON DEVICE (the basic check's cards say BASIC CHECK). Then press **Read the cancellation terms** and the panel tells you that part needs the cloud and will wait until you are back online.
 
 ![Wi-Fi off check](docs/offline-stub.png)
 
@@ -36,9 +36,9 @@ The two screenshots in the table are the real extension running against the live
 
 ## Why
 
-Free trials that quietly convert, add-ons that are ticked by default and fees in grey 10px text are old tricks, and people notice them too late. In its final click-to-cancel rule (October 2024), the FTC wrote that it "receives tens of thousands of complaints about negative options each year through its Sentinel complaint database" ([final rule, Section II](https://search.ftc.gov/system/files/ftc_gov/pdf/p064202_negative_option_rule.pdf)). The FTC's announcement of that rule put the daily average at 42 complaints in 2021 and nearly 70 in 2024 (as [reported by PYMNTS](https://www.pymnts.com/legal/2024/ftc-publishes-final-rule-on-subscription-and-membership-programs/) the same day; the original release is no longer on ftc.gov). The rule was then vacated by a federal appeals court in July 2025, and as of November 2026 nothing has replaced it, so the burden is still mostly on the person paying.
+Free trials that quietly convert, add-ons that are ticked by default and fees in grey 10px text are old tricks, and people notice them too late. In its final click-to-cancel rule (October 2024), the FTC wrote that it "receives tens of thousands of complaints about negative options each year through its Sentinel complaint database" ([final rule, Section II](https://search.ftc.gov/system/files/ftc_gov/pdf/p064202_negative_option_rule.pdf)). The FTC's announcement of that rule put the daily average at 42 complaints in 2021 and nearly 70 in 2024 (as [reported by PYMNTS](https://www.pymnts.com/legal/2024/ftc-publishes-final-rule-on-subscription-and-membership-programs/) the same day; I could not load the original release on ftc.gov to link it). The rule was then vacated by a federal appeals court in July 2025, and as far as I can find, nothing has replaced it as of November 2026, so the burden is still mostly on the person paying.
 
-The people I built this for: anyone signing up for a free trial or an intro price on a streaming, news or software site, which is most of us. The real-page study below found a free trial or an intro price on 9 of the 10 public plan pages I looked at.
+The people I built this for: anyone signing up for a free trial or an intro price on a streaming, news or software site, which is most of us. In the real-page study below, 8 of the 10 public plan pages had a free trial or an intro price in their text.
 
 Reading every checkout page carefully takes time most people do not spend, and pasting a page full of your own card and address details into a chatbot is not a good habit either. Running the model on the device is what makes this tool reasonable to use on exactly the pages where it matters.
 
@@ -48,13 +48,15 @@ Reading every checkout page carefully takes time most people do not spend, and p
 2. A fast basic check (plain pattern matching, no model) shows cards right away.
 3. Gemini Nano reads the page on your device and returns structured findings: due today, trial length and the price after it, recurring charges, pre-ticked paid add-ons, fees, auto-renewal and cancel links. A one line summary sits on top.
 4. Every finding has to quote the page word for word. The code checks that the quote and the amount really appear on the page, and anything that does not match is marked "check this line". This catches made-up text and numbers. It does not catch a real sentence that the model reads wrong, so a few readings are also checked in code. Two such checks so far: a "trial" only counts as a free trial if the text around it says free, $0 or no charge, or says trial without a paid intro price nearby. Otherwise "$1 for your first month" is shown as the regular price after an intro offer, with a note. And an auto-renew card whose quote says "no automatic renewal" is marked "Not confirmed". Dates are worked out in code, never by the model.
-5. Click a card and the exact words it came from are highlighted on the page, in the extension and in the hosted demo (where the demo store opens next to the cards).
+5. Click a card and the words it came from are highlighted on the page, in the extension and in the hosted demo (where the demo store opens next to the cards). When the quote sits in one run of text only those words are marked; when it spans several elements, like a checkbox row, the smallest element holding it is outlined.
 6. **Read the cancellation terms** sends the public terms page (not your checkout page) to Gemini in the cloud and returns the steps to cancel, the notice period and the refund policy. The lines Gemini quoted are checked against the terms page and shown under the steps. If none of them are on the page, the answer is marked "Not confirmed".
 7. **Save** keeps a short record of the offer: the verified quotes, the site, the date and a SHA-256 fingerprint of them. When there is a free trial with a known end date, the same button also sets a browser reminder two days before the first charge. Clicking the reminder opens the site, where you can cancel.
 
 Right when you press a button, the panel says where the text is going and why, in one line based on what is actually on the page. For example: "This page has your name, your email and card details, so it stays on this device. Gemini Nano reads it here." For a redacted cloud copy it lists what was removed ("Removed first: 1 email, 1 card number"), and for the terms page it says the page has nothing about you, so the cloud reads it. The page check only looks at what kinds of details are there (form fields and text patterns), never the values.
 
 ![Routing explained in the moment](docs/route-device.png)
+
+(This screenshot is from the same stand-in run as the Wi-Fi off test above, so the 1.2 s and the "ready" chip come from the stand-in, not real Nano. The routing line itself is the real app text.)
 
 If the on-device model is not available (older Chrome, unsupported hardware, or turned off by policy), the panel says so and asks before anything leaves the machine. If you agree, it sends a copy with emails, card details, phone numbers and street addresses removed first. Names are not reliably removed, and the panel says that too. Or you can stay with the basic check.
 
@@ -72,7 +74,7 @@ Other Firebase pieces:
 
 - **App Check** with reCAPTCHA Enterprise protects the AI Logic calls, using limited-use tokens. Localhost uses the debug provider.
 - **Anonymous Auth** and **Firestore** store saved offers under `users/{uid}/proofs`. The rules allow only the owner to read or delete, never allow edits, and check every field's type and size, including each quote.
-- **Remote Config** holds the cloud model name, a kill switch for on-device use, the page size limit, how many days before the charge to remind you, the spacing between cloud calls, and a prompt version label that is written into eval results (from v3 on).
+- **Remote Config** holds the cloud model name, a kill switch for on-device use, the page size limit, how many days before the charge to remind you, the spacing between cloud calls, and a prompt version label that is written into eval results (it is still v1; the v1 to v5 names in this README are code versions, not prompt versions).
 - **Hosting** serves the panel, the demo store and the eval page.
 
 ### Long pages and Gemini Nano's limits
@@ -80,7 +82,7 @@ Other Firebase pieces:
 Gemini Nano has a small context window (a few thousand tokens), and a long checkout page with terms pasted inline can go past it. The Firebase AI Logic SDK does not measure or split for you, so [web/src/nano.ts](web/src/nano.ts) does:
 
 - **Measure first.** One Prompt API session is kept only for measuring, with the same system prompt, and `measureInputUsage` (or `measureContextUsage` on newer Chrome) gives the exact token count of the prompt against `inputQuota` (or `contextWindow`), leaving 1,200 tokens for the answer. Reusing that one session avoids paying the session start cost on every measure, and it is dropped when the panel is hidden so it does not hold memory. If the browser has no measuring call, it estimates from the length.
-- **Split at sentences.** If the page does not fit, it is cut into parts at sentence ends, sized from the measured tokens per character, and every part is measured again before it is sent. The ticked boxes and links go with every part, because a trap in the fine print often depends on a box near the top. At most 6 parts are read: the start of the page and its end (where fine print lives) are always kept, and the panel says when the middle was skipped. Findings from all parts are merged and checked against the whole page.
+- **Split at sentences.** If the page does not fit, it is cut into parts at sentence ends, sized from the measured tokens per character, and every part is measured again before it is sent. The ticked boxes go with every part, because a trap in the fine print often depends on a box near the top. (Links are not sent to the model; the app finds cancel and terms links in code.) At most 6 parts are read: the start of the page and its end (where fine print lives) are always kept, and the panel says when the middle was skipped. The page capture itself also keeps the start and the end of very long pages (first 14,000 and last 6,000 characters) instead of cutting the bottom off. Findings from all parts are merged and checked against the whole page.
 - **Download progress.** The first use downloads the model. The panel shows a progress bar fed by the SDK's download progress callback instead of looking stuck.
 - **Stop.** Any read can be stopped. Cloud calls get an `AbortSignal` and a 45 second timeout through the SDK. The SDK cannot cancel an on-device answer once it starts, so the panel stops waiting for it, ignores the result, and does not start the next part.
 
@@ -114,7 +116,7 @@ Extension pages cannot load reCAPTCHA, which App Check needs. So the side panel 
 
 There are 16 made-up checkout and signup pages for fictional businesses (streaming, meal kits, gym, VPN, hotel, concert tickets and more). The pages and a first draft of the labels were written with help from Claude, and every label was then checked by hand. Four pages have no subscription at all, to catch false alarms. How they were labeled: [web/public/eval/LABELING.md](web/public/eval/LABELING.md). Anyone can run it at https://before-you-pay-9b8c6.web.app/eval.html.
 
-After adding the free trial rule I wrote 6 more pages by hand that the rule was not built from (free trials worded without "trial", a cheap first 3 months, 60% off a first box, a $5 paid trial, a cheaper first year). Their labels were committed before any model saw them ([commit a965066](https://github.com/Hotragn/before-you-pay/commit/a965066)). Run them with `/eval.html?set=heldout`.
+After adding the free trial rule I added 6 more pages that the rule was not built from (free trials worded without "trial", a cheap first 3 months, 60% off a first box, a $5 paid trial, a cheaper first year). Their labels were committed before any model saw them ([commit a965066](https://github.com/Hotragn/before-you-pay/commit/a965066)). Run them with `/eval.html?set=heldout`.
 
 Amounts are scored as sets per page (recurring prices, ticked paid add-ons, fees), so precision and recall are over dollar amounts. All runs below are in Chrome on the live site (version v5 of the code), with cloud calls spaced 5 seconds apart.
 
@@ -143,7 +145,7 @@ Notes, so the numbers are read fairly:
 
 ### Real pages
 
-Synthetic pages only go so far, so I also captured 12 public plan and signup pages from well known US streaming, news, software, storage, audiobook and radio services. Logged out, nothing typed, no account made, stopped well before any payment step. The page text was captured with the extension's own content script and is kept on my machine, not in this repo. Two pages were dropped before labeling (one did not render its plans without signing in, one showed non-US prices). I labeled the other 10 from the captured text, with the rules written down first, and the labels were committed locally at 04:28 EST on Nov 22, before any check ran. These are marketing plan pages more than checkouts, and none of this is a claim about any company: the point is only whether the tool reads real pages correctly.
+Synthetic pages only go so far, so I also captured 12 public plan and signup pages from well known US streaming, news, software, storage, audiobook and radio services. Logged out, nothing typed, no account made, stopped well before any payment step. The page text was captured by running the extension's own content script on each page and is kept on my machine, not in this repo. The labels, the labeling rules and per-page results, with sites named by category only, are in [eval/real-pages/](eval/real-pages/). Two pages were dropped before labeling (one did not render its plans without signing in, one showed non-US prices). The other 10 were labeled from the captured text, with the rules written down first. The labels were drafted with an AI assistant and committed locally at 04:28 EST on Nov 22, before any check ran, and have not changed since. These are plan pages more than checkouts, so they test trials, prices and renewal, not ticked add-ons or fees (none of the 10 had a paid add-on ticked or a named fee with an amount). None of this is a claim about any company: the point is only whether the tool reads real pages correctly.
 
 | Run | Amount precision | Amount recall | Trial right | Auto-renew right | Cancel or terms link right |
 |---|---|---|---|---|---|
@@ -159,7 +161,7 @@ What it got wrong, so it is clear:
 - 6 ticked boxes on these pages were not paid add-ons (cookie and ad settings, an "Include playlist" toggle). The basic check flagged none. The cloud read flagged one, with no price.
 - One cloud call failed with a server error on the first pass and was rerun once on its own.
 
-There is no Gemini Nano run on these pages yet, for the same reason as above. I did not change any code after seeing these results.
+The free trial row is the clearest sign the model adds something: the basic check got 1 of 6 trials right, the cloud read 5 of 6. There is no Gemini Nano run on these pages yet, for the same reason as above. The only code change after these results was keeping the end of very long pages in the capture (none of these pages was long enough to be affected).
 
 ## Privacy
 

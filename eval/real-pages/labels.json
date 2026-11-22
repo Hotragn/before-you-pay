@@ -1,0 +1,180 @@
+{
+ "p01": {
+  "category": "music streaming",
+  "trial": {
+   "length": 3,
+   "unit": "month",
+   "paid_amount": "$12.99"
+  },
+  "recurring": [
+   "$12.99",
+   "$6.99",
+   "$18.99",
+   "$21.99"
+  ],
+  "auto_renew": false,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "p02": {
+  "category": "TV streaming A",
+  "trial": {
+   "length": 3,
+   "unit": "day",
+   "paid_amount": "$99.99"
+  },
+  "recurring": [
+   "$11.99",
+   "$35.99",
+   "$12.99",
+   "$21.99",
+   "$99.99",
+   "$19.99",
+   "$6.49"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "p03": {
+  "category": "news",
+  "trial": null,
+  "recurring": [
+   "$1",
+   "$2",
+   "$4",
+   "$8",
+   "$30",
+   "$34",
+   "$7.50",
+   "$8.50"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "p04": {
+  "category": "TV streaming B",
+  "trial": null,
+  "recurring": [
+   "$8.99",
+   "$89.99",
+   "$12.99",
+   "$129.99",
+   "$19.99",
+   "$199.99"
+  ],
+  "auto_renew": false,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "p05": {
+  "category": "creative software",
+  "trial": {
+   "length": 7,
+   "unit": "day",
+   "paid_amount": null
+  },
+  "recurring": [
+   "$69.99",
+   "$29.99",
+   "$19.99",
+   "$24.99",
+   "$22.99",
+   "$9.99",
+   "$49.99",
+   "$199.99",
+   "$11.99",
+   "$59.99",
+   "$4.99",
+   "$54.99",
+   "$14.99",
+   "$34.99"
+  ],
+  "auto_renew": false,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "p06": {
+  "category": "video streaming",
+  "trial": {
+   "length": 1,
+   "unit": "month",
+   "paid_amount": "$15.99"
+  },
+  "recurring": [
+   "$8.99",
+   "$15.99",
+   "$26.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": false
+ },
+ "p07": {
+  "category": "cloud storage",
+  "trial": null,
+  "recurring": [
+   "$9.99",
+   "$15",
+   "$24"
+  ],
+  "auto_renew": false,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "p08": {
+  "category": "audiobooks",
+  "trial": {
+   "length": 30,
+   "unit": "day",
+   "paid_amount": "$8.99"
+  },
+  "recurring": [
+   "$0.99",
+   "$8.99"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": false
+ },
+ "p09": {
+  "category": "TV streaming C",
+  "trial": null,
+  "recurring": [
+   "$2.99",
+   "$13.99",
+   "$8.99"
+  ],
+  "auto_renew": false,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": true
+ },
+ "p10": {
+  "category": "radio",
+  "trial": {
+   "length": 1,
+   "unit": "month",
+   "paid_amount": "$5"
+  },
+  "recurring": [
+   "$11.99",
+   "$25.99",
+   "$5",
+   "$8"
+  ],
+  "auto_renew": true,
+  "prechecked_paid_addons": [],
+  "fees": [],
+  "has_cancel_or_terms_link": false
+ }
+}

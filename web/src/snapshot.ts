@@ -38,6 +38,14 @@ export function snapshotDocument(doc: Document, url: string): PageSnapshot {
         return /^https?:$/.test(u.protocol) && !u.search && u.href.split('#')[0] !== here;
       } catch { return false; }
     });
-  const text = (doc.body?.innerText ?? '').slice(0, 20000);
+  const text = keepEnds(doc.body?.innerText ?? '');
   return { url: here, title: doc.title, text, checkboxes, links, personal: personalDetails(doc, text), capturedAt: new Date().toISOString() };
+}
+
+// Very long pages keep their start and their end, because the fine print is
+// usually at the bottom. The same cut is in extension/content.js.
+export function keepEnds(text: string, max = 20000): string {
+  if (text.length <= max) return text;
+  const tail = Math.floor(max * 0.3);
+  return `${text.slice(0, max - tail)}\n[...]\n${text.slice(-tail)}`;
 }
