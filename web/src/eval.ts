@@ -27,8 +27,8 @@ async function loadPage(id: string): Promise<PageSnapshot> {
   return { ...snap, capturedAt: '2026-11-22T15:00:00.000Z' };
 }
 
-async function run(mode: Mode) {
-  const labels = (await (await fetch(`${DIR}/labels.json`)).json()) as Record<string, Labels>;
+async function run(mode: Mode, supplied?: { labels: Record<string, Labels>; pages: Record<string, PageSnapshot>; set: string }) {
+  const labels = supplied?.labels ?? ((await (await fetch(`${DIR}/labels.json`)).json()) as Record<string, Labels>);
   if (mode === 'device' && !(await prepareOnDevice((p) => (status.textContent = `Model download ${Math.round(p * 100)}%`)))) {
     status.textContent = 'No on-device model on this computer.';
     return;
@@ -38,7 +38,7 @@ async function run(mode: Mode) {
     status.textContent = `${mode}: ${id}`;
     // The free cloud quota allows only a few requests a minute, so pace them.
     if (mode === 'cloud' && rows.length) await new Promise((r) => setTimeout(r, 5000));
-    const page = await loadPage(id);
+    const page = supplied ? supplied.pages[id] : await loadPage(id);
     const t0 = performance.now();
     let found: Finding[] = [];
     let error: string | undefined;
@@ -67,7 +67,7 @@ async function run(mode: Mode) {
       modelUnverified: model.filter((f) => f.verification !== 'verified').length, device, error, findings: found });
   }
   const ok = rows.filter((r) => !r.error);
-  const result = { mode, set: SET, when: new Date().toISOString(), settings: currentSettings(),
+  const result = { mode, set: supplied?.set ?? SET, when: new Date().toISOString(), settings: currentSettings(),
     modelFindings: ok.reduce((n, r) => n + r.modelFindings, 0), modelUnverified: ok.reduce((n, r) => n + r.modelUnverified, 0),
     medianMs: ok.map((r) => r.ms).sort((a, b) => a - b)[Math.floor(ok.length / 2)] ?? null, summary: summarize(rows.filter((r) => !r.error).map((r) => r.s)), errors: rows.filter((r) => r.error).length, rows };
   (window as unknown as { evalResult: unknown }).evalResult = result;
@@ -76,3 +76,6 @@ async function run(mode: Mode) {
 }
 
 for (const m of ['rules', 'device', 'cloud'] as Mode[]) document.getElementById(m)!.onclick = () => run(m);
+// Lets a local script score page snapshots it saved itself (the real-page study),
+// so those snapshots never have to be hosted.
+(window as unknown as { bypRunSnapshots: typeof run }).bypRunSnapshots = run;

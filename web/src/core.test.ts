@@ -172,6 +172,17 @@ describe('Gemini Nano limits', () => {
     delete (globalThis as any).LanguageModel;
     dropMeasuringSession();
   });
+  it('a huge page is read in at most 6 parts and keeps its last sentence', async () => {
+    (globalThis as any).LanguageModel = { create: async () => ({ inputQuota: 1500, inputUsage: 100, measureInputUsage: async (t: string) => Math.ceil(t.length / 4), destroy() {} }) };
+    dropMeasuringSession();
+    const plan = await planParts(page(3000), toPrompt, 'sys');
+    expect(plan.prompts.length).toBeLessThanOrEqual(6);
+    expect(plan.trimmed).toBe(true);
+    expect(plan.prompts[0]).toContain('Sentence number 0 ');
+    expect(plan.prompts[plan.prompts.length - 1]).toContain('Sentence number 2999 ');
+    delete (globalThis as any).LanguageModel;
+    dropMeasuringSession();
+  });
   it('counts what redaction removes', () => {
     expect(redactionCounts('a@b.com and c@d.org, card 4111 1111 1111 1111')).toEqual({ email: 2, 'card number': 1 });
   });
