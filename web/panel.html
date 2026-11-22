@@ -44,6 +44,26 @@
   </section>
 
   <div id="summaryWrap" class="summary" hidden><span class="eyebrow">In short</span><p id="summary"></p></div>
+  <section id="cost" class="cost" hidden aria-label="First year cost">
+    <div class="cost-top">
+      <div><span class="eyebrow">Due today</span><p id="costToday" class="num"></p></div>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+      <div><span class="eyebrow">First year, added up</span><p id="costTotal" class="num big"></p></div>
+    </div>
+    <p id="costSub" class="muted small"></p>
+    <ol id="costLines" class="plain lines"></ol>
+    <p id="costGap" class="gap small" hidden></p>
+    <details id="costNot" hidden><summary class="small">Not added, and why</summary><ul id="costNotList" class="small"></ul></details>
+  </section>
+
+  <section id="deadline" class="deadline" hidden aria-label="Cancel by">
+    <div class="dl-top"><div><span class="eyebrow">Cancel by</span><p id="dlDate" class="num big"></p></div>
+      <button id="ics" class="ics">Add to calendar</button></div>
+    <p id="dlText"></p>
+    <div id="dlQuotes"></div>
+    <p id="dlHow" class="muted small"></p>
+  </section>
+
   <ol id="cards" class="plain"></ol>
 
   <section id="cancel" hidden>
@@ -51,6 +71,12 @@
     <p class="muted small">The terms are a public page, so Gemini in the cloud reads them. Nothing about you goes with it.</p>
     <button id="readTerms">Read the cancellation terms</button>
     <div id="cancelOut"></div>
+  </section>
+
+  <section id="receipt" hidden aria-label="What left this device">
+    <h2>What left this device</h2>
+    <p class="muted small">Every read in this tab. Cloud rows show the exact text that was sent. The request count is what this page measured with the browser's own timing list, filtered to the Gemini API.</p>
+    <ol id="ledger" class="plain"></ol>
   </section>
 
   <section id="save" hidden>

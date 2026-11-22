@@ -9,6 +9,28 @@ A Chrome side panel that reads a checkout page before you click the button, and 
 Live app: https://before-you-pay-9b8c6.web.app
 Demo store (fake, made for this project): https://before-you-pay-9b8c6.web.app/demo-store/
 
+## Three things you only get from a hybrid read
+
+The checkout page is private, so it is read on your device. The terms page is public, so the cloud reads it. Each half alone is a normal AI feature. Joining them on your device, where the cloud never sees the checkout page, is what this app does that I have not seen elsewhere.
+
+**1. The first-year cost, added up.** "$0.00 due today" turns into "$355.39 in your first year, plus tax" on the demo store. Every line is a verified quote from the page, the billing period is read from the words next to each price ("each month", "every bill", "one-time"), and the math is plain code ([web/src/cost.ts](web/src/cost.ts)). Click a line and the words are marked on the page. It also says what the model added: the basic check alone gets to $277.63, because it cannot see the add-on whose price sits outside its checkbox or the $2.49 that never says "fee". A page that lists several plans gets no total instead of a guess, and anything without a clear period is listed as "not added".
+
+![First-year cost](docs/first-year.png)
+
+**2. Cancel by a date, not a feeling.** The trial end date and the first bill come from the checkout page. The notice period and refund rule come from the terms page. They are put together in the browser ([web/src/deadline.ts](web/src/deadline.ts)): trial ends Dec 6, the terms ask for 24 hours notice, the page never says what time it charges, so the panel says **cancel by Fri, Dec 4**, the first charge would be $31.44, and the terms say payments are not refunded. The notice and refund lines only count if they are really on the terms page: Gemini's quotes are checked first, and if Gemini did not quote them, the terms text is searched in code (labeled BASIC CHECK). **Add to calendar** builds an .ics file in the browser with the quotes in it. Nothing is sent to make it.
+
+![Cancel by](docs/cancel-by.png)
+
+**3. A receipt for what left your device.** Every read in the tab is listed with its mode, its size and a SHA-256 fingerprint. Cloud rows show the exact text that was sent, with what redaction removed marked in red, so you can see "[email]" and "[card ending]" where your details were. Each row also counts requests to the Gemini API made during that read, measured by the page itself with the browser's resource timing list ([web/src/receipt.ts](web/src/receipt.ts)). That is what the page can see, not a network capture, and the panel says so. With Nano the checkout row reads "Requests to Gemini during this read: 0".
+
+| A cloud read of a redacted copy | The on-device row (stand-in for Nano, see below) |
+|---|---|
+| ![Receipt, cloud](docs/receipt-cloud.png) | ![Receipt, on device stand-in](docs/receipt-offline-stub.png) |
+
+The screenshots of the cost and cancel-by cards come from fresh cloud reads (redacted copy plus terms) on my machine. The on-device row comes from the stand-in run described in the next section, not from real Nano.
+
+![The hosted demo with the store open](docs/hosted-wow.png)
+
 ## The Wi-Fi off test
 
 This is the test I care about most. Open the side panel on a checkout page, turn Wi-Fi off, and press **Check this page**. The status line says "Read on this computer in N s with no internet connection. The page was not sent anywhere." Every card the model wrote is marked ON DEVICE (the basic check's cards say BASIC CHECK). Then press **Read the cancellation terms** and the panel tells you that part needs the cloud and will wait until you are back online.
@@ -211,6 +233,9 @@ extension/     Chrome extension: side panel shell, content script, reminders
 web/           Hosted app (Vite + TypeScript): panel, demo store, eval page
   src/ai.ts        Firebase AI Logic models and prompts
   src/nano.ts      measuring and splitting long pages for Gemini Nano
+  src/cost.ts      first-year cost from verified quotes
+  src/deadline.ts  cancel-by date from both pages, and the .ics file
+  src/receipt.ts   the list of what left the device
   src/verify.ts    quote and amount checks, date math
   src/rules.ts     the basic check
   src/redact.ts    redaction before anything goes to the cloud
@@ -226,6 +251,8 @@ scripts/           deploy, live check and eval runners
 
 - Very long pages are read in at most 6 parts, so text in the middle of a huge page can be skipped (the panel says when).
 - Gemini Nano on the web is single-turn and text only, so the page is turned into plain text plus a list of links and ticked boxes. Prices drawn as images are missed.
+- The first-year total assumes the plan keeps its current price for a year. The terms often say it renews "at the then-current price", and tax is never added, only mentioned.
+- The cancel-by date keeps one day of margin because pages almost never say what time the charge runs. It is a reminder, not a promise.
 - Redaction is pattern based. It will miss some things, which is why the consent message says so.
 - The basic check is English only.
 - Reminders live in the browser. Saved offers are kept in Firestore under an anonymous account. Chrome keeps the side panel's storage separate from a normal tab, so the same saved offers do not show up when you open the website directly, and there is no sign in to move them to another device yet.

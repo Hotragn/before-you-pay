@@ -10,6 +10,9 @@ import { summaryLine } from './summary';
 import type { Finding, PageSnapshot } from './types';
 import { localDate, normalize, verifyFindings } from './verify';
 import { markQuote } from './highlight';
+import { firstYear, money, periodWords } from './cost';
+import { cancelBy, icsFor, termsFacts, type TermsFacts } from './deadline';
+import { ledger, markRedactions, record, watchRequests, type Entry } from './receipt';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -24,6 +27,8 @@ let page: PageSnapshot | undefined;
 let findings: Finding[] = [];
 let settings: Settings = defaults;
 let pendingRead = false;
+let basicFindings: Finding[] = [];
+let terms: { facts: TermsFacts; source: string } | undefined;
 loadSettings().then((s) => { settings = s; useSettings(s); }).finally(() => { showModelState(); showNet(); });
 
 const LABELS: Record<string, string> = {
@@ -96,13 +101,18 @@ function render() {
   const hasTrial = findings.some((f) => f.kind === 'trial_conversion' && f.convertsOn && f.verification === 'verified');
   $('save').hidden = !findings.some((f) => f.verification === 'verified' && f.kind !== 'cancel_path');
   $('remind').textContent = hasTrial ? 'Remind me before the first charge and save what it said' : 'Save what this page said';
+  renderCost();
+  renderDeadline();
 }
 
 function load(snapshot: PageSnapshot) {
   page = snapshot;
   $('site').textContent = new URL(snapshot.url).hostname || snapshot.title;
   findings = mergeFindings(verifyFindings(ruleFindings(snapshot), snapshot, 'rules'));
+  basicFindings = findings;
+  terms = undefined;
   $('cancelOut').textContent = '';
+  void record({ what: 'Checkout page, basic check (no model)', where: 'none', text: snapshot.text, requests: null, personal: snapshot.personal }).then(renderLedger);
   $('consent').hidden = true;
   render();
   if (pendingRead) { pendingRead = false; readOnDevice(); }
@@ -155,10 +165,13 @@ async function readOnDevice() {
   const signal = startJob();
   try {
     const t0 = performance.now();
-    const read = await analyzeOnDevice(page, {
+    const current = page;
+    const { value: read, requests } = await watchRequests(() => analyzeOnDevice(current, {
       signal,
       onPart: (i, n) => { if (n > 1) status(`Long page, reading it in ${n} parts on your device: part ${i}...`); },
-    });
+    }));
+    await record({ what: 'Checkout page', where: read.source === 'in_cloud' ? 'in_cloud' : 'on_device', text: pageToPrompt(current, 20000), requests, personal: current.personal });
+    renderLedger();
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
     const where = read.source === 'in_cloud' ? 'in_cloud' : 'on_device';
     findings = mergeFindings(findings, verifyFindings(read.findings, page, where));
@@ -189,10 +202,13 @@ async function sendRedacted() {
   status('Reading a redacted copy in the cloud...');
   const signal = startJob();
   try {
-    const r = await cloudOnce('redacted', pageToPrompt(safe, settings.max_page_chars * 2), settings, async () => {
+    const sentText = pageToPrompt(safe, settings.max_page_chars * 2);
+    const { value: r, requests } = await watchRequests(() => cloudOnce('redacted', sentText, settings, async () => {
       const { findings: value, source } = await analyzeRedactedInCloud(safe, signal);
       return { value, source };
-    }, status, isOurDemo(page.url));
+    }, status, isOurDemo(page!.url)));
+    await record({ what: 'Checkout page, redacted copy (you said yes)', where: 'in_cloud', text: sentText, requests, reused: Boolean(r.cached), personal: page.personal });
+    renderLedger();
     findings = mergeFindings(findings, verifyFindings(r.value, safe, r.source === 'on_device' ? 'on_device' : 'in_cloud'));
     status(cachedNote(r) || 'Read a redacted copy in the cloud. Emails, card details, phone numbers and street addresses were removed first.');
     render();
@@ -240,11 +256,15 @@ async function readTerms() {
   route('terms');
   const signal = startJob();
   try {
-    const r = await cloudOnce('terms', text, settings, async () => {
+    const { value: r, requests } = await watchRequests(() => cloudOnce('terms', text, settings, async () => {
       const { data: value, source } = await cancelStepsInCloud(text, signal);
       return { value, source };
-    }, (m) => (out.textContent = m), isOurDemo(link.href));
+    }, (m) => (out.textContent = m), isOurDemo(link.href)));
+    await record({ what: `Terms page (${new URL(link.href).pathname})`, where: 'in_cloud', text, requests, reused: Boolean(r.cached) });
+    renderLedger();
     const { value: data, source } = r;
+    terms = { facts: termsFacts(text, data.quotes ?? []), source };
+    renderDeadline();
     const note = cachedNote(r);
     out.innerHTML = '<span class="badge"></span><ol></ol><p class="muted"></p>';
     const badge = out.querySelector('.badge') as HTMLElement;
@@ -344,7 +364,8 @@ async function remind() {
   if (trial?.convertsOn) {
     const d = new Date(trial.convertsOn + 'T12:00:00');
     d.setDate(d.getDate() - settings.reminder_days_before);
-    remindOn = localDate(d);
+    const by = cancelBy(trial.convertsOn, terms?.facts.notice);
+    remindOn = localDate(d) < by ? localDate(d) : by;
   }
   const proof = await buildProof(page, findings, remindOn);
   const where = await saveProof(proof);
@@ -362,6 +383,175 @@ async function demo() {
   frame.removeAttribute('aria-hidden');
   frame.tabIndex = 0;
   load(snapshotDocument(frame.contentDocument!, new URL('/demo-store/index.html', location.href).href));
+}
+
+const amountOf = (a?: string) => (a ? Number(a.replace(/[^\d.]/g, '')) : NaN);
+const WHERE_WORDS: Record<string, string> = { on_device: 'read on this device', in_cloud: 'read in the cloud from a redacted copy', rules: 'found by the basic check on this device' };
+const BADGE: Record<string, string> = { ...SOURCE, none: 'NO MODEL' };
+
+function badgeEl(source: string): HTMLElement {
+  const b = document.createElement('span');
+  b.className = `badge ${source}`;
+  b.textContent = BADGE[source] ?? source;
+  return b;
+}
+
+// The first-year total, added up in code from verified findings (cost.ts).
+function renderCost() {
+  const fy = page ? firstYear(findings, page) : undefined;
+  $('cost').hidden = !fy;
+  if (!fy || !page) return;
+  const v = findings.filter((f) => f.verification === 'verified');
+  const due = v.find((f) => f.kind === 'due_today' && f.amount);
+  const trial = v.find((f) => f.kind === 'trial_conversion' && f.convertsOn && !f.note);
+  $('costToday').textContent = due ? money(amountOf(due.amount)) : 'not shown';
+  $('costTotal').textContent = money(fy.total);
+  $('costSub').textContent = [
+    fy.plusTax ? 'Plus tax, which the page does not add up.' : '',
+    trial?.convertsOn ? `First charge: ${money(fy.firstBill)} on ${niceDate(trial.convertsOn)}.` : '',
+    'Every line comes from a quote on the page. Click one to see it.',
+  ].filter(Boolean).join(' ');
+  const ol = $('costLines');
+  ol.innerHTML = '';
+  for (const l of fy.lines) {
+    const li = document.createElement('li');
+    li.tabIndex = 0;
+    const what = document.createElement('span'); what.className = 'what'; what.textContent = l.label;
+    const sum = document.createElement('span'); sum.className = 'sum'; sum.textContent = money(l.subtotal);
+    const how = document.createElement('span'); how.className = 'how';
+    how.textContent = l.period === 'once' ? `${money(l.amount)} once ` : `${money(l.amount)} ${periodWords[l.period]} × ${l.count} `;
+    how.append(badgeEl(l.source));
+    li.append(what, sum, how);
+    const go = () => (inExtension ? toParent({ type: 'byp:highlight', quote: l.quote }) : highlightInDemo(l.quote));
+    li.onclick = go;
+    li.onkeydown = (e) => { if (e.key === 'Enter') go(); };
+    ol.append(li);
+  }
+  const total = document.createElement('li'); total.className = 'total';
+  total.innerHTML = '<span>First year</span><span class="sum"></span>';
+  (total.querySelector('.sum') as HTMLElement).textContent = money(fy.total);
+  ol.append(total);
+  // How much the model's read added over plain pattern matching.
+  const modelRead = v.some((f) => f.source !== 'rules');
+  const basic = modelRead ? firstYear(basicFindings, page) : undefined;
+  const more = basic ? Math.round((fy.total - basic.total) * 100) / 100 : 0;
+  $('costGap').hidden = !(basic && more > 0);
+  if (basic && more > 0) $('costGap').textContent = `The basic check alone adds up to ${money(basic.total)}. Reading the whole page found ${money(more)} more in the first year.`;
+  $('costNot').hidden = !fy.notAdded.length;
+  const ul = $('costNotList'); ul.innerHTML = '';
+  for (const n of fy.notAdded) { const li = document.createElement('li'); li.textContent = `"${n.quote.slice(0, 120)}": ${n.why}.`; ul.append(li); }
+}
+
+function longDate(iso: string) {
+  return new Date(iso + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+// The cancel-by date joins the private page (trial end, prices) with the
+// public terms (notice, refunds), here in the browser (deadline.ts).
+function renderDeadline() {
+  const trial = findings.find((f) => f.kind === 'trial_conversion' && f.convertsOn && f.verification === 'verified' && !f.note);
+  $('deadline').hidden = !trial || !page;
+  if (!trial?.convertsOn || !page) return;
+  const fy = firstYear(findings, page);
+  const bill = fy ? money(fy.firstBill) : (trial.amount ?? 'the full price');
+  const notice = terms?.facts.notice;
+  const by = cancelBy(trial.convertsOn, notice);
+  $('dlDate').textContent = longDate(by);
+  const parts = [`Cancel by then to avoid the first charge of ${bill} on ${niceDate(trial.convertsOn)}.`];
+  if (!terms) parts.push('That is one day early, because the page does not say what time it charges. Read the cancellation terms below to check how much notice they need.');
+  else {
+    parts.push(notice
+      ? `The terms ask for ${notice.hours % 24 === 0 && notice.hours >= 48 ? `${notice.hours / 24} days` : `${notice.hours} hours`} of notice, plus one day of margin because the page does not say what time it charges.`
+      : 'The terms do not say how much notice they need, so this keeps one day of margin.');
+    if (terms.facts.noRefund) parts.push('The terms also say payments are not refunded, so missing it costs the full amount.');
+  }
+  $('dlText').textContent = parts.join(' ');
+  const qs = $('dlQuotes'); qs.innerHTML = '';
+  const add = (quote: string, source: string) => {
+    const b = document.createElement('blockquote');
+    b.append(badgeEl(source), document.createTextNode(quote));
+    qs.append(b);
+  };
+  add(trial.quote, trial.source);
+  const termsSource = terms?.facts.from === 'gemini' ? terms.source : 'rules';
+  if (notice) add(notice.quote, termsSource);
+  if (terms?.facts.noRefund) add(terms.facts.noRefund.quote, termsSource);
+  $('dlHow').textContent = `Trial date and prices: from this page, ${WHERE_WORDS[trial.source]}. Notice and refunds: ${terms ? 'from the public terms page, read in the cloud' : 'not read yet'}. Put together here in your browser, so the terms reader never learns what you picked or when you pay.`;
+}
+
+function downloadIcs() {
+  const trial = findings.find((f) => f.kind === 'trial_conversion' && f.convertsOn && f.verification === 'verified' && !f.note);
+  if (!trial?.convertsOn || !page) return;
+  const fy = firstYear(findings, page);
+  const by = cancelBy(trial.convertsOn, terms?.facts.notice);
+  const site = new URL(page.url).hostname || 'this site';
+  const quotes = [trial.quote, terms?.facts.notice?.quote, terms?.facts.noRefund?.quote].filter(Boolean) as string[];
+  const ics = icsFor({ site, cancelBy: by, convertsOn: trial.convertsOn, firstBill: fy ? money(fy.firstBill) : (trial.amount ?? ''), quotes });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+  a.download = `cancel-by-${by}.ics`;
+  document.body.append(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  status(`Calendar file made in this browser: an all-day event on ${niceDate(by)} with the quotes in it. Nothing was sent anywhere.`);
+}
+
+function renderLedger() {
+  const ol = $('ledger');
+  ol.innerHTML = '';
+  $('receipt').hidden = !ledger.length;
+  for (const e of ledger.slice(0, 8)) ol.append(ledgerRow(e));
+}
+
+function ledgerRow(e: Entry): HTMLLIElement {
+  const li = document.createElement('li');
+  const row = document.createElement('div'); row.className = 'row';
+  const what = document.createElement('span'); what.textContent = e.what;
+  row.append(what, badgeEl(e.where));
+  const meta = document.createElement('p'); meta.className = 'meta';
+  meta.textContent = `${e.chars.toLocaleString()} characters · fingerprint ${e.sha256.slice(0, 10)} · ${e.at.toLocaleTimeString()}`;
+  const line = document.createElement('p'); line.className = 'meta';
+  if (e.where === 'none') line.textContent = 'Plain pattern matching in this page. No model, nothing sent.';
+  else if (e.where === 'on_device') {
+    const n = document.createElement('span'); n.className = e.requests === 0 ? 'zero' : '';
+    n.textContent = e.requests === null ? 'Requests to Gemini could not be measured in this browser.' : `Requests to Gemini during this read: ${e.requests}.`;
+    line.append(n, document.createTextNode(' The text was read by Gemini Nano here.'));
+  } else {
+    line.textContent = e.reused
+      ? 'Answer reused from an earlier read of this exact text, so nothing was sent this time.'
+      : `Requests to Gemini during this read: ${e.requests ?? 'not measured'}.`;
+  }
+  li.append(row, meta, line);
+  if (e.where === 'in_cloud' && e.personal) {
+    const p = document.createElement('p'); p.className = 'meta';
+    p.textContent = 'What you typed into form fields is never read. Emails, card numbers, phone numbers and street addresses in the page text were replaced before sending (marked in red below). Names are not reliably removed.';
+    li.append(p);
+  } else if (e.personal?.length) {
+    const p = document.createElement('p'); p.className = 'meta';
+    p.textContent = `Stayed on this device: ${listWords(e.personal.map((k) => KIND_WORDS[k]).filter(Boolean))}.`;
+    li.append(p);
+  }
+  if (e.sent) {
+    const d = document.createElement('details');
+    const sum = document.createElement('summary');
+    const removed = (e.sent.match(/\[(?:email|card number|card ending|phone|street address|zip)\]/g) ?? []).length;
+    sum.textContent = `Show the exact text ${e.reused ? 'sent earlier' : 'sent'}${removed ? ` (${removed} item${removed > 1 ? 's' : ''} removed, marked in red)` : ''}`;
+    const pre = document.createElement('pre');
+    for (const part of markRedactions(e.sent)) {
+      if (part.removed) { const m = document.createElement('mark'); m.textContent = part.text; pre.append(m); }
+      else pre.append(document.createTextNode(part.text));
+    }
+    const note = document.createElement('p'); note.className = 'meta';
+    note.textContent = 'The app also sends its fixed instructions to the model. Nothing else from this page goes out.';
+    // Open on the first removed item, so it is visible without scrolling.
+    d.addEventListener('toggle', () => {
+      const m = pre.querySelector('mark') as HTMLElement | null;
+      if (d.open && m) pre.scrollTop = Math.max(0, m.offsetTop - 40);
+    });
+    d.append(sum, pre, note);
+    li.append(d);
+  }
+  return li;
 }
 
 async function renderSaved() {
@@ -397,5 +587,6 @@ $('stayLocal').onclick = () => ($('consent').hidden = true);
 $('readTerms').onclick = readTerms;
 $('stop').onclick = () => job?.abort();
 $('remind').onclick = remind;
+$('ics').onclick = downloadIcs;
 renderSaved();
 if (inExtension) $('demo').hidden = true;

@@ -3,7 +3,7 @@
 // It removes emails, card numbers and endings, phone numbers and street
 // addresses. It does NOT reliably remove names; the consent text says so.
 const PATTERNS: [RegExp, string, string][] = [
-  [/[\w.+-]+@[\w-]+\.[\w.-]+/g, '[email]', 'email'],
+  [/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, '[email]', 'email'],
   [/\b(?:\d[ -]?){13,19}\b/g, '[card number]', 'card number'],
   [/(?:ending in|ending|•••+|\*{3,})\s*\d{4}\b/gi, '[card ending]', 'card ending'],
   // Phone numbers: 10+ digits with phone-style separators, not dates or prices.

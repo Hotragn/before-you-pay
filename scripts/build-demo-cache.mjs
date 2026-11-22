@@ -6,7 +6,7 @@
 // with the date, and the next press always does a fresh read.
 // Usage: DISPLAY=:99 node scripts/build-demo-cache.mjs [path-to-extension-test-copy]
 import puppeteer from 'puppeteer-core';
-import { writeFileSync } from 'node:fs';
+import { rmSync, writeFileSync } from 'node:fs';
 const APP = 'https://before-you-pay-9b8c6.web.app';
 const extDir = process.argv[2];
 const entries = {};
@@ -28,6 +28,8 @@ async function pressAllInner(frame) {
   await frame.click('#readTerms');
   await frame.waitForFunction(() => document.querySelector('#cancelOut ol li') || /Could not/.test(document.getElementById('cancelOut').textContent), { timeout: 90000 });
 }
+// A fresh profile every time, so answers kept in the browser are not reused.
+rmSync('/tmp/byp-cache-build', { recursive: true, force: true });
 const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: false, enableExtensions: !!extDir, pipe: !!extDir, userDataDir: '/tmp/byp-cache-build', args: ['--no-first-run'] });
 // 1. The hosted panel with its built-in demo store.
 const p = await b.newPage();
@@ -55,6 +57,7 @@ if (extDir) {
   await collect(frame);
 }
 await b.close();
+if (!Object.keys(entries).length) { console.log('no fresh cloud reads were made, keeping the old file'); process.exit(1); }
 writeFileSync(new URL('../web/public/demo-cache.json', import.meta.url), JSON.stringify({
   about: 'Saved answers from real Firebase AI Logic cloud reads of the Before You Pay demo store and its terms page. Used only for those pages, labeled in the panel, and skipped on the next press.',
   entries,

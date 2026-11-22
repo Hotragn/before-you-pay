@@ -1,31 +1,31 @@
 {
  "about": "Saved answers from real Firebase AI Logic cloud reads of the Before You Pay demo store and its terms page. Used only for those pages, labeled in the panel, and skipped on the next press.",
  "entries": {
-  "cf67575532065f16249990b9eddfadcb9a64fe486f0f06e64182da766c33363b": {
+  "b0627e20f7135e12e72b99a08360cf264ab0f7c28379569a46eb7304668747ef": {
    "kind": "redacted",
    "value": [
     {
      "kind": "due_today",
      "quote": "$0.00 due today",
-     "amount": "0.00",
+     "amount": "$0.00",
      "period": "once"
     },
     {
      "kind": "prechecked_addon",
      "quote": "Add Priority Support for $4.99/month",
-     "amount": "4.99",
+     "amount": "$4.99",
      "period": "month"
     },
     {
      "kind": "prechecked_addon",
      "quote": "Add Family Sharing for $2.99/month",
-     "amount": "2.99",
+     "amount": "$2.99",
      "period": "month"
     },
     {
      "kind": "prechecked_addon",
      "quote": "Lossless Hi-Fi upgrade\n+$3.99 each month",
-     "amount": "3.99",
+     "amount": "$3.99",
      "period": "month"
     },
     {
@@ -34,8 +34,8 @@
     },
     {
      "kind": "trial_conversion",
-     "quote": "Your 14-day free trial starts today. After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
-     "amount": "14.99",
+     "quote": "Your 14-day free trial starts today. After your trial, Tunebox Plus is $14.99/month",
+     "amount": "$14.99",
      "period": "month",
      "trialLength": 14,
      "trialUnit": "day"
@@ -45,26 +45,26 @@
      "quote": "Your subscription renews automatically each month until you cancel."
     },
     {
-     "kind": "fee",
+     "kind": "recurring_charge",
      "quote": "A one-time activation fee of $1.99 is charged at the end of the trial.",
-     "amount": "1.99",
+     "amount": "$1.99",
      "period": "once"
     },
     {
      "kind": "fee",
      "quote": "We add $2.49 to every bill for music licensing.",
-     "amount": "2.49",
-     "period": "unknown"
+     "amount": "$2.49",
+     "period": "month"
     }
    ],
    "source": "in_cloud",
-   "at": "2026-11-22T09:11:47.888Z"
+   "at": "2026-11-22T21:50:42.200Z"
   },
   "20e71d8bbad4b4d6e5b12777934e4f7cab225e9773c11a877977f706db8b6f4c": {
    "kind": "terms",
    "value": {
     "steps": [
-     "Sign in to your account",
+     "Sign in",
      "Open Account",
      "Choose Membership",
      "Select End membership"
@@ -78,7 +78,7 @@
     "refundPolicy": "Payments are non-refundable, and no refunds or credits are provided for partial billing periods."
    },
    "source": "in_cloud",
-   "at": "2026-11-22T09:11:53.043Z"
+   "at": "2026-11-22T21:50:54.531Z"
   },
   "e8c8f2ec94e441da6457d1deaa4b913e6f7baf935e88efea746f305014b545ef": {
    "kind": "terms",

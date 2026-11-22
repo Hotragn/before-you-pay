@@ -87,3 +87,37 @@ body.demo-open #sandbox { position: static; display: block; width: 100%; height:
   body.demo-open { max-width: 440px; }
   body.demo-open #sandbox { position: fixed; left: 456px; top: 12px; width: calc(100vw - 470px); height: calc(100vh - 24px); margin: 0; box-shadow: 0 8px 30px #0000001a; }
 }
+
+/* First-year cost */
+.cost, .deadline { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin: 0 0 12px; }
+.cost-top, .dl-top { display: flex; align-items: center; gap: 12px; }
+.cost-top svg { width: 20px; height: 20px; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.cost-top > div:last-child { margin-left: auto; text-align: right; }
+.num { margin: 0; font-weight: 750; font-size: 20px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.num.big { font-size: 28px; color: var(--red); }
+.cost .eyebrow, .deadline .eyebrow { opacity: 1; color: var(--muted); }
+.lines li { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 7px 0; border-top: 1px dashed var(--line); cursor: pointer; font-size: 13px; }
+.lines li:hover .what { text-decoration: underline; }
+.lines .what { font-weight: 600; }
+.lines .sum { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.lines .how { grid-column: 1 / -1; color: var(--muted); font-size: 12px; display: flex; gap: 6px; align-items: center; }
+.lines li.total { cursor: default; border-top: 1.5px solid var(--ink); font-weight: 750; }
+.gap { background: var(--amber-soft); border-radius: 10px; padding: 8px 10px; margin: 8px 0 0; }
+#costNot summary { cursor: pointer; color: var(--muted); margin-top: 8px; }
+#costNot ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); }
+.deadline { border: 2px solid var(--ink); }
+.deadline .num.big { color: var(--ink); }
+.dl-top { justify-content: space-between; }
+button.ics { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 650; white-space: nowrap; }
+#dlText { margin: 8px 0 4px; font-size: 14px; }
+#dlQuotes blockquote { margin: 6px 0 0; padding-left: 9px; border-left: 2px solid var(--line); color: var(--muted); font-size: 12.5px; }
+#dlQuotes blockquote .badge { margin-right: 6px; }
+/* What left this device */
+#receipt { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 4px 14px 12px; margin: 14px 0; }
+#ledger li { padding: 9px 0; border-top: 1px dashed var(--line); font-size: 13px; }
+#ledger .row { display: flex; justify-content: space-between; gap: 8px; font-weight: 650; }
+#ledger .meta { color: var(--muted); font-size: 12px; margin: 2px 0 0; }
+#ledger .zero { color: var(--green); font-weight: 650; }
+#ledger details summary { cursor: pointer; color: var(--blue); font-size: 12.5px; margin-top: 4px; }
+#ledger pre { position: relative; white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow: auto; background: #f4f2ec; border-radius: 8px; padding: 8px; font: 11.5px/1.45 ui-monospace, Menlo, monospace; margin: 6px 0 0; }
+#ledger mark { background: #ffd8d2; color: var(--red); border-radius: 4px; padding: 0 3px; font-weight: 700; }

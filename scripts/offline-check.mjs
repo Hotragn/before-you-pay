@@ -45,6 +45,9 @@ console.log('stub calls:', JSON.stringify(await p.evaluate(() => window.__stubCa
 console.log('cards:', await p.$$eval('#cards li', (l) => l.map((x) => x.innerText.replace(/\s+/g, ' ').slice(0, 70))));
 console.log('network requests during the offline read:', requests.length, requests.slice(0, 5));
 await p.screenshot({ path: new URL('../docs/offline-stub.png', import.meta.url).pathname, fullPage: true });
+// The privacy receipt for this stand-in read (on-device row, 0 requests to Gemini).
+console.log('ledger:', await p.$eval('#ledger', (e) => e.innerText.slice(0, 400)));
+await (await p.$('#receipt')).screenshot({ path: new URL('../docs/receipt-offline-stub.png', import.meta.url).pathname });
 await p.click('#readTerms');
 await new Promise((r) => setTimeout(r, 3000));
 console.log('terms while offline:', await p.$eval('#cancelOut', (e) => e.textContent));
