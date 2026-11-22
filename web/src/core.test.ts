@@ -6,7 +6,10 @@ import { ruleFindings } from './rules';
 import { verifyFindings, quoteAppears, addTrial } from './verify';
 import { redact } from './redact';
 import { mergeFindings } from './merge';
-import { clip } from './ai';
+import { clip, pageToPrompt } from './ai';
+import { planParts, dropMeasuringSession } from './nano';
+import { redactionCounts } from './redact';
+import { markQuote } from './highlight';
 import { summaryLine } from './summary';
 import { snapshotDocument } from './snapshot';
 import type { PageSnapshot } from './types';
@@ -145,5 +148,42 @@ describe('renewal reading', () => {
     const amounts = ruleFindings(demoSnapshot()).map((f) => f.amount);
     expect(amounts).not.toContain('$3.99');
     expect(amounts).not.toContain('$2.49');
+  });
+});
+
+describe('Gemini Nano limits', () => {
+  const page = (n: number) => ({ url: 'https://x.test/', title: 't', text: Array.from({ length: n }, (_, i) => `Sentence number ${i} says the plan costs $9.99/month.`).join(' '), capturedAt: '2026-11-22T12:00:00Z', checkboxes: [{ label: 'Add extras for $2/month', checked: true }], links: [] }) as any;
+  const toPrompt = (p: any) => pageToPrompt(p, 20000);
+  it('a short page goes in one part', async () => {
+    const plan = await planParts(page(5), toPrompt, 'sys');
+    expect(plan.prompts).toHaveLength(1);
+  });
+  it('a long page is split using the model\'s own token count, and every part fits', async () => {
+    const used: number[] = [];
+    (globalThis as any).LanguageModel = { create: async () => ({ inputQuota: 1500, inputUsage: 100, measureInputUsage: async (t: string) => { used.push(Math.ceil(t.length / 4)); return Math.ceil(t.length / 4); }, destroy() {} }) };
+    dropMeasuringSession();
+    const plan = await planParts(page(300), toPrompt, 'sys');
+    expect(plan.budget.exact).toBe(true);
+    expect(plan.prompts.length).toBeGreaterThan(1);
+    for (const p of plan.prompts) {
+      expect(Math.ceil(p.length / 4)).toBeLessThanOrEqual(1500 - 100 - 1200);
+      expect(p).toContain('[x] Add extras for $2/month');
+    }
+    delete (globalThis as any).LanguageModel;
+    dropMeasuringSession();
+  });
+  it('counts what redaction removes', () => {
+    expect(redactionCounts('a@b.com and c@d.org, card 4111 1111 1111 1111')).toEqual({ email: 2, 'card number': 1 });
+  });
+  it('spots the kinds of personal details on the demo store', () => {
+    expect(demoSnapshot().personal?.sort()).toEqual(['card', 'email', 'name']);
+  });
+});
+
+describe('highlight', () => {
+  it('marks just the quoted sentence inside a longer paragraph', () => {
+    const dom = new JSDOM('<p>Your trial starts today. We add $2.49 to every bill for music licensing. Taxes extra.</p>');
+    expect(markQuote(dom.window.document, 'We add $2.49 to every bill for music licensing.')).toBe(true);
+    expect(dom.window.document.querySelector('mark')?.textContent).toBe('We add $2.49 to every bill for music licensing.');
   });
 });

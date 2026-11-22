@@ -8,6 +8,7 @@ import {
 } from 'firebase/ai';
 import { getFirebaseApp } from './firebase';
 import { defaults, type Settings } from './settings';
+import { CREATE_OPTIONS_BASE, planParts } from './nano';
 import type { PageSnapshot, RawFinding } from './types';
 
 // Two models, two modes, on purpose.
@@ -79,8 +80,7 @@ export function models(settings: Settings = current) {
     mode: InferenceMode.ONLY_ON_DEVICE,
     onDeviceParams: {
       createOptions: {
-        expectedInputs: [{ type: 'text', languages: ['en'] }],
-        expectedOutputs: [{ type: 'text', languages: ['en'] }],
+        ...CREATE_OPTIONS_BASE,
         initialPrompts: [{ role: 'system', content: [{ type: 'text', value: PAGE_INSTRUCTIONS }] }],
       },
       promptOptions: { responseConstraint: findingsJsonSchema },
@@ -113,10 +113,7 @@ export async function onDeviceAvailability(): Promise<Availability> {
   const LM = (globalThis as unknown as { LanguageModel?: { availability(o?: object): Promise<Availability> } }).LanguageModel;
   if (!LM) return 'no-api';
   try {
-    return await LM.availability({
-      expectedInputs: [{ type: 'text', languages: ['en'] }],
-      expectedOutputs: [{ type: 'text', languages: ['en'] }],
-    });
+    return await LM.availability(CREATE_OPTIONS_BASE);
   } catch {
     return 'unavailable';
   }
@@ -157,10 +154,32 @@ export function pageToPrompt(page: PageSnapshot, maxChars = current.max_page_cha
   return `Page: ${page.title}\n\n${clip(page.text, maxChars)}\n\nCheckboxes:\n${boxes}`;
 }
 
-export async function analyzeOnDevice(page: PageSnapshot): Promise<{ findings: RawFinding[]; source: string }> {
+export interface DeviceRead { findings: RawFinding[]; source: string; parts: number; tokens: number; exact: boolean; trimmed: boolean }
+
+function aborted(signal?: AbortSignal): Promise<never> {
+  return new Promise((_, reject) => signal?.addEventListener('abort', () => reject(new DOMException('Stopped', 'AbortError')), { once: true }));
+}
+
+// Reads the page on the device. Long pages are measured and split so each part
+// fits Gemini Nano's context window (see nano.ts). The Prompt API has no way
+// to cancel a running prompt through the SDK, so Stop drops the answer and the
+// next request starts a fresh session.
+export async function analyzeOnDevice(
+  page: PageSnapshot, opts: { signal?: AbortSignal; onPart?: (i: number, n: number) => void } = {},
+): Promise<DeviceRead> {
   const m = models();
-  const result = await m.privateModel.generateContent(pageToPrompt(page));
-  return { findings: parseFindings(result.response.text()), source: result.response.inferenceSource ?? 'on_device' };
+  // Whole page text (up to the snapshot limit) instead of a fixed cut.
+  const plan = await planParts(page, (p) => pageToPrompt(p, 20000), PAGE_INSTRUCTIONS);
+  const findings: RawFinding[] = [];
+  let source = 'on_device';
+  for (const [i, prompt] of plan.prompts.entries()) {
+    if (opts.signal?.aborted) throw new DOMException('Stopped', 'AbortError');
+    opts.onPart?.(i + 1, plan.prompts.length);
+    const result = await Promise.race([m.privateModel.generateContent(prompt), aborted(opts.signal)]);
+    findings.push(...parseFindings(result.response.text()));
+    source = result.response.inferenceSource ?? source;
+  }
+  return { findings, source, parts: plan.prompts.length, tokens: plan.budget.used, exact: plan.budget.exact, trimmed: plan.trimmed };
 }
 
 export interface CancelSteps {
@@ -172,17 +191,17 @@ export interface CancelSteps {
 
 // Public page only. The caller passes the text of the terms page, never the
 // checkout page.
-export async function cancelStepsInCloud(termsText: string): Promise<{ data: CancelSteps; source: string }> {
+export async function cancelStepsInCloud(termsText: string, signal?: AbortSignal): Promise<{ data: CancelSteps; source: string }> {
   const m = models();
   const prompt = `This is a company's public terms or cancellation page. Explain, as short steps,
 how a customer cancels a subscription, how much notice is needed, and the refund policy.
 Copy the sentences you relied on into "quotes", word for word.\n\n${termsText.slice(0, 60000)}`;
-  const result = await m.publicModel.generateContent(prompt);
+  const result = await m.publicModel.generateContent(prompt, signal ? { signal, timeout: 45000 } : undefined);
   return { data: JSON.parse(result.response.text()) as CancelSteps, source: result.response.inferenceSource ?? 'in_cloud' };
 }
 
-export async function analyzeRedactedInCloud(redactedPage: PageSnapshot): Promise<{ findings: RawFinding[]; source: string }> {
+export async function analyzeRedactedInCloud(redactedPage: PageSnapshot, signal?: AbortSignal): Promise<{ findings: RawFinding[]; source: string }> {
   const m = models();
-  const result = await m.redactedModel.generateContent(pageToPrompt(redactedPage, current.max_page_chars * 2));
+  const result = await m.redactedModel.generateContent(pageToPrompt(redactedPage, current.max_page_chars * 2), signal ? { signal, timeout: 45000 } : undefined);
   return { findings: parseFindings(result.response.text()), source: result.response.inferenceSource ?? 'in_cloud' };
 }

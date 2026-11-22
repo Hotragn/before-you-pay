@@ -17,10 +17,27 @@
         return /^https?:$/.test(u.protocol) && !u.search && u.href.split('#')[0] !== here;
       } catch (e) { return false; }
     });
+  // Same as personalDetails() in web/src/snapshot.ts: kinds only, never values.
+  const text = (document.body.innerText || '').slice(0, 20000);
+  const kinds = new Set();
+  for (const el of document.querySelectorAll('input, select, textarea')) {
+    if (['hidden', 'checkbox', 'radio', 'submit'].includes(el.type)) continue;
+    const key = [el.type, el.name, el.id, el.autocomplete, el.getAttribute('aria-label'), el.placeholder, el.labels && el.labels[0] && el.labels[0].innerText]
+      .filter(Boolean).join(' ').toLowerCase();
+    if (/e-?mail/.test(key)) kinds.add('email');
+    if (/cc-|card|credit|cvc|cvv|expir/.test(key)) kinds.add('card');
+    if (/\btel\b|phone|mobile/.test(key)) kinds.add('phone');
+    if (/address|street|postal|zip|city/.test(key)) kinds.add('address');
+    if (/\bname\b|given-name|family-name|first name|last name/.test(key)) kinds.add('name');
+    if (el.type === 'password') kinds.add('password');
+  }
+  if (/[\w.+-]+@[\w-]+\.[\w.-]+/.test(text)) kinds.add('email');
+  if (/(?:ending in|•••+|\*{3,})\s*\d{4}\b/i.test(text)) kinds.add('card');
   return {
     url: here,
     title: document.title,
-    text: (document.body.innerText || '').slice(0, 20000),
+    text,
+    personal: [...kinds],
     checkboxes,
     links,
     capturedAt: new Date().toISOString(),

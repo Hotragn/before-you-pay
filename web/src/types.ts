@@ -8,6 +8,7 @@ export interface PageSnapshot {
   checkboxes: { label: string; checked: boolean }[];
   links: { text: string; href: string }[];
   capturedAt: string; // ISO time
+  personal?: string[]; // kinds of personal details on the page, never the values
 }
 
 export type FindingKind =

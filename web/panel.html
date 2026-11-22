@@ -29,8 +29,11 @@
 
   <section id="actions">
     <button id="check" class="primary">Check this page</button>
+    <progress id="download" max="1" value="0" hidden aria-label="Gemini Nano download"></progress>
     <button id="demo" class="link">No checkout page open? Try the demo store</button>
     <p id="status" class="status" role="status" aria-live="polite"></p>
+    <button id="stop" class="link stop" hidden>Stop</button>
+    <div id="route" class="route-now" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6"/></svg><span id="routeText"></span></div>
   </section>
 
   <section id="consent" hidden>

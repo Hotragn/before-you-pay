@@ -33,7 +33,7 @@ async function run(mode: Mode) {
     status.textContent = 'No on-device model on this computer.';
     return;
   }
-  const rows: { id: string; ms: number; s: Score; modelFindings: number; modelUnverified: number; error?: string; findings: Finding[] }[] = [];
+  const rows: { id: string; ms: number; s: Score; modelFindings: number; modelUnverified: number; device?: Record<string, unknown>; error?: string; findings: Finding[] }[] = [];
   for (const id of Object.keys(labels)) {
     status.textContent = `${mode}: ${id}`;
     // The free cloud quota allows only a few requests a minute, so pace them.
@@ -43,12 +43,15 @@ async function run(mode: Mode) {
     let found: Finding[] = [];
     let error: string | undefined;
     let model: Finding[] = [];
+    let device: Record<string, unknown> | undefined;
     try {
       // Every mode includes the basic check, the way the product works.
       const base = verifyFindings(ruleFindings(page), page, 'rules');
       if (mode === 'rules') found = base;
       else if (mode === 'device') {
-        model = verifyFindings((await analyzeOnDevice(page)).findings, page, 'on_device');
+        const read = await analyzeOnDevice(page);
+        device = { parts: read.parts, tokens: read.tokens, exactTokens: read.exact, trimmed: read.trimmed };
+        model = verifyFindings(read.findings, page, 'on_device');
         found = mergeFindings(base, model);
       } else {
         const safe = { ...page, text: redact(page.text), checkboxes: page.checkboxes.map((c) => ({ ...c, label: redact(c.label) })) };
@@ -61,7 +64,7 @@ async function run(mode: Mode) {
     // modelUnverified counts what the model said before merging, so cards that
     // failed the quote check are counted even if a verified card replaced them.
     rows.push({ id, ms: Math.round(performance.now() - t0), s: score(found, labels[id]), modelFindings: model.length,
-      modelUnverified: model.filter((f) => f.verification !== 'verified').length, error, findings: found });
+      modelUnverified: model.filter((f) => f.verification !== 'verified').length, device, error, findings: found });
   }
   const ok = rows.filter((r) => !r.error);
   const result = { mode, set: SET, when: new Date().toISOString(), settings: currentSettings(),

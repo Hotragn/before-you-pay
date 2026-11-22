@@ -2,13 +2,14 @@ import { analyzeOnDevice, analyzeRedactedInCloud, cancelStepsInCloud, onDeviceAv
 import { cloudOnce, type CloudResult } from './cloudCache';
 import { defaults, loadSettings, type Settings } from './settings';
 import { mergeFindings } from './merge';
-import { redact } from './redact';
+import { redact, redactionCounts } from './redact';
 import { ruleFindings } from './rules';
 import { snapshotDocument } from './snapshot';
 import { buildProof, listProofs, saveProof } from './store';
 import { summaryLine } from './summary';
 import type { Finding, PageSnapshot } from './types';
 import { localDate, normalize, verifyFindings } from './verify';
+import { markQuote } from './highlight';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -82,7 +83,7 @@ function render() {
     (li.querySelector('.badge') as HTMLElement).textContent = SOURCE[f.source];
     (li.querySelector('blockquote') as HTMLElement).textContent = f.reason ? `${f.quote} (${f.reason})` : f.quote;
     if (f.note) { const n = document.createElement('p'); n.className = 'note'; n.textContent = f.note; li.append(n); }
-    const go = () => toParent({ type: 'byp:highlight', quote: f.quote });
+    const go = () => (inExtension ? toParent({ type: 'byp:highlight', quote: f.quote }) : highlightInDemo(f.quote));
     li.onclick = go;
     li.onkeydown = (e) => { if (e.key === 'Enter') go(); };
     ol.append(li);
@@ -112,7 +113,12 @@ async function check() {
   // Start the model on the click itself: Chrome only allows the download to
   // begin right after a user gesture.
   const ready = settings.on_device_enabled
-    ? prepareOnDevice((p) => status(`Downloading the on-device model: ${Math.round(p * 100)}%`))
+    ? prepareOnDevice((p) => {
+      const bar = $('download') as HTMLProgressElement;
+      bar.hidden = p >= 1;
+      bar.value = p;
+      status(p >= 1 ? 'Model ready...' : `Downloading Gemini Nano to this computer: ${Math.round(p * 100)}%. This happens once...`);
+    })
     : Promise.resolve(false);
   modelReady = ready;
   if (inExtension) {
@@ -144,19 +150,28 @@ async function readOnDevice() {
     status('');
     return;
   }
+  route('device');
   status('Reading on your device...');
+  const signal = startJob();
   try {
     const t0 = performance.now();
-    const { findings: raw, source } = await analyzeOnDevice(page);
+    const read = await analyzeOnDevice(page, {
+      signal,
+      onPart: (i, n) => { if (n > 1) status(`Long page, reading it in ${n} parts on your device: part ${i}...`); },
+    });
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
-    const where = source === 'in_cloud' ? 'in_cloud' : 'on_device';
-    findings = mergeFindings(findings, verifyFindings(raw, page, where));
+    const where = read.source === 'in_cloud' ? 'in_cloud' : 'on_device';
+    findings = mergeFindings(findings, verifyFindings(read.findings, page, where));
+    const parts = read.parts > 1 ? ` in ${read.parts} parts` : '';
+    const trimmed = read.trimmed ? ' The page was very long, so some of it was skipped.' : '';
     status(where === 'on_device'
-      ? `Read on this computer in ${secs} s${navigator.onLine ? '' : ' with no internet connection'}. The page was not sent anywhere.`
+      ? `Read on this computer in ${secs} s${parts}${navigator.onLine ? '' : ' with no internet connection'}. The page was not sent anywhere.${trimmed}`
       : `Read in the cloud in ${secs} s.`);
     render();
   } catch (e) {
-    status(`The on-device read did not work: ${plain(e)}`);
+    status(wasStopped(e) ? 'Stopped. The basic check results are still here.' : `The on-device read did not work: ${plain(e)}`);
+  } finally {
+    endJob();
   }
 }
 
@@ -169,17 +184,22 @@ async function sendRedacted() {
     text: redact(page.text),
     checkboxes: page.checkboxes.map((c) => ({ ...c, label: redact(c.label) })),
   };
+  const counts = redactionCounts([page.title, page.text, ...page.checkboxes.map((c) => c.label)].join('\n'));
+  route('redacted', Object.entries(counts).map(([k, n]) => `${n} ${k}${n > 1 ? 's' : ''}`).join(', '));
   status('Reading a redacted copy in the cloud...');
+  const signal = startJob();
   try {
     const r = await cloudOnce('redacted', pageToPrompt(safe, settings.max_page_chars * 2), settings, async () => {
-      const { findings: value, source } = await analyzeRedactedInCloud(safe);
+      const { findings: value, source } = await analyzeRedactedInCloud(safe, signal);
       return { value, source };
     }, status, isOurDemo(page.url));
     findings = mergeFindings(findings, verifyFindings(r.value, safe, r.source === 'on_device' ? 'on_device' : 'in_cloud'));
     status(cachedNote(r) || 'Read a redacted copy in the cloud. Emails, card details, phone numbers and street addresses were removed first.');
     render();
   } catch (e) {
-    status(`The cloud read did not work: ${plain(e)}`);
+    status(wasStopped(e) ? 'Stopped.' : `The cloud read did not work: ${plain(e)}`);
+  } finally {
+    endJob();
   }
 }
 
@@ -217,9 +237,11 @@ async function readTerms() {
     return;
   }
   out.textContent = `Gemini is reading ${new URL(link.href).pathname} (public page, nothing about you is sent)...`;
+  route('terms');
+  const signal = startJob();
   try {
     const r = await cloudOnce('terms', text, settings, async () => {
-      const { data: value, source } = await cancelStepsInCloud(text);
+      const { data: value, source } = await cancelStepsInCloud(text, signal);
       return { value, source };
     }, (m) => (out.textContent = m), isOurDemo(link.href));
     const { value: data, source } = r;
@@ -241,8 +263,53 @@ async function readTerms() {
     }
     if (note) { const n = document.createElement('p'); n.className = 'muted small'; n.textContent = note; out.append(n); }
   } catch (e) {
-    out.textContent = `Could not read the terms: ${plain(e)}`;
+    out.textContent = wasStopped(e) ? 'Stopped.' : `Could not read the terms: ${plain(e)}`;
+  } finally {
+    endJob();
   }
+}
+
+// One sentence, shown at the moment of each read, saying where the text is
+// going and why.
+const KIND_WORDS: Record<string, string> = { email: 'your email', card: 'card details', phone: 'a phone number', address: 'an address', name: 'your name', password: 'a password' };
+function listWords(xs: string[]): string {
+  return xs.length <= 1 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`;
+}
+function route(where: 'device' | 'cloud' | 'redacted' | 'terms', detail = '') {
+  const el = $('route');
+  el.hidden = false;
+  el.className = `route-now ${where === 'device' ? 'on_device' : 'in_cloud'}`;
+  const kinds = (page?.personal ?? []).map((k) => KIND_WORDS[k]).filter(Boolean);
+  const text: Record<string, string> = {
+    device: kinds.length
+      ? `This page has ${listWords(kinds)}, so it stays on this device. Gemini Nano reads it here.`
+      : 'No personal details spotted on this page, but checkout pages usually have them, so it still stays on this device.',
+    redacted: detail
+      ? `Sending a copy to Gemini in the cloud because you said yes. Removed first: ${detail}.`
+      : 'Sending a copy to Gemini in the cloud because you said yes. What you typed into form fields is never read, and no emails, card numbers, phone numbers or addresses were found in the page text.',
+    terms: 'This is the public terms page. It has nothing about you, so Gemini in the cloud reads it.',
+    cloud: detail,
+  };
+  $('routeText').textContent = text[where];
+}
+
+// One job at a time can be stopped with the Stop button.
+let job: AbortController | undefined;
+function startJob(): AbortSignal {
+  job?.abort();
+  job = new AbortController();
+  $('stop').hidden = false;
+  return job.signal;
+}
+function endJob() { job = undefined; $('stop').hidden = true; }
+const wasStopped = (e: unknown) => (e as Error)?.name === 'AbortError';
+
+// On the hosted panel the demo store sits next to the cards, so clicking a
+// card highlights the line right there, the same way the extension does on
+// a real page.
+function highlightInDemo(quote: string): boolean {
+  const doc = ($('sandbox') as HTMLIFrameElement).contentDocument;
+  return doc?.body ? markQuote(doc, quote) : false;
 }
 
 // Saved demo results are only used for our own demo store and its terms page.
@@ -291,6 +358,9 @@ async function demo() {
   const frame = $('sandbox') as HTMLIFrameElement;
   frame.src = '/demo-store/index.html';
   await new Promise((r) => (frame.onload = r));
+  document.body.classList.add('demo-open');
+  frame.removeAttribute('aria-hidden');
+  frame.tabIndex = 0;
   load(snapshotDocument(frame.contentDocument!, new URL('/demo-store/index.html', location.href).href));
 }
 
@@ -325,6 +395,7 @@ $('demo').onclick = demo;
 $('sendRedacted').onclick = sendRedacted;
 $('stayLocal').onclick = () => ($('consent').hidden = true);
 $('readTerms').onclick = readTerms;
+$('stop').onclick = () => job?.abort();
 $('remind').onclick = remind;
 renderSaved();
 if (inExtension) $('demo').hidden = true;
