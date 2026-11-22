@@ -154,7 +154,7 @@ export function pageToPrompt(page: PageSnapshot, maxChars = current.max_page_cha
   return `Page: ${page.title}\n\n${clip(page.text, maxChars)}\n\nCheckboxes:\n${boxes}`;
 }
 
-export interface DeviceRead { findings: RawFinding[]; source: string; parts: number; tokens: number; exact: boolean; trimmed: boolean }
+export interface DeviceRead { findings: RawFinding[]; source: string; parts: number; tokens: number; exact: boolean; trimmed: boolean; prompts: string[] }
 
 function aborted(signal?: AbortSignal): Promise<never> {
   return new Promise((_, reject) => signal?.addEventListener('abort', () => reject(new DOMException('Stopped', 'AbortError')), { once: true }));
@@ -179,7 +179,7 @@ export async function analyzeOnDevice(
     findings.push(...parseFindings(result.response.text()));
     source = result.response.inferenceSource ?? source;
   }
-  return { findings, source, parts: plan.prompts.length, tokens: plan.budget.used, exact: plan.budget.exact, trimmed: plan.trimmed };
+  return { findings, source, parts: plan.prompts.length, tokens: plan.budget.used, exact: plan.budget.exact, trimmed: plan.trimmed, prompts: plan.prompts };
 }
 
 export interface CancelSteps {

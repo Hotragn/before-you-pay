@@ -6,25 +6,29 @@ import { redact } from './redact';
 // refund rule come from the public terms page. The cloud never sees the
 // checkout page, so it never learns when you will be charged or how much.
 
+// from: 'gemini' when the line is a verified quote Gemini picked, 'basic' when
+// it was found by pattern in the terms text. Set per fact.
 export interface TermsFacts {
-  notice?: { hours: number; quote: string };
-  noRefund?: { quote: string };
-  from: 'gemini' | 'basic'; // gemini: a verified quote Gemini picked; basic: found by pattern in the terms text
+  notice?: { hours: number; quote: string; from: 'gemini' | 'basic' };
+  noRefund?: { quote: string; from: 'gemini' | 'basic' };
 }
 
 const WORD_NUM: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, ten: 10, fourteen: 14, thirty: 30 };
-const NOTICE = /at least (\d+|one|two|three|four|five|six|seven|ten|fourteen|thirty)\s+(business days?|days?|hours?)\s+(?:before|prior to|in advance of)/i;
+const N = '(\\d+|one|two|three|four|five|six|seven|ten|fourteen|thirty)\\s+(?:\\(\\d+\\)\\s+)?(business days?|days?|hours?)';
+// "at least 24 hours before", "no later than 3 days prior to", or "30 days' notice".
+const NOTICE = new RegExp(`(?:at least|no later than|no less than|a minimum of)\\s+${N}\\s+(?:before|prior to|in advance)|${N}['’]?s?\\s+(?:written\\s+|advance\\s+|prior\\s+)?notice`, 'i');
 const NO_REFUND = /non-?refundable|no refunds?\b|not (?:be )?refund(?:ed|able)|do not (?:provide|offer|give) refunds/i;
 
 function sentences(text: string): string[] {
   return text.split(/(?<=[.!?])\s+|\n+/).map((s) => s.trim()).filter((s) => s.length > 8 && s.length < 400);
 }
 
-function noticeIn(s: string): TermsFacts['notice'] {
+function noticeIn(s: string): { hours: number; quote: string } | undefined {
   const m = s.match(NOTICE);
   if (!m) return undefined;
-  const n = /^\d+$/.test(m[1]) ? Number(m[1]) : WORD_NUM[m[1].toLowerCase()];
-  const unit = m[2].toLowerCase();
+  const num = m[1] ?? m[3];
+  const n = /^\d+$/.test(num) ? Number(num) : WORD_NUM[num.toLowerCase()];
+  const unit = (m[2] ?? m[4]).toLowerCase();
   // Business days are counted as calendar days plus a margin, to stay safe.
   const hours = unit.startsWith('hour') ? n : unit.startsWith('business') ? Math.ceil(n * 7 / 5) * 24 : n * 24;
   return { hours, quote: s };
@@ -35,15 +39,14 @@ function noticeIn(s: string): TermsFacts['notice'] {
 export function termsFacts(termsText: string, geminiQuotes: string[]): TermsFacts {
   const page = normalize(termsText);
   const real = geminiQuotes.filter((q) => q.trim().length > 8 && page.includes(normalize(q)));
-  const pick = (list: string[]) => {
-    const notice = list.map(noticeIn).find(Boolean);
+  const pick = (list: string[], from: 'gemini' | 'basic') => {
+    const n = list.map(noticeIn).find(Boolean);
     const nr = list.find((s) => NO_REFUND.test(s));
-    return { notice, noRefund: nr ? { quote: nr } : undefined };
+    return { notice: n ? { ...n, from } : undefined, noRefund: nr ? { quote: nr, from } : undefined };
   };
-  const g = pick(real);
-  const b = pick(sentences(termsText));
-  const facts: TermsFacts = { notice: g.notice ?? b.notice, noRefund: g.noRefund ?? b.noRefund, from: g.notice || g.noRefund ? 'gemini' : 'basic' };
-  return facts;
+  const g = pick(real, 'gemini');
+  const b = pick(sentences(termsText), 'basic');
+  return { notice: g.notice ?? b.notice, noRefund: g.noRefund ?? b.noRefund };
 }
 
 // The last day to cancel. The page never says what time the charge happens,

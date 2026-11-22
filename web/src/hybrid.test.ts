@@ -29,6 +29,12 @@ function cloudRead(): RawFinding[] {
 const termsText = () => new JSDOM(read('../public/terms.html')).window.document.body.textContent!.replace(/\s+/g, ' ');
 
 describe('first-year cost', () => {
+  it('counts only the bills inside the first 12 months', () => {
+    const page = { url: 'https://x.test/', title: 't', text: 'Your 3-month free trial starts today. After your trial, it is $10.00/month.', capturedAt: '2026-11-22T15:00:00.000Z', checkboxes: [], links: [] } as PageSnapshot;
+    const fy = firstYear(verifyFindings(ruleFindings(page), page, 'rules'), page)!;
+    expect(fy.lines[0].count).toBe(9);
+    expect(fy.total).toBe(90);
+  });
   it('reads periods from the words', () => {
     expect(periodFromText('+$3.99 each month')).toBe('month');
     expect(periodFromText('We add $2.49 to every bill')).toBe('bill');
@@ -55,15 +61,25 @@ describe('first-year cost', () => {
 });
 
 describe('cancel-by date', () => {
+  it('reads other ways of writing the notice, and not reminders', () => {
+    const t = (x: string) => termsFacts(x + ' Filler sentence to make it long enough.', []).notice?.hours;
+    expect(t('Cancel no later than 48 hours before renewal.')).toBe(48);
+    expect(t('We need 30 days\' written notice to cancel.')).toBe(720);
+    expect(t('Give three (3) business days notice.')).toBe(120);
+    expect(t('We will remind you 7 days before your trial ends.')).toBeUndefined();
+  });
   it('finds the notice and refund lines on the demo terms page', () => {
     const facts = termsFacts(termsText(), []);
     expect(facts.notice?.hours).toBe(24);
     expect(facts.noRefund?.quote).toMatch(/non-refundable/);
-    expect(facts.from).toBe('basic');
+    expect(facts.notice?.from).toBe('basic');
   });
   it('uses a quote from Gemini only if it is really on the terms page', () => {
     expect(termsFacts(termsText(), ['You must cancel at least 7 days before your renewal date.']).notice?.hours).toBe(24);
-    expect(termsFacts(termsText(), ['You must cancel at least 24 hours before your renewal date to avoid being charged for the next period.']).from).toBe('gemini');
+    const g = termsFacts(termsText(), ['You must cancel at least 24 hours before your renewal date to avoid being charged for the next period.']);
+    expect(g.notice?.from).toBe('gemini');
+    // The refund line was not quoted by Gemini, so it keeps its own label.
+    expect(g.noRefund?.from).toBe('basic');
   });
   it('keeps the notice plus one day of margin', () => {
     expect(cancelBy('2026-12-06', { hours: 24 })).toBe('2026-12-04');

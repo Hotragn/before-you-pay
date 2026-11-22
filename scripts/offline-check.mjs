@@ -47,7 +47,7 @@ console.log('network requests during the offline read:', requests.length, reques
 await p.screenshot({ path: new URL('../docs/offline-stub.png', import.meta.url).pathname, fullPage: true });
 // The privacy receipt for this stand-in read (on-device row, 0 requests to Gemini).
 console.log('ledger:', await p.$eval('#ledger', (e) => e.innerText.slice(0, 400)));
-await (await p.$('#receipt')).screenshot({ path: new URL('../docs/receipt-offline-stub.png', import.meta.url).pathname });
+await (await p.$('#receipt')).screenshot({ path: '/tmp/receipt-offline-stub.png' }); // stand-in only, not for docs
 await p.click('#readTerms');
 await new Promise((r) => setTimeout(r, 3000));
 console.log('terms while offline:', await p.$eval('#cancelOut', (e) => e.textContent));

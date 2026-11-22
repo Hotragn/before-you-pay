@@ -170,7 +170,7 @@ async function readOnDevice() {
       signal,
       onPart: (i, n) => { if (n > 1) status(`Long page, reading it in ${n} parts on your device: part ${i}...`); },
     }));
-    await record({ what: 'Checkout page', where: read.source === 'in_cloud' ? 'in_cloud' : 'on_device', text: pageToPrompt(current, 20000), requests, personal: current.personal });
+    await record({ what: read.parts > 1 ? `Checkout page, ${read.parts} parts` : 'Checkout page', where: read.source === 'in_cloud' ? 'in_cloud' : 'on_device', text: read.prompts.join('\n\n'), requests, personal: current.personal });
     renderLedger();
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
     const where = read.source === 'in_cloud' ? 'in_cloud' : 'on_device';
@@ -473,10 +473,14 @@ function renderDeadline() {
     qs.append(b);
   };
   add(trial.quote, trial.source);
-  const termsSource = terms?.facts.from === 'gemini' ? terms.source : 'rules';
-  if (notice) add(notice.quote, termsSource);
-  if (terms?.facts.noRefund) add(terms.facts.noRefund.quote, termsSource);
-  $('dlHow').textContent = `Trial date and prices: from this page, ${WHERE_WORDS[trial.source]}. Notice and refunds: ${terms ? 'from the public terms page, read in the cloud' : 'not read yet'}. Put together here in your browser, so the terms reader never learns what you picked or when you pay.`;
+  if (notice) add(notice.quote, notice.from === 'gemini' ? terms!.source : 'rules');
+  if (terms?.facts.noRefund) add(terms.facts.noRefund.quote, terms.facts.noRefund.from === 'gemini' ? terms.source : 'rules');
+  const privacy = trial.source === 'on_device'
+    ? 'Put together here in your browser, so the cloud never saw what you picked or when you pay.'
+    : trial.source === 'in_cloud'
+      ? 'Put together here in your browser. A redacted copy of this page went to the cloud earlier because you said yes; with Gemini Nano it would not leave this device.'
+      : 'Put together here in your browser.';
+  $('dlHow').textContent = `Trial date and prices: from this page, ${WHERE_WORDS[trial.source]}. Notice and refunds: ${terms ? 'from the public terms page, read in the cloud' : 'not read yet'}. ${privacy}`;
 }
 
 function downloadIcs() {
@@ -484,7 +488,7 @@ function downloadIcs() {
   if (!trial?.convertsOn || !page) return;
   const fy = firstYear(findings, page);
   const by = cancelBy(trial.convertsOn, terms?.facts.notice);
-  const site = new URL(page.url).hostname || 'this site';
+  const site = isOurDemo(page.url) ? 'Tunebox (demo store)' : (new URL(page.url).hostname || 'this site');
   const quotes = [trial.quote, terms?.facts.notice?.quote, terms?.facts.noRefund?.quote].filter(Boolean) as string[];
   const ics = icsFor({ site, cancelBy: by, convertsOn: trial.convertsOn, firstBill: fy ? money(fy.firstBill) : (trial.amount ?? ''), quotes });
   const a = document.createElement('a');

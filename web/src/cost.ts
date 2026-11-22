@@ -63,7 +63,21 @@ export function firstYear(findings: Finding[], page: PageSnapshot): FirstYear | 
   if (!base) return undefined;
   const basePeriod = periodOf(base, page);
   if (!basePeriod || basePeriod === 'once' || basePeriod === 'bill') return undefined;
-  const bills = PER_YEAR[basePeriod];
+  // Bills that fall inside the 12 months from today, starting when the trial
+  // ends (or today). A 3-month trial leaves 9 monthly bills in the first year.
+  const start = trial?.convertsOn ? new Date(trial.convertsOn + 'T12:00:00') : new Date(page.capturedAt);
+  const end = new Date(page.capturedAt); end.setFullYear(end.getFullYear() + 1);
+  const countIn = (p: Exclude<Period, 'bill' | 'once'>) => {
+    let n = 0; const d = new Date(start.getTime());
+    while (d < end && n < 60) {
+      n++;
+      if (p === 'month') d.setMonth(d.getMonth() + 1);
+      else if (p === 'year') d.setFullYear(d.getFullYear() + 1);
+      else d.setDate(d.getDate() + (p === 'week' ? 7 : 28));
+    }
+    return n;
+  };
+  const bills = countIn(basePeriod);
   const add = (f: Finding, label: string, period: Period, count: number) => {
     const amount = value(f.amount);
     lines.push({ label, quote: f.quote, amount, period, count, subtotal: Math.round(amount * count * 100) / 100, source: f.source });
@@ -83,7 +97,7 @@ export function firstYear(findings: Finding[], page: PageSnapshot): FirstYear | 
       }
       if (p === 'bill') { add(f, label, basePeriod, bills); firstBill += value(f.amount); continue; }
       if (PER_YEAR[p]) {
-        add(f, label, p, PER_YEAR[p]);
+        add(f, label, p, countIn(p));
         if (p === basePeriod) firstBill += value(f.amount);
         continue;
       }
