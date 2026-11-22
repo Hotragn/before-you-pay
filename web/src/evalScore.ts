@@ -23,7 +23,8 @@ export interface Score {
 // is shown to the user as "check this line", so it is not a claim.
 export function score(found: Finding[], labels: Labels): Score {
   const v = found.filter((f) => f.verification === 'verified');
-  const trial = v.find((f) => f.kind === 'trial_conversion');
+  const trials = v.filter((f) => f.kind === 'trial_conversion');
+  const trial = trials.find((f) => f.amount) ?? trials[0];
   const predRecurring = set([
     ...v.filter((f) => f.kind === 'recurring_charge').map((f) => f.amount),
     trial?.amount,

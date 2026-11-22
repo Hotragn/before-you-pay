@@ -5,11 +5,12 @@
 <style>html, body, iframe { margin: 0; padding: 0; border: 0; width: 100%; height: 100%; }</style>
 </head>
 <body>
-  <!-- The checker itself is the hosted web app. Running it on a real web origin
-       lets Firebase App Check use reCAPTCHA (extension pages cannot load it),
-       and allow="language-model" hands the on-device Prompt API to the frame. -->
-  <iframe id="app" allow="language-model"></iframe>
+  <!-- The checker is the hosted web app. On a real web origin Firebase App Check
+       can use reCAPTCHA Enterprise (extension pages cannot load it), and
+       allow="language-model" hands Chrome's on-device Prompt API to the frame. -->
+  <iframe id="app" allow="language-model" title="Before You Pay"></iframe>
   <script src="app-url.js"></script>
+  <script src="config.js"></script>
   <script src="sidepanel.js"></script>
 </body>
 </html>

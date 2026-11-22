@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Before You Pay",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "See what a checkout page commits you to, in its own words, read by the AI model on your computer.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArHsH+ggXF8031p0A+7P9UnDM88qkqbt3Nu0r5Ajr+lV3OYOvF6/HsIH6vULftArvuPNU1PASbg2OCabe4jc6x2q0gh+tVpreJVxWkb1W9aoRwB1GmB9CJpkY825mVx0tLniKn6nVQJhOUqUsb4d9+R/VTALYl71JjfrgxtJ+BH/Z8HCyCIPKn2uhNwzjpD8lMHVqAoyHY6x8eDe8llYJzBVu/WmZRGnAOajjbiVufJX2qMYGiMb1tO6zeViA5bFTATARBuUChZfPLyJAAtKn1oUnKGBVRxEZE0ZpbtmLnBpv7x/O12p0l2/Eto16ltpZCsow1yAlDnU+EAs3oeKAMwIDAQAB",
   "permissions": [
     "sidePanel",
     "activeTab",
@@ -15,15 +16,22 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Before You Pay"
+    "default_title": "Before You Pay",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   },
   "side_panel": {
     "default_path": "sidepanel.html"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; frame-src http://127.0.0.1:5173 https://*.web.app https://*.firebaseapp.com"
-  },
-  "host_permissions": [
-    "http://127.0.0.1:5173/*"
-  ]
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src https://before-you-pay-9b8c6.web.app"
+  }
 }

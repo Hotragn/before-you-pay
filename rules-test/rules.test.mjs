@@ -33,8 +33,16 @@ test('extra fields, bad hashes and edits are rejected', async () => {
   const db = env.authenticatedContext('alice').firestore();
   await assertFails(setDoc(doc(db, 'users/alice/proofs/x1'), { ...good(), cardNumber: '4242' }));
   await assertFails(setDoc(doc(db, 'users/alice/proofs/x2'), { ...good(), sha256: 'short' }));
-  await assertFails(setDoc(doc(db, 'users/alice/proofs/x3'), { ...good(), quotes: Array(31).fill({ quote: 'x' }) }));
+  await assertFails(setDoc(doc(db, 'users/alice/proofs/x3'), { ...good(), quotes: Array(11).fill({ kind: 'fee', quote: 'x' }) }));
   await assertFails(updateDoc(doc(db, 'users/alice/proofs/p1'), { remindOn: '2027-01-01' }));
+});
+test('quote items must be small maps of strings', async () => {
+  const db = env.authenticatedContext('alice').firestore();
+  await assertFails(setDoc(doc(db, 'users/alice/proofs/q1'), { ...good(), quotes: [{ kind: 'fee', quote: 'x'.repeat(501) }] }));
+  await assertFails(setDoc(doc(db, 'users/alice/proofs/q2'), { ...good(), quotes: [{ kind: 'fee', quote: 'ok', name: 'Jordan' }] }));
+  await assertFails(setDoc(doc(db, 'users/alice/proofs/q3'), { ...good(), quotes: ['just a string'] }));
+  await assertFails(setDoc(doc(db, 'users/alice/proofs/q4'), { ...good(), remindOn: 'tomorrow!!' }));
+  await assertSucceeds(setDoc(doc(db, 'users/alice/proofs/q5'), { ...good(), quotes: Array(10).fill({ kind: 'fee', quote: 'ok', amount: '$1.99' }) }));
 });
 test('everything outside saved offers is closed', async () => {
   const db = env.authenticatedContext('alice').firestore();

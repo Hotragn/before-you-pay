@@ -1,0 +1,906 @@
+{
+  "mode": "cloud",
+  "when": "2026-11-22T08:16:03.715Z",
+  "summary": {
+    "pages": 16,
+    "amountPrecision": 0.8611111111111112,
+    "amountRecall": 0.9393939393939394,
+    "trialAccuracy": 0.6,
+    "trialPages": 5,
+    "renewAccuracy": 0.9375,
+    "linkAccuracy": 0.9375,
+    "unverifiedFindings": 0
+  },
+  "errors": 0,
+  "rows": [
+    {
+      "id": "f01-streaming",
+      "ms": 2908,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": true,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Due today: $0.00",
+          "amount": "$0.00",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "trial_conversion",
+          "quote": "7-day free trial, then $13.99/mo.",
+          "amount": "$13.99",
+          "period": "month",
+          "trialLength": 7,
+          "trialUnit": "day",
+          "source": "in_cloud",
+          "verification": "verified",
+          "convertsOn": "2026-11-29"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "Your membership will automatically renew each month at the then-current price until you cancel.",
+          "amount": "",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add 4K Ultra HD + spatial audio (+$4.99/mo)",
+          "amount": "$4.99",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your membership will automatically renew each month at the then-current price until you cancel.",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f02-meal-kit",
+      "ms": 2769,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Total today: $37.95",
+          "amount": "$37.95",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "After your first box, your plan continues at $69.90 every week plus shipping.",
+          "amount": "$69.90",
+          "period": "week",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your subscription renews automatically each week.",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Skip or cancel deliveries",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f03-fitness-app",
+      "ms": 6053,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": true,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Today: $0",
+          "amount": "$0",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "trial_conversion",
+          "quote": "After your trial ends, you will be charged $79.99 per year.",
+          "amount": "$79.99",
+          "period": "year",
+          "trialLength": 14,
+          "trialUnit": "day",
+          "source": "in_cloud",
+          "verification": "verified",
+          "convertsOn": "2026-12-06"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "After your trial ends, you will be charged $79.99 per year.",
+          "amount": "$79.99",
+          "period": "year",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "The subscription renews each year unless turned off at least 24 hours before the end of the current period.",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f04-cloud-storage",
+      "ms": 6125,
+      "s": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Due today: $129.87",
+          "amount": "$129.87",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "$8.33/mo, billed annually at $99.99",
+          "amount": "$8.33",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "$8.33/mo, billed annually at $99.99",
+          "amount": "$99.99",
+          "period": "year",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Ransomware Rollback Protection - $2.49/mo, billed with your plan",
+          "amount": "$2.49",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your plan will automatically renew every year at the then-current rate.",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "You can turn off auto-renewal any time in Account Settings.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancel subscription",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f05-news",
+      "ms": 5067,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": false,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "charge your payment method $1 today",
+          "amount": "$1",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "trial_conversion",
+          "quote": "after your first month, $17 per month",
+          "amount": "$17",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "$17 per month",
+          "amount": "$17",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "The Morning Brief newsletter",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Offers from our partners",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Taxes may apply depending on your state of residence",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "By subscribing, you authorize us to charge your payment method $1 today and, after your first month, $17 per month, which will automatically renew until you cancel.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "automatically renew until you cancel",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Subscriber terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f06-software",
+      "ms": 1278,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Price: $149.00 - one-time payment",
+          "amount": "$149.00",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "due_today",
+          "quote": "Order total: $151.50",
+          "amount": "$151.50",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Payment processing fee: $2.50",
+          "amount": "$2.50",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "License agreement and terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f07-dating",
+      "ms": 1156,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": false,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Total due today: $7.98",
+          "amount": "$7.98",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "trial_conversion",
+          "quote": "Then $9.99/week",
+          "amount": "$9.99",
+          "period": "week",
+          "trialLength": 1,
+          "trialUnit": "week",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "Then $9.99/week",
+          "amount": "$9.99",
+          "period": "week",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Profile Boost - be seen first in your area ($2.99/week)",
+          "amount": "$2.99",
+          "period": "week",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Subscriptions automatically renew weekly at the full price unless cancelled at least 24 hours before the renewal date.",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f08-car-wash",
+      "ms": 4222,
+      "s": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "Unlimited Express Wash: $24.99/month",
+          "amount": "$24.99",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Tire Shine to every wash (+$3/month)",
+          "amount": "$3",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "One-time activation fee: $5.00",
+          "amount": "$5.00",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your card will be charged automatically on the same date each month.",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Membership terms and cancellation",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f09-vpn",
+      "ms": 1190,
+      "s": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Due today: $71.76",
+          "amount": "$71.76",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "$71.76 for the first 2 years",
+          "amount": "$71.76",
+          "period": "year",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your subscription will automatically renew at $99.99 per year after the initial term unless you turn off auto-renew in your account.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your subscription will automatically renew at $99.99 per year after the initial term unless you turn off auto-renew in your account.",
+          "amount": "$99.99",
+          "period": "year",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f10-language-learning",
+      "ms": 1080,
+      "s": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Total today: $89.99",
+          "amount": "$89.99",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "$89.99 one-time for 12 months of full access",
+          "amount": "$89.99",
+          "period": "year",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Send me daily practice reminders",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f11-pet-food",
+      "ms": 1090,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Due today: $44.93",
+          "amount": "$44.93",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "Then $59.90 every 4 weeks",
+          "amount": "$59.90",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add dental chews to every delivery ($8.99 every 4 weeks)",
+          "amount": "$8.99",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Autoship renews automatically until you cancel.",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Autoship terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f12-gym",
+      "ms": 1396,
+      "s": {
+        "tp": 3,
+        "fp": 1,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Due today\t$68.99",
+          "amount": "$68.99",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "Monthly dues\t$39.99 per month",
+          "amount": "$39.99",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "Personal training, 4 sessions ($120.00/month)",
+          "amount": "$120.00",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Enrollment fee (one-time)\t$29.00",
+          "amount": "$29.00",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Annual maintenance fee (billed each March)\t$49.00",
+          "amount": "$49.00",
+          "period": "year",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Membership continues month to month until cancelled with 30 days written notice.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Monthly dues are drafted automatically from your card on the 1st of each month.",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancellation policy",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f13-kids-learning",
+      "ms": 963,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": false,
+        "linkOk": false,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "$7.99 per month",
+          "amount": "$7.99",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Email me weekly progress reports",
+          "period": "unknown",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancel anytime.",
+          "period": "unknown",
+          "source": "in_cloud",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f14-photo-editing",
+      "ms": 1190,
+      "s": {
+        "tp": 1,
+        "fp": 2,
+        "fn": 0,
+        "trialOk": true,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "$0 today",
+          "amount": "$0",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "trial_conversion",
+          "quote": "Unless you cancel before the end of your 30-day trial, your subscription will automatically convert to the Annual Plan, paid monthly, and you will be charged $22.99 per month.",
+          "amount": "$22.99",
+          "period": "month",
+          "trialLength": 30,
+          "trialUnit": "day",
+          "source": "in_cloud",
+          "verification": "verified",
+          "convertsOn": "2026-12-22"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Font & Texture Pack ($2.99/mo)",
+          "amount": "$2.99",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "The Annual Plan is a 12-month commitment and renews automatically each year.",
+          "period": "year",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of use",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancellation terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f15-ticketing",
+      "ms": 1077,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Total\t$168.95",
+          "amount": "$168.95",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Facility fee\t$3.00",
+          "amount": "$3.00",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Order processing fee\t$4.95",
+          "amount": "$4.95",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Service fees\t$25.00",
+          "amount": "$25.00",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Purchase terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f16-hotel",
+      "ms": 1150,
+      "s": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "Pay now: $591.00",
+          "amount": "$591.00",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Booking Protection - refundable cancellation up to 24 hours before arrival ($24.00)",
+          "amount": "$24.00",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Resort fee: $35.00 per night, charged at the property",
+          "amount": "$35.00",
+          "period": "day",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancellation policy",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    }
+  ]
+}

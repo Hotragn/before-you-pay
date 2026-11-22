@@ -1,6 +1,7 @@
 import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getFirebaseApp } from './firebase';
+import { redact } from './redact';
 import type { Finding, PageSnapshot } from './types';
 
 // A "proof of offer": what the page promised, in its own words, with a time
@@ -22,7 +23,8 @@ async function sha256(s: string): Promise<string> {
 export async function buildProof(page: PageSnapshot, findings: Finding[], remindOn?: string): Promise<ProofOfOffer> {
   const quotes = findings
     .filter((f) => f.verification === 'verified' && f.kind !== 'cancel_path')
-    .map((f) => ({ kind: f.kind, quote: f.quote, ...(f.amount ? { amount: f.amount } : {}) }));
+    .map((f) => ({ kind: f.kind, quote: redact(f.quote).slice(0, 500), ...(f.amount ? { amount: f.amount.slice(0, 20) } : {}) }))
+    .slice(0, 10);
   const site = new URL(page.url).hostname;
   const body = JSON.stringify({ site, capturedAt: page.capturedAt, quotes });
   return { site, capturedAt: page.capturedAt, remindOn, quotes, sha256: await sha256(body) };
@@ -34,31 +36,33 @@ async function currentUid(): Promise<string> {
   return (auth.currentUser ?? (await signInAnonymously(auth)).user).uid;
 }
 
+function localProofs(): ProofOfOffer[] {
+  return JSON.parse(localStorage.getItem('byp.proofs') ?? '[]');
+}
+
+// Saved offers from the account plus any that were kept on this device while
+// offline, newest first, without duplicates.
 export async function listProofs(): Promise<ProofOfOffer[]> {
+  let remote: ProofOfOffer[] = [];
   try {
     const uid = await currentUid();
     const snap = await getDocs(query(collection(getFirestore(getFirebaseApp()), 'users', uid, 'proofs'), orderBy('capturedAt', 'desc'), limit(20)));
-    return snap.docs.map((d) => d.data() as ProofOfOffer);
+    remote = snap.docs.map((d) => d.data() as ProofOfOffer);
   } catch (e) {
     console.warn('Could not read saved offers from Firestore', e);
-    return JSON.parse(localStorage.getItem('byp.proofs') ?? '[]');
   }
+  const seen = new Set(remote.map((p) => p.sha256));
+  return [...remote, ...localProofs().filter((p) => !seen.has(p.sha256))].sort((a, b) => b.capturedAt.localeCompare(a.capturedAt));
 }
 
 export async function saveProof(proof: ProofOfOffer): Promise<'firestore' | 'local'> {
-  const app = getFirebaseApp();
-  if (app) {
-    try {
-      const uid = await currentUid();
-      const user = { uid };
-      await addDoc(collection(getFirestore(app), 'users', user.uid, 'proofs'), { ...JSON.parse(JSON.stringify(proof)), savedAt: serverTimestamp() });
-      return 'firestore';
-    } catch (e) {
-      console.warn('Firestore save failed, keeping it on this device', e);
-    }
+  try {
+    const uid = await currentUid();
+    await addDoc(collection(getFirestore(getFirebaseApp()), 'users', uid, 'proofs'), { ...JSON.parse(JSON.stringify(proof)), savedAt: serverTimestamp() });
+    return 'firestore';
+  } catch (e) {
+    console.warn('Firestore save failed, keeping it on this device', e);
   }
-  const all = JSON.parse(localStorage.getItem('byp.proofs') ?? '[]');
-  all.push(proof);
-  localStorage.setItem('byp.proofs', JSON.stringify(all));
+  localStorage.setItem('byp.proofs', JSON.stringify([...localProofs(), proof]));
   return 'local';
 }

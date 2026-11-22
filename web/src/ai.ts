@@ -73,7 +73,7 @@ export function useSettings(s: Settings) { current = s; }
 export function models(settings: Settings = current) {
   if (modelFor !== settings.cloud_model) { publicModel = undefined; redactedModel = undefined; modelFor = settings.cloud_model; }
   const app = getFirebaseApp();
-  const ai = getAI(app, { backend: new GoogleAIBackend() });
+  const ai = getAI(app, { backend: new GoogleAIBackend(), useLimitedUseAppCheckTokens: true });
   privateModel ??= getGenerativeModel(ai, {
     mode: InferenceMode.ONLY_ON_DEVICE,
     onDeviceParams: {

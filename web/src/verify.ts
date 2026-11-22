@@ -31,11 +31,18 @@ function amountValue(a: string): number {
   return Number(a.replace(/[^\d.]/g, ''));
 }
 
-// An amount from the model only counts if the same amount is written on the page.
-export function amountOnPage(amount: string, page: PageSnapshot): boolean {
+// An amount from the model only counts if the same amount is written on the
+// page. Returns the amount as the page prints it (models often drop the "$").
+export function amountOnPage(amount: string, page: PageSnapshot): string | undefined {
   const v = amountValue(amount);
-  if (!Number.isFinite(v)) return false;
-  return amountsIn(page.text).some((a) => Math.abs(amountValue(a) - v) < 0.005);
+  if (!Number.isFinite(v)) return undefined;
+  const all = [page.text, ...page.checkboxes.map((c) => c.label)].join('\n');
+  return amountsIn(all).find((a) => Math.abs(amountValue(a) - v) < 0.005);
+}
+
+export function localDate(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 export function addTrial(start: Date, length: number, unit: string): Date | undefined {
@@ -56,16 +63,21 @@ export function verifyFindings(
   const start = new Date(page.capturedAt);
   return raw.map((r) => {
     const f: Finding = { ...r, source, verification: 'verified' };
+    const printed = r.amount ? amountOnPage(r.amount, page) : undefined;
     if (!quoteAppears(r.quote, page)) {
       f.verification = 'unverified';
       f.reason = 'The quoted words are not on this page.';
-    } else if (r.amount && !amountOnPage(r.amount, page)) {
+    } else if (r.amount && !printed) {
       f.verification = 'unverified';
       f.reason = `${r.amount} does not appear on this page.`;
     }
-    if (r.kind === 'trial_conversion' && r.trialLength && r.trialUnit) {
+    if (printed) f.amount = printed;
+    // A reminder date is only worked out from a verified quote that itself
+    // contains the trial length, so a made-up number can never set a reminder.
+    if (f.verification === 'verified' && r.kind === 'trial_conversion' && r.trialLength && r.trialUnit
+      && new RegExp(`\\b${r.trialLength}[-\\s]?(day|week|month)`, 'i').test(r.quote)) {
       const d = addTrial(start, r.trialLength, r.trialUnit);
-      if (d) f.convertsOn = d.toISOString().slice(0, 10);
+      if (d) f.convertsOn = localDate(d);
     }
     return f;
   });

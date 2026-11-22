@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { ruleFindings } from './rules';
 import { verifyFindings, quoteAppears, addTrial } from './verify';
 import { redact } from './redact';
+import { mergeFindings } from './merge';
 import { snapshotDocument } from './snapshot';
 import type { PageSnapshot } from './types';
 
@@ -68,5 +69,25 @@ describe('fees and duplicates', () => {
   });
   it('does not report a ticked add-on twice', () => {
     expect(found.filter((f) => f.quote.includes('Priority Support')).length).toBe(1);
+  });
+});
+
+describe('review fixes', () => {
+  it('a price like $14.99 does not count as a 14 day trial', () => {
+    const page = { url: 'https://x.test/', title: 't', text: 'Start free. Then $14.99/month.', capturedAt: '2026-11-22T12:00:00Z', checkboxes: [], links: [] } as any;
+    const [f] = verifyFindings([{ kind: 'trial_conversion', quote: 'Then $14.99/month.', amount: '14.99', trialLength: 14, trialUnit: 'day' } as any], page, 'in_cloud');
+    expect(f.verification).toBe('verified');
+    expect(f.amount).toBe('$14.99');
+    expect(f.convertsOn).toBeUndefined();
+  });
+  it('redaction removes emails, cards and phones but keeps prices', () => {
+    const out = redact('Mail jo@ex.com, card 4111 1111 1111 1111, call (555) 123-4567. Price $14.99/month.');
+    expect(out).not.toMatch(/jo@ex\.com|4111|123-4567/);
+    expect(out).toContain('$14.99');
+  });
+  it('a model cancel card is dropped when real links exist', () => {
+    const a = { kind: 'cancel_path', quote: 'How to cancel', source: 'rules', verification: 'verified' } as any;
+    const b = { kind: 'cancel_path', quote: 'See terms and How to cancel.', source: 'in_cloud', verification: 'verified' } as any;
+    expect(mergeFindings([a], [b])).toHaveLength(1);
   });
 });

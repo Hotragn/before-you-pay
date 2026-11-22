@@ -4,40 +4,54 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Before You Pay</title>
+<link rel="icon" href="/icon.svg" />
 <link rel="stylesheet" href="/src/panel.css" />
 </head>
 <body>
   <header>
-    <h1>Before You Pay</h1>
-    <p id="site" class="muted">Open a checkout or signup page, then press Check this page.</p>
+    <div class="brand"><img src="/icon.svg" alt="" width="26" height="26" /><h1>Before You Pay</h1></div>
+    <p id="site" class="muted">Open a checkout or signup page, then press Check.</p>
   </header>
+
+  <p class="where">
+    <span class="badge on_device">ON DEVICE</span> this page, which has your details&nbsp;
+    <span class="badge in_cloud">IN CLOUD</span> public terms only
+  </p>
+
   <section id="actions">
-    <button id="check" class="primary">Check this page on my device</button>
-    <button id="demo" class="link">No page? Try the demo store</button>
-    <p id="status" class="muted"></p>
+    <button id="check" class="primary">Check this page</button>
+    <button id="demo" class="link">No checkout page open? Try the demo store</button>
+    <p id="status" class="muted" role="status" aria-live="polite"></p>
   </section>
+
   <section id="consent" hidden>
-    <p><strong>This computer has no on-device model.</strong> Your page has not left this device.
-    You can send a copy with emails, card numbers, phone numbers and addresses removed to Gemini in the cloud, or stay with the basic check.</p>
+    <p id="consentText"></p>
+    <p class="small">You can send a copy to Gemini in the cloud with emails, card details, phone numbers and street addresses removed. Names are not reliably removed. Or stay with the basic check.</p>
     <button id="sendRedacted">Send a redacted copy</button>
     <button id="stayLocal" class="link">Stay with the basic check</button>
   </section>
-  <ol id="cards"></ol>
+
+  <p id="summary" class="summary" hidden></p>
+  <ol id="cards" class="plain"></ol>
+
   <section id="cancel" hidden>
     <h2>How to cancel later</h2>
-    <p class="muted">The cancellation terms are a public page, so Gemini in the cloud reads them. Nothing about you is sent.</p>
+    <p class="muted small">The terms are a public page, so Gemini in the cloud reads them. Nothing about you goes with it.</p>
     <button id="readTerms">Read the cancellation terms</button>
     <div id="cancelOut"></div>
   </section>
+
   <section id="save" hidden>
-    <button id="remind" class="primary">Remind me 2 days before it charges, and save proof</button>
-    <p id="saved" class="muted"></p>
+    <button id="remind" class="primary">Remind me before the first charge and save proof</button>
+    <p id="saved" class="muted small"></p>
   </section>
+
   <section id="savedWrap" hidden>
     <h2>Saved offers</h2>
     <ol id="savedList" class="plain"></ol>
   </section>
-  <iframe id="sandbox" hidden title="demo"></iframe>
+
+  <iframe id="sandbox" title="demo store" tabindex="-1" aria-hidden="true"></iframe>
   <script type="module" src="/src/panel.ts"></script>
 </body>
 </html>
