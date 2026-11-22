@@ -1,7 +1,7 @@
 {
  "about": "Saved answers from real Firebase AI Logic cloud reads of the Before You Pay demo store and its terms page. Used only for those pages, labeled in the panel, and skipped on the next press.",
  "entries": {
-  "a10e7b889880d64a0b6888271044895674b7a3515ba145de2462943bf1e02725": {
+  "cf67575532065f16249990b9eddfadcb9a64fe486f0f06e64182da766c33363b": {
    "kind": "redacted",
    "value": [
     {
@@ -20,6 +20,12 @@
      "kind": "prechecked_addon",
      "quote": "Add Family Sharing for $2.99/month",
      "amount": "2.99",
+     "period": "month"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "Lossless Hi-Fi upgrade\n+$3.99 each month",
+     "amount": "3.99",
      "period": "month"
     },
     {
@@ -43,16 +49,22 @@
      "quote": "A one-time activation fee of $1.99 is charged at the end of the trial.",
      "amount": "1.99",
      "period": "once"
+    },
+    {
+     "kind": "fee",
+     "quote": "We add $2.49 to every bill for music licensing.",
+     "amount": "2.49",
+     "period": "unknown"
     }
    ],
    "source": "in_cloud",
-   "at": "2026-11-22T08:49:33.106Z"
+   "at": "2026-11-22T09:11:47.888Z"
   },
   "20e71d8bbad4b4d6e5b12777934e4f7cab225e9773c11a877977f706db8b6f4c": {
    "kind": "terms",
    "value": {
     "steps": [
-     "Sign in",
+     "Sign in to your account",
      "Open Account",
      "Choose Membership",
      "Select End membership"
@@ -66,7 +78,7 @@
     "refundPolicy": "Payments are non-refundable, and no refunds or credits are provided for partial billing periods."
    },
    "source": "in_cloud",
-   "at": "2026-11-22T08:49:40.397Z"
+   "at": "2026-11-22T09:11:53.043Z"
   },
   "e8c8f2ec94e441da6457d1deaa4b913e6f7baf935e88efea746f305014b545ef": {
    "kind": "terms",
@@ -86,7 +98,7 @@
     "refundPolicy": "Payments are non-refundable, and no refunds or credits are provided for partial billing periods."
    },
    "source": "in_cloud",
-   "at": "2026-11-22T08:50:04.707Z"
+   "at": "2026-11-22T09:12:16.534Z"
   }
  }
 }

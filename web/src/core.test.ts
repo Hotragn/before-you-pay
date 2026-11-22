@@ -134,3 +134,16 @@ describe('free trial or intro price', () => {
     expect(verifyFindings([t('then $17 per month.')], page, 'in_cloud')[0].kind).toBe('trial_conversion');
   });
 });
+
+describe('renewal reading', () => {
+  it('"No automatic renewal" is not shown as a renewal', () => {
+    const page = { url: 'https://x.test/', title: 't', text: 'One payment of $89.99. No automatic renewal.', capturedAt: '2026-11-22T12:00:00Z', checkboxes: [], links: [] } as any;
+    const [f] = verifyFindings([{ kind: 'auto_renew', quote: 'No automatic renewal.' } as any], page, 'in_cloud');
+    expect(f.verification).toBe('unverified');
+  });
+  it('the demo store hides two charges the basic check cannot see', () => {
+    const amounts = ruleFindings(demoSnapshot()).map((f) => f.amount);
+    expect(amounts).not.toContain('$3.99');
+    expect(amounts).not.toContain('$2.49');
+  });
+});

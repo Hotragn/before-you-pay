@@ -8,7 +8,7 @@ import { snapshotDocument } from './snapshot';
 import { buildProof, listProofs, saveProof } from './store';
 import { summaryLine } from './summary';
 import type { Finding, PageSnapshot } from './types';
-import { localDate, verifyFindings } from './verify';
+import { localDate, normalize, verifyFindings } from './verify';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -65,7 +65,8 @@ function niceDate(iso: string) {
 
 function title(f: Finding): string {
   if (f.kind === 'trial_conversion' && f.convertsOn) return `Becomes ${f.amount ?? 'paid'} on ${niceDate(f.convertsOn)}`;
-  return f.amount ? `${LABELS[f.kind]}: ${f.amount}` : LABELS[f.kind];
+  const t = f.amount ? `${LABELS[f.kind]}: ${f.amount}` : LABELS[f.kind];
+  return f.verification === 'verified' ? t : `Not confirmed: ${t}`;
 }
 
 function render() {
@@ -229,6 +230,15 @@ async function readTerms() {
     badge.textContent = SOURCE[source] ?? source;
     for (const s of data.steps) { const li = document.createElement('li'); li.textContent = s; out.querySelector('ol')!.append(li); }
     out.querySelector('p')!.textContent = [data.noticeNeeded, data.refundPolicy].filter(Boolean).join(' ');
+    // The steps are only as good as the lines they came from, so show the
+    // quoted lines that really are on the terms page, and say so if none are.
+    const found = (data.quotes ?? []).filter((q) => q.trim().length > 8 && normalize(text).includes(normalize(q)));
+    for (const q of found.slice(0, 4)) { const b = document.createElement('blockquote'); b.textContent = q; out.append(b); }
+    if (!found.length) {
+      const w = document.createElement('p'); w.className = 'note';
+      w.textContent = 'Not confirmed: none of the lines Gemini quoted were found on the terms page. Read the page before relying on these steps.';
+      out.append(w);
+    }
     if (note) { const n = document.createElement('p'); n.className = 'muted small'; n.textContent = note; out.append(n); }
   } catch (e) {
     out.textContent = `Could not read the terms: ${plain(e)}`;

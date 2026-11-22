@@ -5,18 +5,16 @@
 // app and the Firebase AI Logic SDK read the page with ONLY_ON_DEVICE and make
 // no network request. It does not test the real model.
 import puppeteer from 'puppeteer-core';
+import { readFileSync } from 'node:fs';
 const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: false, userDataDir: '/tmp/byp-offline', args: ['--no-first-run'] });
 const p = await b.newPage();
 await p.setViewport({ width: 400, height: 1100 });
-await p.evaluateOnNewDocument(() => {
-  const answer = { findings: [
-    { kind: 'due_today', quote: '$0.00 due today', amount: '$0.00', period: 'once' },
-    { kind: 'trial_conversion', quote: 'Your 14-day free trial starts today.', amount: '$14.99', period: 'month', trialLength: 14, trialUnit: 'day' },
-    { kind: 'prechecked_addon', quote: 'Add Priority Support for $4.99/month', amount: '$4.99', period: 'month' },
-    { kind: 'prechecked_addon', quote: 'Add Family Sharing for $2.99/month', amount: '$2.99', period: 'month' },
-    { kind: 'fee', quote: 'A one-time activation fee of $1.99 is charged at the end of the trial.', amount: '$1.99', period: 'once' },
-    { kind: 'auto_renew', quote: 'Your subscription renews automatically each month until you cancel.' },
-  ] };
+// The stand-in replays a REAL Gemini answer for the demo store: the saved cloud
+// read in web/public/demo-cache.json. So the cards are real model output for
+// this page, just not produced by Nano on this machine.
+const cache = JSON.parse(readFileSync(new URL('../web/public/demo-cache.json', import.meta.url)));
+const realAnswer = { findings: Object.values(cache.entries).find((e) => e.kind === 'redacted').value };
+await p.evaluateOnNewDocument((answer) => {
   window.__stubCalls = [];
   window.LanguageModel = {
     availability: async () => 'available',
@@ -30,7 +28,7 @@ await p.evaluateOnNewDocument(() => {
       };
     },
   };
-});
+}, realAnswer);
 await p.goto('https://before-you-pay-9b8c6.web.app/panel.html', { waitUntil: 'networkidle2' });
 await p.click('#demo');
 await new Promise((r) => setTimeout(r, 3000));

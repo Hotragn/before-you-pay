@@ -75,6 +75,10 @@ export function looksLikeFreeTrial(quote: string, page: PageSnapshot): boolean {
   return /\btrial\b/i.test(ctx) && !PAID_INTRO.test(ctx);
 }
 
+// The opposite mistake for renewals: a model sometimes quotes "No automatic
+// renewal." as proof that a plan renews. The quote is real, the reading is not.
+const NO_RENEW = /\bno (?:automatic|auto)[- ]?renewal\b|\b(?:does|will) not (?:auto[- ]?)?renew\b|\bwon't renew\b|\bnot renew automatically\b|\bdoes not automatically renew\b/i;
+
 export function verifyFindings(
   raw: RawFinding[],
   page: PageSnapshot,
@@ -92,6 +96,10 @@ export function verifyFindings(
       f.reason = `${r.amount} does not appear on this page.`;
     }
     if (printed) f.amount = printed;
+    if (f.kind === 'auto_renew' && f.verification === 'verified' && NO_RENEW.test(f.quote)) {
+      f.verification = 'unverified';
+      f.reason = 'The quoted words say it does not renew.';
+    }
     if (f.kind === 'trial_conversion' && f.verification === 'verified' && !looksLikeFreeTrial(f.quote, page)) {
       // Keep the price, drop the trial: it is the regular charge after an intro price.
       f.kind = 'recurring_charge';
