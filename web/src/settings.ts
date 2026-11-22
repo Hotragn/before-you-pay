@@ -9,6 +9,7 @@ export const defaults = {
   on_device_enabled: true, // kill switch for the on-device read
   max_page_chars: 6000,
   reminder_days_before: 2,
+  cloud_cooldown_seconds: 6, // space out cloud calls to stay inside the free quota
 };
 
 export type Settings = typeof defaults;
@@ -27,6 +28,7 @@ export async function loadSettings(): Promise<Settings> {
     s.on_device_enabled = getValue(rc, 'on_device_enabled').asBoolean();
     s.max_page_chars = getValue(rc, 'max_page_chars').asNumber() || defaults.max_page_chars;
     s.reminder_days_before = getValue(rc, 'reminder_days_before').asNumber() || defaults.reminder_days_before;
+    s.cloud_cooldown_seconds = getValue(rc, 'cloud_cooldown_seconds').asNumber();
   } catch (e) {
     console.warn('Remote Config not reachable, using defaults', e);
   }

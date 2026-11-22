@@ -1,0 +1,348 @@
+{
+  "mode": "cloud",
+  "set": "heldout",
+  "when": "2026-11-22T08:55:19.171Z",
+  "settings": {
+    "prompt_version": "v1",
+    "cloud_model": "gemini-3.5-flash-lite",
+    "on_device_enabled": true,
+    "max_page_chars": 6000,
+    "reminder_days_before": 2,
+    "cloud_cooldown_seconds": 6
+  },
+  "modelFindings": 27,
+  "modelUnverified": 2,
+  "medianMs": 4643,
+  "summary": {
+    "pages": 6,
+    "amountPrecision": 1,
+    "amountRecall": 0.8666666666666667,
+    "trialAccuracy": 1,
+    "trialPages": 2,
+    "renewAccuracy": 1,
+    "linkAccuracy": 0.6666666666666666,
+    "unverifiedFindings": 2
+  },
+  "errors": 0,
+  "rows": [
+    {
+      "id": "h01-podcast-app",
+      "ms": 6493,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": true,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 1
+      },
+      "modelFindings": 5,
+      "modelUnverified": 1,
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "No payment today.",
+          "amount": "0.00",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "unverified",
+          "reason": "0.00 does not appear on this page."
+        },
+        {
+          "kind": "trial_conversion",
+          "quote": "When the 30 days end we will bill $11.99/month until you cancel.",
+          "amount": "$11.99",
+          "period": "month",
+          "trialLength": 30,
+          "trialUnit": "day",
+          "source": "in_cloud",
+          "verification": "verified",
+          "convertsOn": "2026-12-22"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "When the 30 days end we will bill $11.99/month until you cancel.",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancel in Settings at least a day before the free period ends to avoid being charged.",
+          "source": "in_cloud",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h02-tv-streaming",
+      "ms": 2900,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 1
+      },
+      "modelFindings": 5,
+      "modelUnverified": 1,
+      "findings": [
+        {
+          "kind": "trial_conversion",
+          "quote": "First 3 months for $0.99/month... Then $10.99/month.",
+          "amount": "$10.99",
+          "period": "month",
+          "trialLength": 3,
+          "trialUnit": "month",
+          "source": "in_cloud",
+          "verification": "unverified",
+          "reason": "The quoted words are not on this page."
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "First 3 months for $0.99/month",
+          "amount": "$0.99",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Sports Pass for $6.00/month",
+          "amount": "$6.00",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Introductory price applies to new members for the first 3 months, after which your plan continues at $10.99/month and renews monthly until cancelled.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "renews monthly until cancelled",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "How to cancel",
+          "source": "in_cloud",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h03-meal-box",
+      "ms": 4643,
+      "s": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 6,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "60% off your first box: $23.98",
+          "amount": "$23.98",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "Then $59.94 per weekly box for 3 meals for 2 people.",
+          "amount": "$59.94",
+          "period": "week",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add a breakfast pack ($12.00/week)",
+          "amount": "$12.00",
+          "period": "week",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Shipping: $9.99 per box",
+          "amount": "$9.99",
+          "period": "week",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your plan renews weekly until you skip or cancel.",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Skip or cancel",
+          "source": "in_cloud",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h04-workout-app",
+      "ms": 5490,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": true,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 4,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "trial_conversion",
+          "quote": "1 week free, then $6.99/week",
+          "amount": "$6.99",
+          "period": "week",
+          "trialLength": 1,
+          "trialUnit": "week",
+          "source": "in_cloud",
+          "verification": "verified",
+          "convertsOn": "2026-11-29"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Billing starts after your free week and repeats weekly until you cancel in the app store.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "repeats weekly until you cancel in the app store",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "until you cancel in the app store",
+          "source": "in_cloud",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h05-dating-trial",
+      "ms": 967,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": false,
+        "unverified": 0
+      },
+      "modelFindings": 3,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "$5 trial for 14 days",
+          "amount": "$5",
+          "period": "once",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "After 14 days your membership continues at $29/month",
+          "amount": "$29",
+          "period": "month",
+          "source": "in_cloud",
+          "verification": "verified",
+          "note": "This looks like a paid intro price, not a free trial."
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "After 14 days your membership continues at $29/month and renews automatically until you cancel.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "renews automatically until you cancel",
+          "source": "in_cloud",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h06-antivirus",
+      "ms": 1283,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": false,
+        "unverified": 0
+      },
+      "modelFindings": 4,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "due_today",
+          "quote": "First year $39.99",
+          "amount": "$39.99",
+          "period": "year",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "Your subscription renews automatically each year at $79.99/year",
+          "amount": "$79.99",
+          "period": "year",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Identity Monitor for $19.99/year",
+          "amount": "$19.99",
+          "period": "year",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your subscription renews automatically each year at $79.99/year unless you turn off auto-renewal.",
+          "source": "in_cloud",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Auto-renewal terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    }
+  ]
+}

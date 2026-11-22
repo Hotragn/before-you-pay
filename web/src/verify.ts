@@ -55,6 +55,26 @@ export function addTrial(start: Date, length: number, unit: string): Date | unde
   return d;
 }
 
+// A free trial means nothing is charged for a while. Models often call a cheap
+// first period ("$1 for your first month", "50% off your first week") a trial.
+// So a trial only stands if the quote or the text just before it says "free",
+// "$0" or "no charge", or says "trial" without a paid intro price nearby.
+const FREE = /\bfree\b|[$€£]\s?0(?:\.00)?(?![\d.,])|\bno charge\b|\bon us\b/i;
+const PAID_INTRO = /\d+\s?%\s?off|[$€£]\s?(?:0\.\d*[1-9]|[1-9][\d,]*(?:\.\d{1,2})?)\s+(?:today|for (?:the|your) first|for \d+)|\bintro(?:ductory)?\s+(?:price|offer|rate)|first (?:week|month|year|\d+ (?:days|weeks|months)) for [$€£]\s?[1-9]|[$€£]\s?[1-9][\d.]*\s+trial/i;
+
+export function trialContext(quote: string, page: PageSnapshot): string {
+  const text = normalize(page.text);
+  const q = normalize(quote);
+  const at = text.indexOf(q);
+  return at < 0 ? q : text.slice(Math.max(0, at - 250), at + q.length);
+}
+
+export function looksLikeFreeTrial(quote: string, page: PageSnapshot): boolean {
+  const ctx = trialContext(quote, page);
+  if (FREE.test(ctx)) return true;
+  return /\btrial\b/i.test(ctx) && !PAID_INTRO.test(ctx);
+}
+
 export function verifyFindings(
   raw: RawFinding[],
   page: PageSnapshot,
@@ -72,9 +92,16 @@ export function verifyFindings(
       f.reason = `${r.amount} does not appear on this page.`;
     }
     if (printed) f.amount = printed;
+    if (f.kind === 'trial_conversion' && f.verification === 'verified' && !looksLikeFreeTrial(f.quote, page)) {
+      // Keep the price, drop the trial: it is the regular charge after an intro price.
+      f.kind = 'recurring_charge';
+      delete f.trialLength;
+      delete f.trialUnit;
+      f.note = 'This looks like a paid intro price, not a free trial.';
+    }
     // A reminder date is only worked out from a verified quote that itself
     // contains the trial length, so a made-up number can never set a reminder.
-    if (f.verification === 'verified' && r.kind === 'trial_conversion' && r.trialLength && r.trialUnit
+    if (f.verification === 'verified' && f.kind === 'trial_conversion' && r.trialLength && r.trialUnit
       && new RegExp(`\\b${r.trialLength}[-\\s]?(day|week|month)`, 'i').test(r.quote)) {
       const d = addTrial(start, r.trialLength, r.trialUnit);
       if (d) f.convertsOn = localDate(d);

@@ -9,19 +9,28 @@
 </head>
 <body>
   <header>
-    <div class="brand"><img src="/icon.svg" alt="" width="26" height="26" /><h1>Before You Pay</h1></div>
+    <div class="brand"><img src="/icon.svg" alt="" width="28" height="28" /><h1>Before You Pay</h1>
+      <span id="netChip" class="chip off" hidden>Offline</span></div>
     <p id="site" class="muted">Open a checkout or signup page, then press Check.</p>
+    <p><span id="modelChip" class="chip">Checking for Gemini Nano...</span></p>
   </header>
 
-  <p class="where">
-    <span class="badge on_device">ON DEVICE</span> this page, which has your details&nbsp;
-    <span class="badge in_cloud">IN CLOUD</span> public terms only
-  </p>
+  <section id="intro" class="intro" aria-label="Where your text goes">
+    <div class="route">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+      <div><b>The checkout page</b> has your name and card on it. <span class="badge on_device">ON DEVICE</span><br/><span class="muted small">Read by Gemini Nano on this computer. Works with Wi-Fi off.</span></div>
+    </div>
+    <div class="route">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.5 2.5 13.5 0 16M12 4c-2.5 2.5-2.5 13.5 0 16"/></svg>
+      <div><b>The public terms page</b> has nothing about you. <span class="badge in_cloud">IN CLOUD</span><br/><span class="muted small">Gemini in the cloud pulls out the steps to cancel.</span></div>
+    </div>
+    <p class="muted small">No on-device model? You decide if a redacted copy may go to the cloud.</p>
+  </section>
 
   <section id="actions">
     <button id="check" class="primary">Check this page</button>
     <button id="demo" class="link">No checkout page open? Try the demo store</button>
-    <p id="status" class="muted" role="status" aria-live="polite"></p>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
   </section>
 
   <section id="consent" hidden>
@@ -31,7 +40,7 @@
     <button id="stayLocal" class="link">Stay with the basic check</button>
   </section>
 
-  <p id="summary" class="summary" hidden></p>
+  <div id="summaryWrap" class="summary" hidden><span class="eyebrow">In short</span><p id="summary"></p></div>
   <ol id="cards" class="plain"></ol>
 
   <section id="cancel" hidden>
@@ -51,6 +60,7 @@
     <ol id="savedList" class="plain"></ol>
   </section>
 
+  <footer class="muted small">Firebase AI Logic hybrid inference. <a href="https://github.com/Hotragn/before-you-pay" target="_blank" rel="noopener">Open source</a>.</footer>
   <iframe id="sandbox" title="demo store" tabindex="-1" aria-hidden="true"></iframe>
   <script type="module" src="/src/panel.ts"></script>
 </body>

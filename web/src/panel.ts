@@ -1,4 +1,5 @@
-import { analyzeOnDevice, analyzeRedactedInCloud, cancelStepsInCloud, onDeviceAvailability, prepareOnDevice, useSettings } from './ai';
+import { analyzeOnDevice, analyzeRedactedInCloud, cancelStepsInCloud, onDeviceAvailability, pageToPrompt, prepareOnDevice, useSettings } from './ai';
+import { cloudOnce, type CloudResult } from './cloudCache';
 import { defaults, loadSettings, type Settings } from './settings';
 import { mergeFindings } from './merge';
 import { redact } from './redact';
@@ -22,7 +23,7 @@ let page: PageSnapshot | undefined;
 let findings: Finding[] = [];
 let settings: Settings = defaults;
 let pendingRead = false;
-loadSettings().then((s) => { settings = s; useSettings(s); });
+loadSettings().then((s) => { settings = s; useSettings(s); }).finally(() => { showModelState(); showNet(); });
 
 const LABELS: Record<string, string> = {
   due_today: 'Due today',
@@ -35,7 +36,28 @@ const LABELS: Record<string, string> = {
 };
 const SOURCE: Record<string, string> = { on_device: 'ON DEVICE', in_cloud: 'IN CLOUD', rules: 'BASIC CHECK' };
 
-function status(text: string) { $('status').textContent = text; }
+function status(text: string) {
+  $('status').textContent = text;
+  $('status').classList.toggle('busy', /\.\.\.$/.test(text));
+}
+
+// Show up front whether Gemini Nano can run here, and whether we are offline.
+async function showModelState() {
+  const a = settings.on_device_enabled ? await onDeviceAvailability() : 'unavailable';
+  const chip = $('modelChip');
+  const text: Record<string, string> = {
+    available: 'Gemini Nano is ready on this computer',
+    downloadable: 'Gemini Nano can be downloaded on first check',
+    downloading: 'Gemini Nano is downloading',
+    unavailable: 'No on-device model here, the basic check still works',
+    'no-api': 'This browser has no on-device model',
+  };
+  chip.textContent = text[a] ?? a;
+  chip.className = `chip ${a === 'available' || a === 'downloadable' || a === 'downloading' ? 'on' : 'off'}`;
+}
+function showNet() { $('netChip').hidden = navigator.onLine; }
+window.addEventListener('online', showNet);
+window.addEventListener('offline', showNet);
 
 function niceDate(iso: string) {
   return new Date(iso + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
@@ -52,19 +74,22 @@ function render() {
   for (const f of findings) {
     const li = document.createElement('li');
     li.className = `card ${f.verification}`;
+    li.dataset.kind = f.kind;
     li.tabIndex = 0;
     li.innerHTML = `<div class="head"><span></span><span class="badge ${f.source}"></span></div><blockquote></blockquote>`;
     (li.querySelector('.head span') as HTMLElement).textContent = title(f);
     (li.querySelector('.badge') as HTMLElement).textContent = SOURCE[f.source];
     (li.querySelector('blockquote') as HTMLElement).textContent = f.reason ? `${f.quote} (${f.reason})` : f.quote;
+    if (f.note) { const n = document.createElement('p'); n.className = 'note'; n.textContent = f.note; li.append(n); }
     const go = () => toParent({ type: 'byp:highlight', quote: f.quote });
     li.onclick = go;
     li.onkeydown = (e) => { if (e.key === 'Enter') go(); };
     ol.append(li);
   }
   const line = summaryLine(findings);
-  $('summary').hidden = !line;
+  $('summaryWrap').hidden = !line;
   $('summary').textContent = line;
+  $('intro').hidden = findings.length > 0;
   $('cancel').hidden = !page?.links.length;
   const hasTrial = findings.some((f) => f.kind === 'trial_conversion' && f.convertsOn && f.verification === 'verified');
   $('save').hidden = !findings.some((f) => f.verification === 'verified' && f.kind !== 'cancel_path');
@@ -126,7 +151,7 @@ async function readOnDevice() {
     const where = source === 'in_cloud' ? 'in_cloud' : 'on_device';
     findings = mergeFindings(findings, verifyFindings(raw, page, where));
     status(where === 'on_device'
-      ? `Read on this computer in ${secs} s. The page was not sent anywhere.`
+      ? `Read on this computer in ${secs} s${navigator.onLine ? '' : ' with no internet connection'}. The page was not sent anywhere.`
       : `Read in the cloud in ${secs} s.`);
     render();
   } catch (e) {
@@ -145,9 +170,12 @@ async function sendRedacted() {
   };
   status('Reading a redacted copy in the cloud...');
   try {
-    const { findings: raw, source } = await analyzeRedactedInCloud(safe);
-    findings = mergeFindings(findings, verifyFindings(raw, safe, source === 'on_device' ? 'on_device' : 'in_cloud'));
-    status('Read a redacted copy in the cloud. Emails, card details, phone numbers and street addresses were removed first.');
+    const r = await cloudOnce('redacted', pageToPrompt(safe, settings.max_page_chars * 2), settings, async () => {
+      const { findings: value, source } = await analyzeRedactedInCloud(safe);
+      return { value, source };
+    }, status, isOurDemo(page.url));
+    findings = mergeFindings(findings, verifyFindings(r.value, safe, r.source === 'on_device' ? 'on_device' : 'in_cloud'));
+    status(cachedNote(r) || 'Read a redacted copy in the cloud. Emails, card details, phone numbers and street addresses were removed first.');
     render();
   } catch (e) {
     status(`The cloud read did not work: ${plain(e)}`);
@@ -177,24 +205,50 @@ async function readTerms() {
   const link = page?.links.find((l) => /cancel/i.test(l.text)) ?? page?.links[0];
   if (!link) return;
   const out = $('cancelOut');
-  out.textContent = `Fetching ${link.href}`;
-  const text = redact((await fetchTermsText(link.href)).trim());
+  if (!navigator.onLine) {
+    out.textContent = 'You are offline. The terms page needs the cloud, so this part waits until you are back online. The check above was done on this computer.';
+    return;
+  }
+  out.textContent = `Fetching ${link.href}...`;
+  const text = redact((await fetchTermsText(link.href).catch(() => '')).trim());
   if (text.length < 200) {
     out.textContent = 'Could not load the terms page from here, so nothing was sent to the cloud. Open the link to read it yourself.';
     return;
   }
   out.textContent = `Gemini is reading ${new URL(link.href).pathname} (public page, nothing about you is sent)...`;
   try {
-    const { data, source } = await cancelStepsInCloud(text);
+    const r = await cloudOnce('terms', text, settings, async () => {
+      const { data: value, source } = await cancelStepsInCloud(text);
+      return { value, source };
+    }, (m) => (out.textContent = m), isOurDemo(link.href));
+    const { value: data, source } = r;
+    const note = cachedNote(r);
     out.innerHTML = '<span class="badge"></span><ol></ol><p class="muted"></p>';
     const badge = out.querySelector('.badge') as HTMLElement;
     badge.classList.add(source);
     badge.textContent = SOURCE[source] ?? source;
     for (const s of data.steps) { const li = document.createElement('li'); li.textContent = s; out.querySelector('ol')!.append(li); }
     out.querySelector('p')!.textContent = [data.noticeNeeded, data.refundPolicy].filter(Boolean).join(' ');
+    if (note) { const n = document.createElement('p'); n.className = 'muted small'; n.textContent = note; out.append(n); }
   } catch (e) {
     out.textContent = `Could not read the terms: ${plain(e)}`;
   }
+}
+
+// Saved demo results are only used for our own demo store and its terms page.
+function isOurDemo(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.origin === 'https://before-you-pay-9b8c6.web.app' && /^\/(demo-store\/|terms\.html)/.test(u.pathname);
+  } catch { return false; }
+}
+
+function cachedNote(r: CloudResult<unknown>): string {
+  if (!r.cached) return '';
+  const day = r.savedAt ? new Date(r.savedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+  return r.cached === 'saved'
+    ? `This is the saved answer from a real cloud read of this exact demo page on ${day}, shown to save the free quota. Press again for a fresh read.`
+    : `Same text as your last cloud read (${day}), so the earlier answer is shown. Press again for a fresh read.`;
 }
 
 // Turn SDK errors into something a person can act on.

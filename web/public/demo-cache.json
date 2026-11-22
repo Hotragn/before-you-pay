@@ -1,0 +1,92 @@
+{
+ "about": "Saved answers from real Firebase AI Logic cloud reads of the Before You Pay demo store and its terms page. Used only for those pages, labeled in the panel, and skipped on the next press.",
+ "entries": {
+  "a10e7b889880d64a0b6888271044895674b7a3515ba145de2462943bf1e02725": {
+   "kind": "redacted",
+   "value": [
+    {
+     "kind": "due_today",
+     "quote": "$0.00 due today",
+     "amount": "0.00",
+     "period": "once"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "Add Priority Support for $4.99/month",
+     "amount": "4.99",
+     "period": "month"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "Add Family Sharing for $2.99/month",
+     "amount": "2.99",
+     "period": "month"
+    },
+    {
+     "kind": "cancel_path",
+     "quote": "Cancel anytime in a few taps"
+    },
+    {
+     "kind": "trial_conversion",
+     "quote": "Your 14-day free trial starts today. After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
+     "amount": "14.99",
+     "period": "month",
+     "trialLength": 14,
+     "trialUnit": "day"
+    },
+    {
+     "kind": "auto_renew",
+     "quote": "Your subscription renews automatically each month until you cancel."
+    },
+    {
+     "kind": "fee",
+     "quote": "A one-time activation fee of $1.99 is charged at the end of the trial.",
+     "amount": "1.99",
+     "period": "once"
+    }
+   ],
+   "source": "in_cloud",
+   "at": "2026-11-22T08:49:33.106Z"
+  },
+  "20e71d8bbad4b4d6e5b12777934e4f7cab225e9773c11a877977f706db8b6f4c": {
+   "kind": "terms",
+   "value": {
+    "steps": [
+     "Sign in",
+     "Open Account",
+     "Choose Membership",
+     "Select End membership"
+    ],
+    "quotes": [
+     "To cancel, sign in, open Account, choose Membership, then select End membership.",
+     "You must cancel at least 24 hours before your renewal date to avoid being charged for the next period.",
+     "Payments are non-refundable, and we do not provide refunds or credits for partial billing periods."
+    ],
+    "noticeNeeded": "At least 24 hours before your renewal date",
+    "refundPolicy": "Payments are non-refundable, and no refunds or credits are provided for partial billing periods."
+   },
+   "source": "in_cloud",
+   "at": "2026-11-22T08:49:40.397Z"
+  },
+  "e8c8f2ec94e441da6457d1deaa4b913e6f7baf935e88efea746f305014b545ef": {
+   "kind": "terms",
+   "value": {
+    "steps": [
+     "Sign in",
+     "Open Account",
+     "Choose Membership",
+     "Select End membership"
+    ],
+    "quotes": [
+     "To cancel, sign in, open Account, choose Membership, then select End membership.",
+     "You must cancel at least 24 hours before your renewal date to avoid being charged for the next period.",
+     "Payments are non-refundable, and we do not provide refunds or credits for partial billing periods."
+    ],
+    "noticeNeeded": "At least 24 hours before your renewal date",
+    "refundPolicy": "Payments are non-refundable, and no refunds or credits are provided for partial billing periods."
+   },
+   "source": "in_cloud",
+   "at": "2026-11-22T08:50:04.707Z"
+  }
+ }
+}

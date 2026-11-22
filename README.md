@@ -1,34 +1,45 @@
 # Before You Pay
 
-A Chrome side panel that reads a checkout or signup page before you click the button, and tells you what you are actually agreeing to: when the free trial turns into a charge, which paid add-ons were already ticked for you, what fees are hiding in the small print, whether it renews on its own, and where the cancel link is.
+A Chrome side panel that reads a checkout page before you click the button, and tells you what you are really agreeing to: when the free trial turns into a charge, which paid add-ons were already ticked for you, what fees sit in the small print, whether it renews on its own, and how to cancel.
 
-The page you are about to pay on has your name, email and card on it, so that page is read by Gemini Nano on your own machine. The store's public terms page has nothing about you on it, so that one goes to Gemini in the cloud to pull out the steps for cancelling later. Both run through Firebase AI Logic.
+**The page you are about to pay on has your name, email and card on it, so it never leaves your laptop.** Gemini Nano reads it on the device. You can turn Wi-Fi off and it still works. The store's public terms page has nothing about you on it, so that one goes to Gemini in the cloud. Both run through Firebase AI Logic, and the app picks the mode for each request based on how private the text is.
+
+![Where your text goes](docs/architecture.png)
 
 Live app: https://before-you-pay-9b8c6.web.app
 Demo store (fake, made for this project): https://before-you-pay-9b8c6.web.app/demo-store/
 
+## The Wi-Fi off test
+
+This is the test I care about most. Open the side panel on a checkout page, turn Wi-Fi off, and press **Check this page**. The status line says "Read on this computer in N s with no internet connection. The page was not sent anywhere." Every card is marked ON DEVICE. Then press **Read the cancellation terms** and the panel tells you that part needs the cloud and will wait until you are back online.
+
+![Wi-Fi off check](docs/offline-stub.png)
+
+How that screenshot was made, honestly: the machine I built this on has Gemini Nano blocked by policy. So [scripts/offline-check.mjs](scripts/offline-check.mjs) loads the live panel page, swaps in a stand-in for Chrome's `LanguageModel` that answers like the model would, goes offline and presses Check. It shows that once the panel is open, the app and the Firebase AI Logic SDK run the whole read with `ONLY_ON_DEVICE` and send nothing over the network. (The only request Chrome logged while offline was Firestore closing its idle connection.) It does not test the real model, and the 1.2 seconds in the screenshot is the stand-in's fixed delay, not a real timing. Real Gemini Nano runs and numbers are coming from a laptop that supports it.
+
 ## Try it in two minutes
 
 1. Open https://before-you-pay-9b8c6.web.app/panel.html and press **No checkout page open? Try the demo store**, then **Check this page**.
-2. Without Gemini Nano on your machine you will see the basic check plus a consent box. Press **Send a redacted copy** to see the cloud read, then **Read the cancellation terms**.
-3. With Chrome 139+ and the Prompt API turned on (steps below), the same button reads the page on your device and the cards say ON DEVICE.
+2. The chip under the title tells you if Gemini Nano is ready on your computer.
+3. Without it, you get the basic check plus a consent box. Press **Send a redacted copy** to see the cloud read, then **Read the cancellation terms**.
+4. With Chrome 139+ and the Prompt API turned on (steps below), the same button reads the page on your device and the cards say ON DEVICE.
 
-| No on-device model: asks first | After the cloud reads a redacted copy |
+| No on-device model: it asks first | After a cloud read of a redacted copy |
 |---|---|
 | ![Consent box](docs/extension-consent.png) | ![Cards](docs/extension-panel.png) |
 
-Both screenshots are the real extension running against the live app on a machine where Gemini Nano is blocked by policy, which is why there are no ON DEVICE cards in them.
+These two are the real extension running against the live app.
 
 ## Why
 
-Free trials that quietly convert, add-ons that are ticked by default and fees in grey 9px text are old tricks. In the US, the FTC's 2024 click-to-cancel rule was vacated by a federal appeals court in July 2025, and as of November 2026 nothing has replaced it, so the burden is still mostly on the person paying. Reading every checkout page carefully takes time most people do not spend, and pasting a page full of your own card and address details into a chatbot is not a good habit either. Running the model on the device is what makes this tool reasonable to use on exactly the pages where it matters.
+Free trials that quietly convert, add-ons that are ticked by default and fees in grey 10px text are old tricks. In the US, the FTC's 2024 click-to-cancel rule was vacated by a federal appeals court in July 2025, and as of November 2026 nothing has replaced it, so the burden is still mostly on the person paying. Reading every checkout page carefully takes time most people do not spend, and pasting a page full of your own card and address details into a chatbot is not a good habit either. Running the model on the device is what makes this tool reasonable to use on exactly the pages where it matters.
 
 ## What it does
 
 1. You open a checkout page and press **Check this page**.
 2. A fast basic check (plain pattern matching, no model) shows cards right away.
-3. Gemini Nano reads the page on your device and returns structured findings: due today, trial length and the price after it, recurring charges, pre-ticked paid add-ons, fees, auto-renewal and cancel links.
-4. Every finding has to quote the page word for word. The code checks that the quote and the amount really appear on the page, and anything that does not match is marked "check this line". This catches made-up text and numbers. It does not catch a real sentence that the model reads wrong (see the eval notes). Dates are worked out in code, never by the model.
+3. Gemini Nano reads the page on your device and returns structured findings: due today, trial length and the price after it, recurring charges, pre-ticked paid add-ons, fees, auto-renewal and cancel links. A one line summary sits on top.
+4. Every finding has to quote the page word for word. The code checks that the quote and the amount really appear on the page, and anything that does not match is marked "check this line". This catches made-up text and numbers. It does not catch a real sentence that the model reads wrong, so a few readings are also checked in code. For example, a "trial" only counts as a free trial if the text around it says free, $0 or no charge, or says trial without a paid intro price nearby. Otherwise "$1 for your first month" is shown as the regular price after an intro offer, with a note. Dates are worked out in code, never by the model.
 5. Click a card and the sentence it came from is highlighted on the page.
 6. **Read the cancellation terms** sends the public terms page (not your checkout page) to Gemini in the cloud and returns the steps to cancel, the notice period and the refund policy.
 7. **Save** keeps a short record of the offer: the verified quotes, the site, the date and a SHA-256 fingerprint of them. When there is a free trial with a known end date, the same button also sets a browser reminder two days before the first charge. Clicking the reminder opens the site, where you can cancel.
@@ -41,16 +52,26 @@ If the on-device model is not available (older Chrome, unsupported hardware, or 
 |---|---|---|---|
 | Checkout or signup page | Yes | `ONLY_ON_DEVICE` (Gemini Nano through the Chrome Prompt API) | Card, email and address should not leave the laptop |
 | Same page, after you agree | Redacted | `ONLY_IN_CLOUD` | Fallback when Nano is not available, only with consent |
-| Public terms page | No | `ONLY_IN_CLOUD` | Long legal text, nothing private, cloud model does it better |
+| Public terms page | No | `ONLY_IN_CLOUD` | Long legal text, nothing private, the cloud model does it better |
 
-The modes are picked on purpose for each request instead of using one `PREFER_ON_DEVICE` setting for everything, because the right choice depends on what is in the text, not only on what the device can run. On device, the output is held to a JSON schema through `responseConstraint`. The redacted cloud read uses the same schema through `responseJsonSchema`, and the terms read uses its own smaller schema for steps, notice and refunds. The panel shows where each card came from (ON DEVICE, IN CLOUD or BASIC CHECK) using the `inferenceSource` that Firebase AI Logic returns.
+The modes are picked on purpose for each request instead of using one `PREFER_ON_DEVICE` setting for everything, because the right choice depends on what is in the text, not only on what the device can run. `PREFER_ON_DEVICE` would quietly send the checkout page to the cloud on any machine without Nano, which is the one thing this app must not do. On device, the output is held to a JSON schema through `responseConstraint`. The redacted cloud read uses the same schema through `responseJsonSchema`, and the terms read uses its own smaller schema for steps, notice and refunds. The panel shows where each card came from (ON DEVICE, IN CLOUD or BASIC CHECK) using the `inferenceSource` that Firebase AI Logic returns.
 
 Other Firebase pieces:
 
 - **App Check** with reCAPTCHA Enterprise protects the AI Logic calls, using limited-use tokens. Localhost uses the debug provider.
 - **Anonymous Auth** and **Firestore** store saved offers under `users/{uid}/proofs`. The rules allow only the owner to read or delete, never allow edits, and check every field's type and size, including each quote.
-- **Remote Config** holds the cloud model name, a kill switch for on-device use, the page size limit, how many days before the charge to remind you, and a prompt version that is written into every eval result.
+- **Remote Config** holds the cloud model name, a kill switch for on-device use, the page size limit, how many days before the charge to remind you, the spacing between cloud calls, and a prompt version that is written into every eval result.
 - **Hosting** serves the panel, the demo store and the eval page.
+
+### Staying inside the free plan
+
+The demo runs on the free Firebase plan, which allows only a few cloud requests a minute. So:
+
+- Cloud answers are kept in your browser, keyed by a hash of the exact text sent. Pressing the same button twice on the same page costs nothing.
+- For our own demo store and its terms page only, the app ships saved answers from real cloud reads (`web/public/demo-cache.json`, built by `scripts/build-demo-cache.mjs`). When the panel shows one it says so, with the date, and the next press does a fresh read. Saved answers still go through the same quote check against the page.
+- Cloud calls are spaced a few seconds apart (Remote Config), and if the quota says "busy" the panel waits 15 seconds and tries once more, then explains in plain words.
+
+None of this applies to the on-device read, which has no quota.
 
 ## Architecture
 
@@ -68,28 +89,34 @@ Extension pages cannot load reCAPTCHA, which App Check needs. So the side panel 
 
 ## Does it work? The eval
 
-There are 16 made-up checkout and signup pages for fictional businesses (streaming, meal kits, gym, VPN, hotel, concert tickets and more). The pages and a first draft of the labels were written with help from Claude, and every label was then checked by hand against the page text. Four pages have no subscription at all (a software license, a fixed language pass, concert tickets and a hotel room), to catch false alarms. How they were labeled: [web/public/eval/LABELING.md](web/public/eval/LABELING.md). Anyone can run it at https://before-you-pay-9b8c6.web.app/eval.html.
+There are 16 made-up checkout and signup pages for fictional businesses (streaming, meal kits, gym, VPN, hotel, concert tickets and more). The pages and a first draft of the labels were written with help from Claude, and every label was then checked by hand. Four pages have no subscription at all, to catch false alarms. How they were labeled: [web/public/eval/LABELING.md](web/public/eval/LABELING.md). Anyone can run it at https://before-you-pay-9b8c6.web.app/eval.html.
 
-Amounts are scored as sets per page (recurring prices, ticked paid add-ons, fees), so precision and recall are over dollar amounts.
+After adding the free trial rule I wrote 6 more pages by hand that the rule was not built from (free trials worded without "trial", a cheap first 3 months, 60% off a first box, a $5 paid trial, a cheaper first year). Their labels were committed before any model saw them ([commit a965066](https://github.com/Hotragn/before-you-pay/commit/a965066)). Run them with `/eval.html?set=heldout`.
+
+Amounts are scored as sets per page (recurring prices, ticked paid add-ons, fees), so precision and recall are over dollar amounts. All runs below are in Chrome on the live site, with cloud calls spaced 5 seconds apart.
+
+**Main set, 16 pages**
 
 | Run | Amount precision | Amount recall | Trial right | Auto-renew right | Cancel link right | Model findings that failed the quote check |
 |---|---|---|---|---|---|---|
-| Basic check (no model) | 0.68 | 0.39 | 1 of 3 | 12 of 16 | 16 of 16 | n/a |
-| Cloud, redacted copy, run 1 | 0.97 | 0.97 | 3 of 4 | 15 of 16 | 15 of 16 | 0 of 70 |
-| Cloud, redacted copy, run 2 (13 pages) | 0.85 | 0.88 | 3 of 3 | 12 of 13 | 12 of 13 | 0 of 59 |
-| Cloud, redacted copy, run 3 (14 pages) | 0.85 | 0.97 | 3 of 4 | 14 of 14 | 14 of 14 | 3 of 63 |
-| On device (Gemini Nano) | not run yet | | | | | |
+| Basic check (no model) | 1.00 | 0.79 | 2 of 3 | 13 of 16 | 16 of 16 | n/a |
+| Cloud, redacted copy | 0.92 | 1.00 | 3 of 3 | 14 of 16 | 15 of 16 | 0 of 71 |
+| On device (Gemini Nano) | coming from a supported laptop | | | | | |
+
+**Held-out set, 6 pages**
+
+| Run | Amount precision | Amount recall | Trial right | Auto-renew right | Model findings that failed the quote check |
+|---|---|---|---|---|---|
+| Basic check (no model) | 1.00 | 0.67 | 0 of 2 | 5 of 6 | n/a |
+| Cloud, redacted copy | 1.00 | 0.87 | 2 of 2 | 6 of 6 | 2 of 27 |
 
 Notes, so the numbers are read fairly:
 
-- The three cloud runs use the same code and prompts. The spread between them is the model's run-to-run variation. Runs 2 and 3 lost a few pages to the free plan's rate limit (HTTP 429), and those pages are left out of that run's numbers instead of being retried.
-- "Trial right" counts pages where a trial was labeled or reported. The usual mistake is f05, which charges $1 for the first month and then $17 a month. The model calls that a trial. It is an intro price. In earlier runs it made the same mistake on f07 ("50% off your first week"). These errors pass the quote check, because the quote is real and only the reading is wrong.
-- The quote check did catch things. In run 3 the model quoted "[x] The Morning Brief newsletter", with a checkbox mark that is not on the page, and the code marked it "check this line".
-- Older runs are kept too: `results-cloud-v1.json` was scored with a scorer bug (it looked at the first trial card, usually the basic check's card without a price), and `results-cloud-v2.json` came before duplicate cards were merged. The prompts and rules were not changed to chase eval misses.
-- The on-device numbers need a laptop that can run Gemini Nano. The machine this was built on has the model blocked by policy.
-- 16 pages is small and they are synthetic. This is a sanity check, not a benchmark.
-
-Raw results are in [eval/](eval/).
+- "Trial right" counts pages where a trial was labeled or reported. On the main set, the trial rule exists because of two mistakes the model kept making there (f05 "$1 for your first month" and f07 "50% off your first week"), so its 3 of 3 is not a fair test of the rule. The held-out set is: the model reported no false trials on the four intro price pages, and the rule caught one, turning h05's "$5 trial for 14 days" into a regular $29/month charge. The basic check misses both held-out free trials because they never say "N-day free trial".
+- Cancel links are left out of the held-out table because I used `href="#"` on those pages, and the app correctly ignores links that point back at the same page. That is my mistake in the test pages, not something the app does wrong.
+- The basic check numbers are higher than in earlier versions of this README (0.68 precision, 0.39 recall). Those came from a unit test that runs in jsdom, which joins page text differently from Chrome, and I had not noticed. The Chrome run is what people actually get.
+- Earlier cloud runs are kept in [eval/](eval/) with notes in git history: v1 had a scorer bug, v2 came before duplicate cards were merged, and three v3 runs showed normal run-to-run variation (amount precision 0.85 to 0.97) plus some pages lost to the free plan's rate limit.
+- 16 plus 6 synthetic pages is small. This is a sanity check, not a benchmark.
 
 ## Privacy
 

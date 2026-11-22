@@ -10,9 +10,13 @@ import { mergeFindings } from './merge';
 const out = document.getElementById('out')!;
 const status = document.getElementById('status')!;
 type Mode = 'rules' | 'device' | 'cloud';
+// ?set=heldout runs the six pages written after the free trial rule was added.
+const SET = new URLSearchParams(location.search).get('set') === 'heldout' ? 'heldout' : 'main';
+const DIR = SET === 'heldout' ? '/eval/heldout' : '/eval';
+const FIXTURES = SET === 'heldout' ? '/eval/heldout' : '/eval/fixtures';
 
 async function loadPage(id: string): Promise<PageSnapshot> {
-  const html = await (await fetch(`/eval/fixtures/${id}.html`)).text();
+  const html = await (await fetch(`${FIXTURES}/${id}.html`)).text();
   const frame = document.createElement('iframe');
   frame.style.cssText = 'position:absolute;left:-9999px;width:900px;height:1400px';
   frame.srcdoc = html;
@@ -24,7 +28,7 @@ async function loadPage(id: string): Promise<PageSnapshot> {
 }
 
 async function run(mode: Mode) {
-  const labels = (await (await fetch('/eval/labels.json')).json()) as Record<string, Labels>;
+  const labels = (await (await fetch(`${DIR}/labels.json`)).json()) as Record<string, Labels>;
   if (mode === 'device' && !(await prepareOnDevice((p) => (status.textContent = `Model download ${Math.round(p * 100)}%`)))) {
     status.textContent = 'No on-device model on this computer.';
     return;
@@ -60,7 +64,7 @@ async function run(mode: Mode) {
       modelUnverified: model.filter((f) => f.verification !== 'verified').length, error, findings: found });
   }
   const ok = rows.filter((r) => !r.error);
-  const result = { mode, when: new Date().toISOString(), settings: currentSettings(),
+  const result = { mode, set: SET, when: new Date().toISOString(), settings: currentSettings(),
     modelFindings: ok.reduce((n, r) => n + r.modelFindings, 0), modelUnverified: ok.reduce((n, r) => n + r.modelUnverified, 0),
     medianMs: ok.map((r) => r.ms).sort((a, b) => a - b)[Math.floor(ok.length / 2)] ?? null, summary: summarize(rows.filter((r) => !r.error).map((r) => r.s)), errors: rows.filter((r) => r.error).length, rows };
   (window as unknown as { evalResult: unknown }).evalResult = result;

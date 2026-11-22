@@ -111,3 +111,26 @@ describe('judge review fixes', () => {
     expect(mergeFindings([t, r]).map((x) => x.kind)).toEqual(['trial_conversion']);
   });
 });
+
+describe('free trial or intro price', () => {
+  const pg = (text: string) => ({ url: 'https://x.test/', title: 't', text, capturedAt: '2026-11-22T12:00:00Z', checkboxes: [], links: [] }) as any;
+  const t = (quote: string) => ({ kind: 'trial_conversion', quote, amount: '$17', trialLength: 1, trialUnit: 'month' }) as any;
+  it('a $1 first month is an intro price, not a free trial', () => {
+    const page = pg('Pay $1 today for your first month. After your first month, $17 per month.');
+    const [f] = verifyFindings([t('After your first month, $17 per month.')], page, 'in_cloud');
+    expect(f.kind).toBe('recurring_charge');
+    expect(f.convertsOn).toBeUndefined();
+  });
+  it('a percent-off first week is an intro price', () => {
+    const page = pg('50% off your first week: $8.50. Then $17/week.');
+    expect(verifyFindings([t('Then $17/week.')], page, 'in_cloud')[0].kind).toBe('recurring_charge');
+  });
+  it('a real free trial stays a trial', () => {
+    const page = pg('Start your 1-month free trial. Then $17 per month.');
+    expect(verifyFindings([t('Then $17 per month.')], page, 'in_cloud')[0].kind).toBe('trial_conversion');
+  });
+  it('a $0 first month counts as free', () => {
+    const page = pg('$0 for your first month, then $17 per month.');
+    expect(verifyFindings([t('then $17 per month.')], page, 'in_cloud')[0].kind).toBe('trial_conversion');
+  });
+});

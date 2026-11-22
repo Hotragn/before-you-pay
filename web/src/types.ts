@@ -35,6 +35,7 @@ export type Verification = 'verified' | 'unverified';
 export interface Finding extends RawFinding {
   verification: Verification;
   reason?: string;
+  note?: string; // shown under the quote, for corrections made in code
   convertsOn?: string; // ISO date, computed in code
   source: 'on_device' | 'in_cloud' | 'rules';
 }

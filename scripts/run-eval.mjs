@@ -5,7 +5,7 @@ import { writeFileSync } from 'node:fs';
 const [mode = 'cloud', BASE = 'https://before-you-pay-9b8c6.web.app', out = `../eval/results-${mode}.json`] = process.argv.slice(2);
 const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: false, userDataDir: process.env.PROFILE || '/tmp/byp-verify-profile', args: ['--no-first-run'] });
 const p = await b.newPage();
-await p.goto(BASE + '/eval.html', { waitUntil: 'networkidle2' });
+await p.goto(BASE + '/eval.html' + (process.env.SET ? `?set=${process.env.SET}` : ''), { waitUntil: 'networkidle2' });
 await new Promise((r) => setTimeout(r, 3000));
 await p.click('#' + (mode === 'device' ? 'device' : mode));
 await p.waitForFunction(() => /Done|No on-device/.test(document.getElementById('status').innerText), { timeout: 600000 });

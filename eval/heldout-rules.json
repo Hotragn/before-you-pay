@@ -1,0 +1,220 @@
+{
+  "mode": "rules",
+  "set": "heldout",
+  "when": "2026-11-22T08:54:26.938Z",
+  "settings": {
+    "prompt_version": "v1",
+    "cloud_model": "gemini-3.5-flash-lite",
+    "on_device_enabled": true,
+    "max_page_chars": 6000,
+    "reminder_days_before": 2,
+    "cloud_cooldown_seconds": 6
+  },
+  "modelFindings": 0,
+  "modelUnverified": 0,
+  "medianMs": 1,
+  "summary": {
+    "pages": 6,
+    "amountPrecision": 1,
+    "amountRecall": 0.6666666666666666,
+    "trialAccuracy": 0,
+    "trialPages": 2,
+    "renewAccuracy": 0.8333333333333334,
+    "linkAccuracy": 0,
+    "unverifiedFindings": 0
+  },
+  "errors": 0,
+  "rows": [
+    {
+      "id": "h01-podcast-app",
+      "ms": 1,
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": false,
+        "renewOk": true,
+        "linkOk": false,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "auto_renew",
+          "quote": "When the 30 days end we will bill $11.99/month until you cancel.",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h02-tv-streaming",
+      "ms": 1,
+      "s": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": false,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "First 3 months for $0.99/month",
+          "amount": "$0.99",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "Then $10.99/month.",
+          "amount": "$10.99",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Introductory price applies to new members for the first 3 months, after which your plan continues at $10.99/month and renews monthly until cancelled.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Sports Pass for $6.00/month",
+          "amount": "$6.00",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h03-meal-box",
+      "ms": 1,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": false,
+        "linkOk": false,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "Then $59.94 per weekly box for 3 meals for 2 people.",
+          "amount": "$59.94",
+          "period": "week",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add a breakfast pack ($12.00/week)",
+          "amount": "$12.00",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h04-workout-app",
+      "ms": 0,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": false,
+        "renewOk": true,
+        "linkOk": false,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "1 week free, then $6.99/week",
+          "amount": "$6.99",
+          "period": "week",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Billing starts after your free week and repeats weekly until you cancel in the app store.",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h05-dating-trial",
+      "ms": 0,
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": false,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "auto_renew",
+          "quote": "After 14 days your membership continues at $29/month and renews automatically until you cancel.",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "h06-antivirus",
+      "ms": 0,
+      "s": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 2,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": false,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "auto_renew",
+          "quote": "Your subscription renews automatically each year at $79.99/year unless you turn off auto-renewal.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Auto-renewal terms",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Identity Monitor for $19.99/year",
+          "amount": "$19.99",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    }
+  ]
+}

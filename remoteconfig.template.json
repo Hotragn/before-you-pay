@@ -1,9 +1,46 @@
 {
   "parameters": {
-    "prompt_version": { "defaultValue": { "value": "v1" }, "description": "Version tag of the checkout reading instructions", "valueType": "STRING" },
-    "cloud_model": { "defaultValue": { "value": "gemini-3.5-flash-lite" }, "description": "Cloud model for public terms pages and the redacted fallback", "valueType": "STRING" },
-    "on_device_enabled": { "defaultValue": { "value": "true" }, "description": "Kill switch for the on-device read", "valueType": "BOOLEAN" },
-    "max_page_chars": { "defaultValue": { "value": "6000" }, "description": "How much page text goes to the on-device model", "valueType": "NUMBER" },
-    "reminder_days_before": { "defaultValue": { "value": "2" }, "description": "Days before the first charge to remind", "valueType": "NUMBER" }
+    "prompt_version": {
+      "defaultValue": {
+        "value": "v1"
+      },
+      "description": "Version tag of the checkout reading instructions",
+      "valueType": "STRING"
+    },
+    "cloud_model": {
+      "defaultValue": {
+        "value": "gemini-3.5-flash-lite"
+      },
+      "description": "Cloud model for public terms pages and the redacted fallback",
+      "valueType": "STRING"
+    },
+    "on_device_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Kill switch for the on-device read",
+      "valueType": "BOOLEAN"
+    },
+    "max_page_chars": {
+      "defaultValue": {
+        "value": "6000"
+      },
+      "description": "How much page text goes to the on-device model",
+      "valueType": "NUMBER"
+    },
+    "reminder_days_before": {
+      "defaultValue": {
+        "value": "2"
+      },
+      "description": "Days before the first charge to remind",
+      "valueType": "NUMBER"
+    },
+    "cloud_cooldown_seconds": {
+      "defaultValue": {
+        "value": "6"
+      },
+      "description": "Minimum seconds between cloud calls from one panel, to stay inside the free quota",
+      "valueType": "NUMBER"
+    }
   }
 }

@@ -1,0 +1,675 @@
+{
+  "mode": "rules",
+  "set": "main",
+  "when": "2026-11-22T08:52:20.331Z",
+  "settings": {
+    "prompt_version": "v1",
+    "cloud_model": "gemini-3.5-flash-lite",
+    "on_device_enabled": true,
+    "max_page_chars": 6000,
+    "reminder_days_before": 2,
+    "cloud_cooldown_seconds": 6
+  },
+  "modelFindings": 0,
+  "modelUnverified": 0,
+  "medianMs": 0,
+  "summary": {
+    "pages": 16,
+    "amountPrecision": 1,
+    "amountRecall": 0.7878787878787878,
+    "trialAccuracy": 0.6666666666666666,
+    "trialPages": 3,
+    "renewAccuracy": 0.8125,
+    "linkAccuracy": 1,
+    "unverifiedFindings": 0
+  },
+  "errors": 0,
+  "rows": [
+    {
+      "id": "f01-streaming",
+      "ms": 3,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": true,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "trial_conversion",
+          "quote": "7-day free trial, then $13.99/mo.",
+          "amount": "$13.99",
+          "trialLength": 7,
+          "trialUnit": "day",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified",
+          "convertsOn": "2026-11-29"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your membership will automatically renew each month at the then-current price until you cancel.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add 4K Ultra HD + spatial audio (+$4.99/mo)",
+          "amount": "$4.99",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "How to cancel",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f02-meal-kit",
+      "ms": 0,
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 2,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "auto_renew",
+          "quote": "Your subscription renews automatically each week.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Skip or cancel deliveries",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f03-fitness-app",
+      "ms": 0,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": false,
+        "renewOk": false,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "trial_conversion",
+          "quote": "Start your free 14-day trial",
+          "trialLength": 14,
+          "trialUnit": "day",
+          "period": "unknown",
+          "source": "rules",
+          "verification": "verified",
+          "convertsOn": "2026-12-06"
+        },
+        {
+          "kind": "recurring_charge",
+          "quote": "After your trial ends, you will be charged $79.99 per year.",
+          "amount": "$79.99",
+          "period": "year",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f04-cloud-storage",
+      "ms": 0,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "$8.33/mo, billed annually at $99.99",
+          "amount": "$8.33",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Your plan will automatically renew every year at the then-current rate.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "You can turn off auto-renewal any time in Account Settings.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Ransomware Rollback Protection - $2.49/mo, billed with your plan",
+          "amount": "$2.49",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancel subscription",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f05-news",
+      "ms": 0,
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "auto_renew",
+          "quote": "By subscribing, you authorize us to charge your payment method $1 today and, after your first month, $17 per month, which will automatically renew until you cancel.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancel anytime",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Subscriber terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f06-software",
+      "ms": 0,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "fee",
+          "quote": "Payment processing fee: $2.50",
+          "amount": "$2.50",
+          "period": "once",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "License agreement and terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f07-dating",
+      "ms": 0,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "Then $9.99/week",
+          "amount": "$9.99",
+          "period": "week",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Subscriptions automatically renew weekly at the full price unless cancelled at least 24 hours before the renewal date.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Profile Boost - be seen first in your area ($2.99/week)",
+          "amount": "$2.99",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f08-car-wash",
+      "ms": 0,
+      "s": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": false,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "Unlimited Express Wash: $24.99/month",
+          "amount": "$24.99",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "One-time activation fee: $5.00",
+          "amount": "$5.00",
+          "period": "once",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Tire Shine to every wash (+$3/month)",
+          "amount": "$3",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Membership terms and cancellation",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f09-vpn",
+      "ms": 0,
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "auto_renew",
+          "quote": "Your subscription will automatically renew at $99.99 per year after the initial term unless you turn off auto-renew in your account.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f10-language-learning",
+      "ms": 0,
+      "s": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f11-pet-food",
+      "ms": 0,
+      "s": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "auto_renew",
+          "quote": "Autoship renews automatically until you cancel.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add dental chews to every delivery ($8.99 every 4 weeks)",
+          "amount": "$8.99",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Autoship terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f12-gym",
+      "ms": 0,
+      "s": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "Monthly dues\t$39.99 per month",
+          "amount": "$39.99",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Enrollment fee (one-time)\t$29.00",
+          "amount": "$29.00",
+          "period": "once",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Annual maintenance fee (billed each March)\t$49.00",
+          "amount": "$49.00",
+          "period": "once",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "Membership continues month to month until cancelled with 30 days written notice.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancellation policy",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f13-kids-learning",
+      "ms": 0,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": false,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "recurring_charge",
+          "quote": "$7.99 per month",
+          "amount": "$7.99",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f14-photo-editing",
+      "ms": 1,
+      "s": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": true,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "trial_conversion",
+          "quote": "30-day free trial",
+          "trialLength": 30,
+          "trialUnit": "day",
+          "period": "unknown",
+          "source": "rules",
+          "verification": "verified",
+          "convertsOn": "2026-12-22"
+        },
+        {
+          "kind": "trial_conversion",
+          "quote": "Unless you cancel before the end of your 30-day trial, your subscription will automatically convert to the Annual Plan, paid monthly, and you will be charged $22.99 per month.",
+          "amount": "$22.99",
+          "trialLength": 30,
+          "trialUnit": "day",
+          "period": "month",
+          "source": "rules",
+          "verification": "verified",
+          "convertsOn": "2026-12-22"
+        },
+        {
+          "kind": "auto_renew",
+          "quote": "The Annual Plan is a 12-month commitment and renews automatically each year.",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of use",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancellation terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f15-ticketing",
+      "ms": 0,
+      "s": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "fee",
+          "quote": "Facility fee\t$3.00",
+          "amount": "$3.00",
+          "period": "once",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "fee",
+          "quote": "Order processing fee\t$4.95",
+          "amount": "$4.95",
+          "period": "once",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Purchase terms",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    },
+    {
+      "id": "f16-hotel",
+      "ms": 0,
+      "s": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "trialOk": null,
+        "renewOk": true,
+        "linkOk": true,
+        "unverified": 0
+      },
+      "modelFindings": 0,
+      "modelUnverified": 0,
+      "findings": [
+        {
+          "kind": "fee",
+          "quote": "Resort fee: $35.00 per night, charged at the property",
+          "amount": "$35.00",
+          "period": "once",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "prechecked_addon",
+          "quote": "Add Booking Protection - refundable cancellation up to 24 hours before arrival ($24.00)",
+          "amount": "$24.00",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Cancellation policy",
+          "source": "rules",
+          "verification": "verified"
+        },
+        {
+          "kind": "cancel_path",
+          "quote": "Terms of service",
+          "source": "rules",
+          "verification": "verified"
+        }
+      ]
+    }
+  ]
+}
