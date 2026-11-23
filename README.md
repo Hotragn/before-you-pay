@@ -2,7 +2,7 @@
 
 A Chrome side panel that reads a checkout page before you click the button, and tells you what you are really agreeing to: when the free trial turns into a charge, which paid add-ons were already ticked for you, what fees sit in the small print, whether it renews on its own, and how to cancel.
 
-**The page you are about to pay on has your name, email and card on it, so it never leaves your laptop.** Gemini Nano reads it on the device, and the read is built to work with Wi-Fi off (tested so far with a stand-in for Nano, see below). The store's public terms page has nothing about you on it, so that one goes to Gemini in the cloud. Both run through Firebase AI Logic, and the app picks the mode for each request based on how private the text is.
+**The page you are about to pay on has your name, email and card on it, so it is read on your device and only leaves it if you say yes to a redacted copy.** Gemini Nano reads it there, and the read is built to work with Wi-Fi off. I have not been able to run it on real Gemini Nano yet, because the only machine I have cannot run it; the on-device path is tested with a stand-in for the model, see [What is tested and what is not](#what-is-tested-and-what-is-not). The store's public terms page has nothing about you on it, so that one goes to Gemini in the cloud. Both run through Firebase AI Logic, and the app picks the mode for each request based on how private the text is.
 
 ![Where your text goes](docs/architecture.png)
 
@@ -25,7 +25,7 @@ On the 10 real plan pages (cloud read, same runs as the table further down), the
 
 ![Cancel by](docs/cancel-by.png)
 
-**A receipt for what left your device.** Every read in the tab is listed with its mode, its size and a SHA-256 fingerprint. Cloud rows show the exact text that was sent, with what redaction removed marked in red, so you can see "[email]" and "[card ending]" where your details were. Each row also counts requests to the Gemini API made during that read, measured by the page itself with the browser's resource timing list ([web/src/receipt.ts](web/src/receipt.ts)). That is what the page can see, not a network capture, and the panel says so. For an on-device read the checkout row should say "Requests to Gemini during this read: 0". That number is a sanity check, not a proof: `ONLY_ON_DEVICE` never calls the cloud by design, and the page can only count requests it can see. The Wi-Fi off test is the stronger proof. I have only seen that row from the stand-in run below, so it is not pictured here; a real one comes from the laptop.
+**A receipt for what left your device.** Every read in the tab is listed with its mode, its size and a SHA-256 fingerprint. Cloud rows show the exact text that was sent, with what redaction removed marked in red, so you can see "[email]" and "[card ending]" where your details were. Each row also counts requests to the Gemini API made during that read, measured by the page itself with the browser's resource timing list ([web/src/receipt.ts](web/src/receipt.ts)). That is what the page can see, not a network capture, and the panel says so. For an on-device read the checkout row should say "Requests to Gemini during this read: 0". That number is a sanity check, not a proof: `ONLY_ON_DEVICE` never calls the cloud by design, and the page can only count requests it can see. The Wi-Fi off test is the stronger proof. I have only seen that row from the stand-in run below, so it is not pictured here.
 
 ![Receipt, cloud](docs/receipt-cloud.png)
 
@@ -33,13 +33,28 @@ All three screenshots in this section come from fresh cloud reads on my machine:
 
 ![The hosted demo with the store open](docs/hosted-wow.png)
 
+## What is tested and what is not
+
+Plainly, so nobody has to guess:
+
+| Part | Tested how |
+|---|---|
+| Cloud reads (terms page, redacted checkout copy) | Real Gemini calls through Firebase AI Logic, on the live site, 16 + 6 test pages and 10 real plan pages |
+| Routing: checkout page only `ONLY_ON_DEVICE`, never a quiet cloud fallback | Code ([web/src/ai.ts](web/src/ai.ts)) and the Wi-Fi off run with a stand-in model: 0 requests to Gemini |
+| Long pages, measuring and splitting for Nano | Unit tests with a fake `LanguageModel` |
+| Quote and amount checks, dates, first-year total, cancel-by date, .ics | Unit tests and the eval pages |
+| Firestore rules | Emulator tests in [rules-test/](rules-test/) |
+| Real Gemini Nano: accuracy, speed, output quality | **Not tested.** I built this on a machine where Chrome's on-device model is blocked, and I had no supported laptop to run it on before the deadline |
+
+So the cards you see marked ON DEVICE in this README come from the stand-in run, and say so next to them. Everything marked IN CLOUD is a real model answer.
+
 ## The Wi-Fi off test
 
 This is the test I care about most. Open the side panel on a checkout page, turn Wi-Fi off, and press **Check this page**. The status line says "Read on this computer in N s with no internet connection. The page was not sent anywhere." Every card the model wrote is marked ON DEVICE (the basic check's cards say BASIC CHECK). Then press **Read the cancellation terms** and the panel tells you that part needs the cloud and will wait until you are back online.
 
 ![Wi-Fi off check](docs/offline-stub.png)
 
-How that screenshot was made, honestly: the machine I built this on has Gemini Nano blocked by policy. So [scripts/offline-check.mjs](scripts/offline-check.mjs) loads the live panel page, swaps in a stand-in for Chrome's `LanguageModel`, goes offline and presses Check. The stand-in replays a real Gemini answer for the demo store (the saved cloud read in `web/public/demo-cache.json`), so the cards are real model output for this page, just not produced by Nano on this machine. It shows that once the panel is open, the app and the Firebase AI Logic SDK run the whole read with `ONLY_ON_DEVICE` and send nothing over the network. (The only request Chrome logged while offline was Firestore closing its idle connection.) It does not test the real model, and the 1.2 seconds in the screenshot is the stand-in's fixed delay, not a real timing. Real Gemini Nano runs and numbers are coming from a laptop that supports it.
+How that screenshot was made, honestly: the machine I built this on has Gemini Nano blocked by policy. So [scripts/offline-check.mjs](scripts/offline-check.mjs) loads the live panel page, swaps in a stand-in for Chrome's `LanguageModel`, goes offline and presses Check. The stand-in replays a real Gemini answer for the demo store (the saved cloud read in `web/public/demo-cache.json`), so the cards are real model output for this page, just not produced by Nano on this machine. It shows that once the panel is open, the app and the Firebase AI Logic SDK run the whole read with `ONLY_ON_DEVICE` and make no request to Gemini. (The only request Chrome logged while offline was Firestore closing its idle connection.) It does not test the real model, and the 1.2 seconds in the screenshot is the stand-in's fixed delay, not a real timing. I do not have a machine that can run Gemini Nano, so there are no real Nano runs or timings in this README.
 
 ## Try it in two minutes
 
@@ -47,6 +62,8 @@ How that screenshot was made, honestly: the machine I built this on has Gemini N
 2. The chip under the title tells you if Gemini Nano is ready on your computer.
 3. Without it, you get the basic check plus a consent box. Press **Send a redacted copy** to see the cloud read, then **Read the cancellation terms**.
 4. With Chrome 139+ and the Prompt API turned on (steps below), the same button reads the page on your device and the cards say ON DEVICE.
+5. The first press of each cloud button on the demo store shows a saved answer from a real cloud read, with its date, to save the free quota. Press again for a fresh read. If the fresh read fails (busy quota, or App Check not accepting the browser), the saved answer stays and the panel says why.
+6. The demo trial starts today, so the dates you see move with the day you try it.
 
 | No on-device model: it asks first | After a cloud read of a redacted copy (the saved answer from a real read, as its status line says) |
 |---|---|
@@ -119,6 +136,7 @@ The demo runs on the free Firebase plan, which allows only a few cloud requests 
 - Cloud answers are kept in your browser, keyed by a hash of the exact text sent. Pressing the same button twice on the same page costs nothing.
 - For our own demo store and its terms page only, the app ships saved answers from real cloud reads (`web/public/demo-cache.json`, built by `scripts/build-demo-cache.mjs`). When the panel shows one it says so, with the date, and the next press does a fresh read. Saved answers go through the same checks as fresh ones: quotes against the checkout page, and terms quotes against the terms page.
 - Cloud calls are spaced a few seconds apart (Remote Config), and if the quota says "busy" the panel waits 15 seconds and tries once more, then explains in plain words.
+- On the demo store only, if a fresh cloud read fails for any reason (quota, App Check refusing the browser, network), the saved answer stays on screen and the panel says the fresh read did not work and why. Pages that are not the demo store never get a saved answer. App Check is strict with automated browsers, which is how I found this: my own test browser gets a 403 from App Check on the live site, and the demo still shows real, labeled results.
 
 None of this applies to the on-device read, which has no quota.
 
@@ -138,7 +156,7 @@ Extension pages cannot load reCAPTCHA, which App Check needs. So the side panel 
 
 ## Does it work? The eval
 
-There are 16 made-up checkout and signup pages for fictional businesses (streaming, meal kits, gym, VPN, hotel, concert tickets and more). The pages and a first draft of the labels were written with help from Claude, and every label was then checked by hand. Four pages have no subscription at all, to catch false alarms. How they were labeled: [web/public/eval/LABELING.md](web/public/eval/LABELING.md). Anyone can run it at https://before-you-pay-9b8c6.web.app/eval.html.
+There are 16 made-up checkout and signup pages for fictional businesses (streaming, meal kits, gym, VPN, hotel, concert tickets and more). The pages and a first draft of the labels were written with help from Claude, and every label was then checked one by one against the page text. Four pages have no subscription at all, to catch false alarms. How they were labeled: [web/public/eval/LABELING.md](web/public/eval/LABELING.md). Anyone can run it at https://before-you-pay-9b8c6.web.app/eval.html.
 
 After adding the free trial rule I added 6 more pages that the rule was not built from (free trials worded without "trial", a cheap first 3 months, 60% off a first box, a $5 paid trial, a cheaper first year). Their labels were committed before any model saw them ([commit a965066](https://github.com/Hotragn/before-you-pay/commit/a965066)). Run them with `/eval.html?set=heldout`.
 
@@ -150,7 +168,7 @@ Amounts are scored as sets per page (recurring prices, ticked paid add-ons, fees
 |---|---|---|---|---|---|---|
 | Basic check (no model) | 1.00 | 0.79 | 2 of 3 | 13 of 16 | 16 of 16 | n/a |
 | Cloud, redacted copy | 0.89 | 0.94 | 3 of 3 | 15 of 16 | 15 of 16 | 3 of 68 failed the quote or amount check, 1 intro price corrected |
-| On device (Gemini Nano) | coming from a supported laptop | | | | | |
+| On device (Gemini Nano) | not run yet: no machine here can run Nano | | | | | |
 
 **Held-out set, 6 pages**
 
@@ -225,7 +243,7 @@ The extension points at the hosted app. For local work, copy `extension/app-url.
 ### Turn on Gemini Nano
 
 1. Chrome 139+ on Windows, macOS or Linux with enough memory and a GPU (see [Chrome's hardware requirements](https://developer.chrome.com/docs/ai/get-started)).
-2. In `chrome://flags`, search for "Prompt API", enable it, and restart Chrome.
+2. In `chrome://flags`, search for "Gemma 4 for Built-in AI" (the flag the hackathon FAQ names) and for "Prompt API", enable what you find, and restart Chrome. Flag names change between Chrome versions.
 3. In DevTools on any page, `await LanguageModel.availability()` should say `available` or `downloadable`. The first **Check this page** click starts the download.
 
 ## Repo layout

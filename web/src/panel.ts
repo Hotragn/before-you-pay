@@ -343,6 +343,7 @@ function isOurDemo(url: string): boolean {
 function cachedNote(r: CloudResult<unknown>): string {
   if (!r.cached) return '';
   const day = r.savedAt ? new Date(r.savedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+  if (r.freshError) return `A fresh cloud read did not work just now. ${plain(new Error(r.freshError))} Showing the saved answer from a real cloud read of this exact demo page on ${day} instead.`;
   return r.cached === 'saved'
     ? `This is the saved answer from a real cloud read of this exact demo page on ${day}, shown to save the free quota. Press again for a fresh read.`
     : `Same text as your last cloud read (${day}), so the earlier answer is shown. Press again for a fresh read.`;
@@ -352,7 +353,7 @@ function cachedNote(r: CloudResult<unknown>): string {
 function plain(e: unknown): string {
   const m = (e as Error)?.message ?? String(e);
   if (/\b429\b|quota/i.test(m)) return 'Gemini in the cloud is busy right now (this demo runs on a free quota). Try again in a minute.';
-  if (/App ?Check|recaptcha/i.test(m)) return 'This page could not prove it is the real app (App Check). Reload and try again.';
+  if (/App ?Check|recaptcha|\b40[13]\b/i.test(m)) return 'The cloud is protected by App Check, and it did not accept this browser (this can happen in automated or locked-down browsers). Try again later in a normal Chrome window.';
   if (/Failed to fetch|NetworkError|offline/i.test(m)) return 'You seem to be offline.';
   return m.slice(0, 200);
 }

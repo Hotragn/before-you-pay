@@ -10,8 +10,11 @@ import type { Settings } from './settings';
 //    shows one, with the date, and the next press does a fresh read.
 // 3. Calls are spaced out (Remote Config: cloud_cooldown_seconds), and one
 //    retry is made after a short wait if the quota answers "429".
+// 4. If a fresh read of our demo store fails (quota, App Check, network), the
+//    saved result is shown again with a note saying the fresh read failed, so
+//    a judge never ends up with an empty panel.
 
-export interface CloudResult<T> { value: T; source: string; cached?: 'browser' | 'saved'; savedAt?: string }
+export interface CloudResult<T> { value: T; source: string; cached?: 'browser' | 'saved'; savedAt?: string; freshError?: string }
 interface Entry { kind: string; value: unknown; source: string; at: string }
 
 let demoCache: Promise<Record<string, Entry>> | undefined;
@@ -55,13 +58,21 @@ export async function cloudOnce<T>(
   lastCall = Date.now();
   let out: { value: T; source: string };
   try {
-    out = await run();
+    try {
+      out = await run();
+    } catch (e) {
+      if (!isQuota(e)) throw e;
+      onWait('Gemini in the cloud is busy. Trying again in 15 seconds...');
+      await sleep(15000);
+      lastCall = Date.now();
+      out = await run();
+    }
   } catch (e) {
-    if (!isQuota(e)) throw e;
-    onWait('Gemini in the cloud is busy. Trying again in 15 seconds...');
-    await sleep(15000);
-    lastCall = Date.now();
-    out = await run();
+    // Stop means stop. Anything else on our own demo pages falls back to the
+    // saved real read, and the caller says that the fresh read failed.
+    const saved = allowSaved && (e as Error)?.name !== 'AbortError' ? (await loadDemoCache())[key] : undefined;
+    if (!saved) throw e;
+    return { value: saved.value as T, source: saved.source, cached: 'saved', savedAt: saved.at, freshError: (e as Error)?.message ?? String(e) };
   }
   const entry: Entry = { kind, value: out.value, source: out.source, at: new Date().toISOString() };
   cloudLog.push({ key, ...entry });

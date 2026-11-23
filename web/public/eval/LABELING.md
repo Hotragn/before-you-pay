@@ -1,6 +1,6 @@
 # How these pages were labeled
 
-16 made-up checkout and signup pages for fictional businesses. A first draft of the pages and labels was written with Claude; every label was then read and checked by hand against the page text.
+16 made-up checkout and signup pages for fictional businesses. A first draft of the pages and labels was written with Claude; every label was then read and checked one by one against the page text.
 
 Rules used:
 - `trial`: a free period before the first paid charge. Intro discounts ("$1 for your first month", "50% off your first week") are not trials.
