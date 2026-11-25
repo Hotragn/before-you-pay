@@ -96,6 +96,15 @@ describe('first-year cost', () => {
     // Nano's "[x] ..." quotes are not words on the page, so they never count on their own.
     expect(verifyFindings(raw, page, 'on_device').filter((f) => f.quote.startsWith('[x]')).every((f) => f.verification === 'unverified')).toBe(true);
   });
+  it('counts a ticked add-on that Nano quoted with its price next to it (third real run)', () => {
+    const page = demo();
+    const saved = JSON.parse(read('../../eval/nano-real/kaggle-2026-11-24-run3.json'));
+    const raw = saved.reads.flatMap((r: { findings: RawFinding[] }) => r.findings);
+    const basic = mergeFindings(verifyFindings(ruleFindings(page), page, 'rules'));
+    const full = mergeFindings(basic, verifyFindings(raw, page, 'on_device'));
+    expect(full.find((f) => f.quote.startsWith('Lossless Hi-Fi upgrade'))).toMatchObject({ kind: 'prechecked_addon', amount: '$3.99' });
+    expect(firstYear(full, page)!.total).toBe(355.39);
+  });
   it('fills amounts only from the page, never by guessing', () => {
     const page = demo();
     // Two different amounts in the quote: no way to tell which one, so none.
