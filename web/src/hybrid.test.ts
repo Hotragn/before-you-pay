@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 import { resolve } from 'node:path';
 import { ruleFindings } from './rules';
-import { verifyFindings } from './verify';
+import { fillFromPage, verifyFindings } from './verify';
 import { mergeFindings } from './merge';
 import { snapshotDocument } from './snapshot';
 import { firstYear, periodFromText } from './cost';
@@ -53,6 +53,41 @@ describe('first-year cost', () => {
     expect(f.plusTax).toBe(true);
     // Without the model: no Lossless add-on (price outside its label) and no $2.49 line.
     expect(b.total).toBe(277.63);
+  });
+  it('adds up a Nano read that left amounts out, the way the first real run did', () => {
+    // The shapes Gemini Nano gave on Kaggle on Nov 24 (from the panel cards):
+    // no amount on the due-today and per-bill lines, ticked add-ons called
+    // recurring charges, and the Lossless add-on quoted by its label only.
+    const nano: RawFinding[] = [
+      { kind: 'due_today', quote: '$0.00 due today' },
+      { kind: 'trial_conversion', quote: 'After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.', amount: '$14.99' },
+      { kind: 'recurring_charge', quote: 'Add Priority Support for $4.99/month', amount: '$4.99' },
+      { kind: 'recurring_charge', quote: 'Add Family Sharing for $2.99/month', amount: '$2.99' },
+      { kind: 'recurring_charge', quote: 'Lossless Hi-Fi upgrade' },
+      { kind: 'fee', quote: 'We add $2.49 to every bill for music licensing.' },
+      { kind: 'auto_renew', quote: 'Your subscription renews automatically each month until you cancel.' },
+    ];
+    const page = demo();
+    const basic = mergeFindings(verifyFindings(ruleFindings(page), page, 'rules'));
+    const full = mergeFindings(basic, verifyFindings(nano, page, 'on_device'));
+    expect(full.find((f) => f.kind === 'due_today')?.amount).toBe('$0.00');
+    expect(full.filter((f) => f.kind === 'recurring_charge')).toHaveLength(0);
+    expect(full.find((f) => f.quote === 'Lossless Hi-Fi upgrade')).toMatchObject({ kind: 'prechecked_addon', amount: '$3.99', verification: 'verified' });
+    const fy = firstYear(full, page)!;
+    expect(fy.total).toBe(355.39);
+    expect(fy.firstBill).toBe(31.44);
+  });
+  it('fills amounts only from the page, never by guessing', () => {
+    const page = demo();
+    // Two different amounts in the quote: no way to tell which one, so none.
+    expect(fillFromPage({ kind: 'fee', quote: 'Add Priority Support for $4.99/month and $2.99' }, page).amount).toBeUndefined();
+    // A label that is not ticked keeps its kind and gets no price from nearby text.
+    expect(fillFromPage({ kind: 'recurring_charge', quote: 'Email me news and offers' }, page)).toEqual({ kind: 'recurring_charge', quote: 'Email me news and offers' });
+    // An amount the model did give is left alone; verification still checks it.
+    expect(fillFromPage({ kind: 'fee', quote: 'We add $2.49 to every bill for music licensing.', amount: '$9.99' }, page).amount).toBe('$9.99');
+    // A paraphrase that is not on the page still fails verification after filling.
+    const [f] = verifyFindings([{ kind: 'fee', quote: 'They add $2.49 per bill.' }], page, 'on_device');
+    expect(f.verification).toBe('unverified');
   });
   it('gives no single total for a page with several plans', () => {
     const page = { url: 'https://x.test/', title: 't', text: 'Basic $8.99/month. Premium $19.99/month.', capturedAt: '2026-11-22T12:00:00Z', checkboxes: [], links: [] } as PageSnapshot;

@@ -41,7 +41,7 @@
         "unverified": 0
       },
       "found": [
-        "auto_renew  | Add a dessert to every box ($5.99/week) Yes, send me recipes and deals",
+        "auto_renew $5.99 | Add a dessert to every box ($5.99/week) Yes, send me recipes and deals",
         "cancel_path  | Terms of service",
         "cancel_path  | Skip or cancel deliveries"
       ]
@@ -160,7 +160,7 @@
       },
       "found": [
         "recurring_charge $71.76 | Not a real business.Harborline VPNPrivate, fast and simple.2-Year Plan",
-        "auto_renew  | Your subscription will automatically renew at $99.99 per year after th",
+        "auto_renew $99.99 | Your subscription will automatically renew at $99.99 per year after th",
         "cancel_path  | Terms of service"
       ]
     },

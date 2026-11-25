@@ -53,6 +53,15 @@ For every item, "quote" must be copied word for word from the page text.
 Never calculate dates or totals. Give the trial length as a number and a unit.
 If you are not sure, leave the item out.`;
 
+// Gemini Nano gets the same instructions plus three lines about amounts. In the
+// first real Nano run (Kaggle, Nov 24) it found the add-ons and the per-bill
+// fee but often left "amount" empty, so those lines could not be added up.
+// The cloud keeps PAGE_INSTRUCTIONS unchanged.
+export const DEVICE_INSTRUCTIONS = `${PAGE_INSTRUCTIONS}
+Fill "amount" for every item that has a price, copied as printed with its currency sign.
+A ticked box ([x]) for something extra is "prechecked_addon", even when its price is printed next to the box.
+A charge added to every bill or payment is "fee".`;
+
 export const cancelStepsSchema = Schema.object({
   properties: {
     steps: Schema.array({ items: Schema.string() }),
@@ -81,7 +90,7 @@ export function models(settings: Settings = current) {
     onDeviceParams: {
       createOptions: {
         ...CREATE_OPTIONS_BASE,
-        initialPrompts: [{ role: 'system', content: [{ type: 'text', value: PAGE_INSTRUCTIONS }] }],
+        initialPrompts: [{ role: 'system', content: [{ type: 'text', value: DEVICE_INSTRUCTIONS }] }],
       },
       promptOptions: { responseConstraint: findingsJsonSchema },
     },
@@ -154,6 +163,11 @@ export function pageToPrompt(page: PageSnapshot, maxChars = current.max_page_cha
   return `Page: ${page.title}\n\n${clip(page.text, maxChars)}\n\nCheckboxes:\n${boxes}`;
 }
 
+// The raw findings of every on-device read in this tab, before any checks, so
+// a test run can save exactly what Nano said. Nothing here leaves the page.
+export const deviceLog: { part: number; of: number; findings: RawFinding[] }[] = [];
+(globalThis as unknown as { bypDeviceLog: typeof deviceLog }).bypDeviceLog = deviceLog;
+
 export interface DeviceRead { findings: RawFinding[]; source: string; parts: number; tokens: number; exact: boolean; trimmed: boolean; prompts: string[] }
 
 function aborted(signal?: AbortSignal): Promise<never> {
@@ -169,14 +183,16 @@ export async function analyzeOnDevice(
 ): Promise<DeviceRead> {
   const m = models();
   // Whole page text (up to the snapshot limit) instead of a fixed cut.
-  const plan = await planParts(page, (p) => pageToPrompt(p, 20000), PAGE_INSTRUCTIONS);
+  const plan = await planParts(page, (p) => pageToPrompt(p, 20000), DEVICE_INSTRUCTIONS);
   const findings: RawFinding[] = [];
   let source = 'on_device';
   for (const [i, prompt] of plan.prompts.entries()) {
     if (opts.signal?.aborted) throw new DOMException('Stopped', 'AbortError');
     opts.onPart?.(i + 1, plan.prompts.length);
     const result = await Promise.race([m.privateModel.generateContent(prompt), aborted(opts.signal)]);
-    findings.push(...parseFindings(result.response.text()));
+    const got = parseFindings(result.response.text());
+    deviceLog.push({ part: i + 1, of: plan.prompts.length, findings: got });
+    findings.push(...got);
     source = result.response.inferenceSource ?? source;
   }
   return { findings, source, parts: plan.prompts.length, tokens: plan.budget.used, exact: plan.budget.exact, trimmed: plan.trimmed, prompts: plan.prompts };

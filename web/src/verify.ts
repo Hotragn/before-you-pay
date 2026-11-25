@@ -79,13 +79,38 @@ export function looksLikeFreeTrial(quote: string, page: PageSnapshot): boolean {
 // renewal." as proof that a plan renews. The quote is real, the reading is not.
 const NO_RENEW = /\bno (?:automatic|auto)[- ]?renewal\b|\b(?:does|will) not (?:auto[- ]?)?renew\b|\bwon't renew\b|\bnot renew automatically\b|\bdoes not automatically renew\b/i;
 
+// Small on-device models often leave "amount" empty even when the quote has
+// one, or call a ticked add-on a plain recurring charge and quote only its
+// checkbox label while the price sits next to the box. Both are put right from
+// the page itself, never from a guess: the amount must be the only one in the
+// quote (or the first one printed right after the ticked label), and the kind
+// only changes when the quote is the label of a box that is ticked on the page.
+export function fillFromPage(r: RawFinding, page: PageSnapshot): RawFinding {
+  const f: RawFinding = { ...r };
+  const q = normalize(f.quote);
+  const ticked = q.length >= 4 && page.checkboxes.some((c) => c.checked && (normalize(c.label) === q || (q.length >= 12 && normalize(c.label).includes(q))));
+  if (ticked && f.kind === 'recurring_charge') f.kind = 'prechecked_addon';
+  if (!f.amount) {
+    const inQuote = [...new Set(amountsIn(f.quote).map((a) => amountValue(a).toFixed(2)))];
+    if (inQuote.length === 1) f.amount = amountsIn(f.quote)[0];
+    else if (!inQuote.length && ticked) {
+      const text = normalize(page.text);
+      const at = text.indexOf(q);
+      const after = at < 0 ? [] : amountsIn(text.slice(at + q.length, at + q.length + 40));
+      if (after.length) f.amount = after[0];
+    }
+  }
+  return f;
+}
+
 export function verifyFindings(
   raw: RawFinding[],
   page: PageSnapshot,
   source: Finding['source'],
 ): Finding[] {
   const start = new Date(page.capturedAt);
-  return raw.map((r) => {
+  return raw.map((r0) => {
+    const r = fillFromPage(r0, page);
     const f: Finding = { ...r, source, verification: 'verified' };
     const printed = r.amount ? amountOnPage(r.amount, page) : undefined;
     if (!quoteAppears(r.quote, page)) {
