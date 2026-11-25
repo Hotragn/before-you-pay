@@ -77,6 +77,25 @@ describe('first-year cost', () => {
     expect(fy.total).toBe(355.39);
     expect(fy.firstBill).toBe(31.44);
   });
+  it('keeps one renewal card when Nano attaches the plan price to it (second real run)', () => {
+    const page = demo();
+    const basic = mergeFindings(verifyFindings(ruleFindings(page), page, 'rules'));
+    const nano: RawFinding[] = [{ kind: 'auto_renew', quote: 'Your subscription renews automatically each month until you cancel.', amount: '$14.99/month' }];
+    const full = mergeFindings(basic, verifyFindings(nano, page, 'on_device'));
+    expect(full.filter((f) => f.kind === 'auto_renew')).toHaveLength(1);
+    expect(full.find((f) => f.kind === 'auto_renew')?.source).toBe('on_device');
+  });
+  it('turns the saved real Nano answer (Kaggle, Nov 24) into the same total as the cloud', () => {
+    const page = demo();
+    const saved = JSON.parse(read('../../eval/nano-real/kaggle-2026-11-24.json'));
+    const raw = saved.reads.flatMap((r: { findings: RawFinding[] }) => r.findings);
+    const basic = mergeFindings(verifyFindings(ruleFindings(page), page, 'rules'));
+    const full = mergeFindings(basic, verifyFindings(raw, page, 'on_device'));
+    expect(firstYear(full, page)!.total).toBe(355.39);
+    expect(full.filter((f) => f.kind === 'auto_renew')).toHaveLength(1);
+    // Nano's "[x] ..." quotes are not words on the page, so they never count on their own.
+    expect(verifyFindings(raw, page, 'on_device').filter((f) => f.quote.startsWith('[x]')).every((f) => f.verification === 'unverified')).toBe(true);
+  });
   it('fills amounts only from the page, never by guessing', () => {
     const page = demo();
     // Two different amounts in the quote: no way to tell which one, so none.

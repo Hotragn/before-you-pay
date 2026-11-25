@@ -12,6 +12,9 @@ function keyOf(f: Finding): string {
     // Models sometimes leave the unit as "unknown", so the length alone decides.
     return `trial|${Number(f.trialLength)}`;
   }
+  // "Renews automatically" is one fact however it is quoted. Nano sometimes
+  // attaches the plan price to it, which must not make a second card.
+  if (f.kind === 'auto_renew') return 'auto_renew';
   if (f.amount) return `${f.kind}|${money(f.amount)}`;
   return `${f.kind}|${normalize(f.quote).slice(0, 80)}`;
 }
