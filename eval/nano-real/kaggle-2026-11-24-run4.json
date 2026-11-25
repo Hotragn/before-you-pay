@@ -1,0 +1,87 @@
+{
+ "what": "Raw findings from the first of two real Gemini Nano reads of the demo store in Kaggle run 4, before any checks. Chrome 158.0.8127.88 stable, Kaggle CPU machine (4 cores, 31 GB RAM, no GPU), live panel at commit 9fa48be, Nov 24 2026.",
+ "status": "Read on this computer in 113.6 s. The page was not sent anywhere.",
+ "panel_total_first_read": "$355.39",
+ "second_read_status": "Read on this computer in 89.5 s. The page was not sent anywhere.",
+ "second_read_total": "$355.39",
+ "reads": [
+  {
+   "part": 1,
+   "of": 1,
+   "findings": [
+    {
+     "kind": "due_today",
+     "quote": "$0.00 due today",
+     "amount": "0.00",
+     "period": "day",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "trial_conversion",
+     "quote": "After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
+     "amount": "14.99",
+     "period": "month",
+     "trialLength": 14,
+     "trialUnit": "day"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Add Priority Support for $4.99/month",
+     "amount": "4.99",
+     "period": "month",
+     "trialLength": 1,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Add Family Sharing for $2.99/month",
+     "amount": "2.99",
+     "period": "month",
+     "trialLength": 1,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Lossless Hi-Fi upgrade +$3.99 each month",
+     "amount": "3.99",
+     "period": "month",
+     "trialLength": 1,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "auto_renew",
+     "quote": "Your subscription renews automatically each month until you cancel.",
+     "amount": "unknown",
+     "period": "month",
+     "trialLength": 1,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "Add Priority Support for $4.99/month",
+     "amount": "4.99",
+     "period": "month",
+     "trialLength": 1,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "Add Family Sharing for $2.99/month",
+     "amount": "2.99",
+     "period": "month",
+     "trialLength": 1,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "fee",
+     "quote": "We add $2.49 to every bill for music licensing.",
+     "amount": "2.49",
+     "period": "month",
+     "trialLength": 1,
+     "trialUnit": "month"
+    }
+   ]
+  }
+ ]
+}

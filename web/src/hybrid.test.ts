@@ -114,6 +114,17 @@ describe('first-year cost', () => {
     expect(full.filter((f) => f.kind === 'prechecked_addon').map((f) => f.amount).sort()).toEqual(['$2.99', '$3.99', '$4.99']);
     expect(firstYear(full, page)!.total).toBe(355.39);
   });
+  it('every saved real Nano answer adds up to the cloud total with the current code', () => {
+    const page = demo();
+    const basic = mergeFindings(verifyFindings(ruleFindings(page), page, 'rules'));
+    for (const run of [2, 3, 4, 5, 6]) {
+      const saved = JSON.parse(read(`../../eval/nano-real/kaggle-2026-11-24-run${run}.json`));
+      const raw = saved.reads.flatMap((r: { findings: RawFinding[] }) => r.findings);
+      const full = mergeFindings(basic, verifyFindings(raw, page, 'on_device'));
+      expect(firstYear(full, page)!.total, `run ${run}`).toBe(355.39);
+      expect(full.filter((f) => f.kind === 'auto_renew'), `run ${run}`).toHaveLength(1);
+    }
+  });
   it('drops an amount of "unknown" instead of reading it as $0.00 (fourth real run)', () => {
     const page = demo();
     const [f] = verifyFindings([{ kind: 'auto_renew', quote: 'Your subscription renews automatically each month until you cancel.', amount: 'unknown' }], page, 'on_device');

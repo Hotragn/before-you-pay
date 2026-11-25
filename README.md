@@ -37,13 +37,13 @@ All three screenshots in this section come from fresh cloud reads on my machine:
 
 My laptop cannot run Gemini Nano, so on Nov 24, 2026 I used a free Kaggle notebook machine instead: with 4 CPU cores, 31 GB RAM and no GPU, running Chrome 158.0.8127.88 stable, headed on a virtual display, with the Prompt API turned on. Chrome's CPU path needs 16 GB RAM and 4 cores, so it qualifies. I also turned on Chrome's flag that skips its speed check. The script is [scripts/nano-kaggle.py](scripts/nano-kaggle.py). It opens the live panel, presses **Try the demo store** and **Check this page**, the same `ONLY_ON_DEVICE` code the extension uses, and saves everything it sees.
 
-What happened. Four runs, two reads each after the first, all in [eval/nano-real/](eval/nano-real/) with the summaries, logs, Nano's raw answers and the full screen recording of run 2:
+What happened. Six runs, two reads each after the first, every one listed in [eval/nano-real/](eval/nano-real/) with the summaries, logs, Nano's raw answers and the full screen recording of run 2:
 
 | | Real Gemini Nano, Kaggle CPU | Cloud read of a redacted copy |
 |---|---|---|
-| Model ready | `downloadable`, then `available` after a 90 to 151 s download | n/a |
-| Time to read the demo checkout page | 60 to 144 s across the 6 reads with a captured time | not compared here |
-| First-year total, after the fixes below | **$355.39** on 5 of 6 reads | $355.39 |
+| Model ready | `downloadable`, then `available` after a download of about 1.5 to 2.5 minutes | n/a |
+| Time to read the demo checkout page | 60 to 144 s across the 10 reads with a captured time | not compared here |
+| First-year total | **$355.39** on 7 of 10 reads after the first fix, and on both reads of the last run | $355.39 |
 | Due today, first charge | $0.00, $31.44 on Dec 6 | the same |
 | Requests to Gemini during the read | 0, as counted by the page | the redacted copy, after you say yes |
 | Cancel by | Fri, Dec 4, once the terms were read in the cloud | Fri, Dec 4 |
@@ -55,7 +55,7 @@ What happened. Four runs, two reads each after the first, all in [eval/nano-real
 What is not as good, plainly:
 
 - It is slow on CPU. One to two and a half minutes for one short checkout page is too long for a real checkout. I have not measured it on a GPU.
-- Nano is not consistent from read to read, and each run turned up a new way to get an amount wrong. Run 1, before I changed anything, added up only $277.63: Nano left some amounts empty and called the ticked add-ons plain recurring charges. In run 3 the first read quoted "Lossless Hi-Fi upgrade +$3.99 each month" as a plain recurring charge, so that add-on was left out ($307.51). In run 4 it wrote "unknown" as an amount, which my code read as $0.00 on the renewal card. Each one is fixed in code that only uses the page ([web/src/verify.ts](web/src/verify.ts)): a missing amount comes from the quote or from the price printed next to a ticked box, a quote that is a ticked box's label (with or without its price) counts as a ticked add-on, and an amount with no digits is dropped. Nano also gets three extra lines about amounts. The raw answers from runs 2 and 3 are unit tests now. The fix for "unknown" came after run 4, so no Nano read has run on it yet.
+- Nano is not consistent from read to read, and each run turned up a new way to get an amount wrong. Run 1, before I changed anything, added up only $277.63: Nano left some amounts empty and called the ticked add-ons plain recurring charges. In run 3 the first read quoted "Lossless Hi-Fi upgrade +$3.99 each month" as a plain recurring charge, so that add-on was left out ($307.51). In run 4 it wrote "unknown" as an amount, which my code read as $0.00 on the renewal card. In run 5 it listed the $2.49 per-bill line twice, once as a ticked add-on, so both reads came to $385.27. Each one is fixed in code that only uses the page ([web/src/verify.ts](web/src/verify.ts)): a missing amount comes from the quote or from the price printed next to a ticked box, a quote that is a ticked box's label (with or without its price) counts as a ticked add-on, an "add-on" that is no checkbox's label counts as a fee, and an amount with no digits is dropped. Nano also gets three extra lines about amounts. The raw answers from runs 2 to 6 are a unit test now, and all of them add up to $355.39 with the current code. Run 6, on the final code, got $355.39 on both reads. That is two reads, not proof that the next one will.
 - Nano sometimes writes quotes as `[x] Add Priority Support...`, copying the checkbox mark from the prompt. Those words are not on the page, so they fail the quote check and never count on their own.
 - This is one page on one machine. It is a check that the real model works through the real code, not an accuracy number. The eval numbers further down are still cloud only.
 - App Check refused that automated browser, so the terms half showed the saved real cloud answer, and the panel said so.
@@ -71,7 +71,7 @@ Plainly, so nobody has to guess:
 | Long pages, measuring and splitting for Nano | Unit tests with a fake `LanguageModel` |
 | Quote and amount checks, dates, first-year total, cancel-by date, .ics | Unit tests and the eval pages |
 | Firestore rules | Emulator tests in [rules-test/](rules-test/) |
-| Real Gemini Nano on the demo store | **Four real runs**, Kaggle CPU machine, Chrome 158, Nov 24 2026: 60 to 144 s per read, $355.39 on 5 of 6 reads after the fixes ([above](#real-gemini-nano-run)) |
+| Real Gemini Nano on the demo store | **Six real runs**, Kaggle CPU machine, Chrome 158, Nov 24 2026: 60 to 144 s per read, $355.39 on 7 of 10 reads after the first fix, both reads on the final code ([above](#real-gemini-nano-run)) |
 | Real Gemini Nano: accuracy over many pages, speed on a GPU laptop | **Not tested.** The eval is cloud only |
 
 The ON DEVICE cards in [Real Gemini Nano run](#real-gemini-nano-run) are from real Nano. The Wi-Fi off screenshot below is still the stand-in run and says so. Everything marked IN CLOUD is a real model answer.

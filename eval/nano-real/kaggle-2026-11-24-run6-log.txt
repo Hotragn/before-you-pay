@@ -1,0 +1,190 @@
+$ nproc; free -g; df -h / /tmp /kaggle/working; nvidia-smi || true; uname -a; date -u -> 0 4
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          26           0           4          30
+Swap:              0           0           0
+Filesystem      Size  Used Avail Use% Mounted on
+overlay         8.0T  5.6T  2.5T  70% /
+overlay         8.0T  5.6T  2.5T  70% /
+/dev/loop2       20G  120K   20G   1% /kaggle/working
+Linux e10e038e9fa9 6.18.55+ #1 SMP Thu Oct 22 16:37:21 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+Wed Nov 25 02:33:02 AM UTC 2026
+/bin/sh: 1: nvidia-smi: not found
+
+$ apt-get update -qq && apt-get install -y -qq xvfb ffmpeg wget >/dev/null 2>&1; echo done -> 0 done
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+
+$ wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && apt-get install -y -qq /tmp/chrome.deb >/dev/null 2>&1; google-chrome --version -> 0 Google Chrome 158.0.8127.88 
+
+$ pip install -q playwright==1.48.0 2>&1 | tail -1 -> 0 
+profile on /tmp free GB 2697.56432384
+--- internals-start ---
+ 
+console: Failed to load resource: the server responded with a status of 404 ()
+typeof LanguageModel function
+console: No output language was specified in a LanguageModel API request. An output language should be specified to ensure optimal output quality and properly attest to output safety. Please specify a supported output language code: [de, en, es, fr, ja]
+availability first: downloadable
+console: This page uses Chrome's Built-In AI features (LanguageModel)! We're always improving our models; please submit your feedback here: https://issues.chromium.org/issues/new?component=1583624
+download 0 s {'c': None, 'd': None, 'n': 0}
+download 60 s {'c': None, 'd': 0.763946533203125, 'n': 700}
+download 120 s {'c': None, 'd': 0.8982086181640625, 'n': 822}
+create result ok
+availability after: available
+--- internals-after ---
+ 
+sanity {'create_ms': 2.799999999930151, 'prompt_ms': 3650.600000000093, 'out': 'Blue.\n'}
+panel console: Failed to load resource: the server responded with a status of 403 ()
+panel console: [2026-11-25T02:36:41.756Z]  @firebase/app-check: AppCheck: 403 error. Attempts allowed again after 01d:00m:00s (appCheck/initial-throttle).
+panel console: [2026-11-25T02:36:41.757Z]  @firebase/app-check: AppCheck: 403 error. Attempts allowed again after 01d:00m:00s (appCheck/initial-throttle).
+panel console: [2026-11-25T02:36:41.757Z]  @firebase/auth: Auth (13.4.0): Error while retrieving App Check token: FirebaseError: AppCheck: 403 error. Attempts allowed again after 01d:00m:00s (appCheck/initial-throttle).
+panel console: [2026-11-25T02:36:42.107Z]  @firebase/app-check: AppCheck: Requests throttled due to previous 403 error. Attempts allowed again after 01d:00m:00s (appCheck/throttled).
+panel console: [2026-11-25T02:36:42.107Z]  @firebase/auth: Auth (13.4.0): Error while retrieving App Check token: FirebaseError: AppCheck: Requests throttled due to previous 403 error. Attempts allowed again after 01d:00m:00s (appCheck/throttled).
+panel console: [2026-11-25T02:36:42.173Z]  @firebase/app-check: AppCheck: Requests throttled due to previous 403 error. Attempts allowed again after 01d:00m:00s (appCheck/throttled).
+panel console: This page uses Chrome's Built-In AI features (LanguageModel)! We're always improving our models; please submit your feedback here: https://issues.chromium.org/issues/new?component=1583624
+status 0.09 Reading on your device...
+panel console: [2026-11-25T02:37:11.758Z]  @firebase/app-check: AppCheck: Requests throttled due to previous 403 error. Attempts allowed again after 23h:59m:30s (appCheck/throttled).
+panel console: [2026-11-25T02:38:11.759Z]  @firebase/app-check: AppCheck: Requests throttled due to previous 403 error. Attempts allowed again after 23h:58m:30s (appCheck/throttled).
+status 102.22 Read on this computer in 101.7 s. The page was not sent anywhere.
+second read 95.17 Read on this computer in 95.1 s. The page was not sent anywhere.
+SUMMARY {
+ "typeof": "function",
+ "availability_first": "downloadable",
+ "create": "ok",
+ "download_s": 150,
+ "availability_after": "available",
+ "sanity": {
+  "create_ms": 2.799999999930151,
+  "prompt_ms": 3650.600000000093,
+  "out": "Blue.\n"
+ },
+ "panel_wall_s": 102.23,
+ "panel_status_timeline": [
+  [
+   0.09,
+   "Reading on your device..."
+  ],
+  [
+   102.22,
+   "Read on this computer in 101.7 s. The page was not sent anywhere."
+  ]
+ ],
+ "panel_cards": [
+  "Due today: $0.00 ON DEVICE $0.00 due today",
+  "Becomes $14.99 on Dec 6 BASIC CHECK Your 14-day free trial starts today.",
+  "Trial turns paid: $14.99 ON DEVICE After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
+  "Add-on already ticked: $4.99 ON DEVICE Add Priority Support for $4.99/month",
+  "Add-on already ticked: $2.99 ON DEVICE Add Family Sharing for $2.99/month",
+  "Add-on already ticked: $3.99 ON DEVICE Lossless Hi-Fi upgrade",
+  "Extra fee: $1.99 BASIC CHECK A one-time activation fee of $1.99 is charged at the end of the trial.",
+  "Extra fee: $2.49 ON DEVICE We add $2.49 to every bill for music licensing.",
+  "Renews automatically: $14.99 ON DEVICE Your subscription renews automatically each month until you cancel.",
+  "Cancel or terms link BASIC CHECK Subscription terms",
+  "Cancel or terms link BASIC CHECK How to cancel"
+ ],
+ "on_device_badges": 13,
+ "panel#summary": "Free today, then $14.99 from Dec 6; $11.97 more for 3 add-ons that were already ticked; fees: $1.99, $2.49.",
+ "panel#costToday": "$0.00",
+ "panel#costTotal": "$355.39",
+ "panel#costGap": "The basic check alone adds up to $277.63. Reading the whole page found $77.76 more in the first year.",
+ "panel#dlDate": "Sat, Dec 5",
+ "panel#dlText": "Cancel by then to avoid the first charge of $31.44 on Dec 6. That is one day early, because the page does not say what time it charges. Read the cancellation terms below to check how much notice they need.",
+ "panel#demoNote": "Demo date fixed to Sun, Nov 22, 2026 to match the video. Real pages use today's date.",
+ "panel#route": "This page has your name, your email and card details, so it stays on this device. Gemini Nano reads it here.",
+ "raw_nano": [
+  {
+   "part": 1,
+   "of": 1,
+   "findings": [
+    {
+     "kind": "due_today",
+     "quote": "$0.00 due today",
+     "amount": "$0.00",
+     "period": "day"
+    },
+    {
+     "kind": "trial_conversion",
+     "quote": "After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
+     "amount": "$14.99/month",
+     "period": "month"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Add Priority Support for $4.99/month",
+     "amount": "$4.99/month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Add Family Sharing for $2.99/month",
+     "amount": "$2.99/month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "Lossless Hi-Fi upgrade",
+     "amount": "$3.99 each month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "fee",
+     "quote": "We add $2.49 to every bill for music licensing.",
+     "amount": "$2.49",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "auto_renew",
+     "quote": "Your subscription renews automatically each month until you cancel.",
+     "amount": "$14.99/month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "month"
+    },
+    {
+     "kind": "cancel_path",
+     "quote": "Cancel anytime in a few taps",
+     "amount": "0",
+     "period": "unknown"
+    }
+   ]
+  }
+ ],
+ "cost_lines": [
+  "Plan, after the free trial $179.88 $14.99 a month \u00d7 12 BASIC CHECK",
+  "Add-on that was already ticked $59.88 $4.99 a month \u00d7 12 ON DEVICE",
+  "Add-on that was already ticked $35.88 $2.99 a month \u00d7 12 ON DEVICE",
+  "Add-on that was already ticked $47.88 $3.99 a month \u00d7 12 ON DEVICE",
+  "Extra charge $1.99 $1.99 once BASIC CHECK",
+  "Extra charge $29.88 $2.49 a month \u00d7 12 ON DEVICE",
+  "First year $355.39"
+ ],
+ "terms_out": "IN CLOUD\nSign in\nOpen Account\nChoose Membership\nSelect End membership\n\nAt least 24 hours before your renewal date Payments are non-refundable, and no refunds or credits are provided for partial billing periods.\n\nTo cancel, sign in, open Account, choose Membership, then select End membership.\nYou must cancel at least 24 hours before your renewal date to avoid being charged for the next period.\nPayments are non-refundable, and we do not provide refunds or credits for partial billing periods.\n\nThis is the saved answer from a real cloud read of this exact demo page on Nov 22, shown to save the fre",
+ "after_terms#dlDate": "Fri, Dec 4",
+ "after_terms#dlText": "Cancel by then to avoid the first charge of $31.44 on Dec 6. The terms ask for 24 hours of notice, plus one day of margin because the page does not say what time it charges. The terms also say payments are not refunded, so missing it costs the full amount.",
+ "after_terms#costTotal": "$355.39",
+ "after_terms#costGap": "The basic check alone adds up to $277.63. Reading the whole page found $77.76 more in the first year.",
+ "second_read_wall_s": 95.17,
+ "second_read_status": "Read on this computer in 95.1 s. The page was not sent anywhere.",
+ "second_read_total": "$355.39"
+}
+$ ls -la /kaggle/working; rm -rf /tmp/nano-profile 2>/dev/null; true -> 0 total 8348
+drwxr-xr-x 2 root root    4096 Nov 25 02:40 .
+drwxr-xr-x 8 root root    4096 Nov 25 02:33 ..
+-rw-r--r-- 1 root root   19224 Nov 25 02:38 chrome-stdout.txt
+-rw-r--r-- 1 root root   42330 Nov 25 02:36 internals-after.png
+-rw-r--r-- 1 root root       0 Nov 25 02:36 internals-after.txt
+-rw-r--r-- 1 root root   42330 Nov 25 02:34 internals-start.png
+-rw-r--r-- 1 root root       0 Nov 25 02:33 internals-start.txt
+-rw-r--r-- 1 root root    9641 Nov 25 02:40 log.txt
+-rw-r--r-- 1 root root  538045 Nov 25 02:36 panel-1-basic.png
+-rw-r--r-- 1 root root  627479 Nov 25 02:38 panel-2-on-device.png
+-rw-r--r-- 1 root root  722198 Nov 25 02:38 panel-3-with-terms.png
+-rw-r--r-- 1 root root 6509877 Nov 25 02:40 screen.mp4
+-rw-r--r-- 1 root root    5433 Nov 25 02:40 summary.json
+

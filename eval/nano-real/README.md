@@ -11,7 +11,11 @@ Every run: a Kaggle notebook machine with 4 CPU cores, 31 GB RAM and no GPU, Chr
 | 3 | 959b2a6 | 2 | 69.3 s | $355.39 |
 | 4 | 9fa48be | 1 | 113.6 s | $355.39 |
 | 4 | 9fa48be | 2 | 89.5 s | $355.39 |
+| 5 | 9902e1d | 1 | 119.1 s | $385.27 (the $2.49 per-bill line counted twice) |
+| 5 | 9902e1d | 2 | 92.9 s | $385.27 (same) |
+| 6 | 9e52c9b | 1 | 101.7 s | $355.39 |
+| 6 | 9e52c9b | 2 | 95.1 s | $355.39 |
 
-Files: `*-summary.json` (everything the script read off the panel), `*-log.txt` (machine specs, download progress, console), `kaggle-2026-11-24-run2.json` and `-run3.json` (Nano's raw answers, used as unit tests), and `kaggle-2026-11-24-run2-screen.mp4` (the full screen recording of run 2, used in the demo video). Run 1 has no raw answer because the logging was added after it.
+Files: `*-summary.json` (everything the script read off the panel), `*-log.txt` (machine specs, download progress, console), `kaggle-2026-11-24-runN.json` for runs 2 to 6 (Nano's raw answer to the first read of each run; a unit test checks that every one of them now adds up to $355.39), and `kaggle-2026-11-24-run2-screen.mp4` (the full screen recording of run 2, used in the demo video). Run 1 has no raw answer because the logging was added after it.
 
 Times are wall clock for one short page on CPU. They vary a lot between runs and are not a benchmark.
