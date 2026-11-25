@@ -1,0 +1,158 @@
+{
+ "typeof": "function",
+ "availability_first": "downloadable",
+ "create": "ok",
+ "download_s": 105,
+ "availability_after": "available",
+ "sanity": {
+  "create_ms": 7.7999999999883585,
+  "prompt_ms": 4710.800000000047,
+  "out": "Blue.\n"
+ },
+ "panel_wall_s": 144.49,
+ "panel_status_timeline": [
+  [
+   0.13,
+   "Reading on your device..."
+  ],
+  [
+   144.48,
+   "Read on this computer in 144.0 s. The page was not sent anywhere."
+  ]
+ ],
+ "panel_cards": [
+  "Due today: $0.00 ON DEVICE $0.00 due today",
+  "Becomes $14.99 on Dec 6 ON DEVICE After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
+  "Add-on already ticked: $4.99 ON DEVICE Add Priority Support for $4.99/month",
+  "Add-on already ticked: $2.99 ON DEVICE Add Family Sharing for $2.99/month",
+  "Add-on already ticked: $3.99 ON DEVICE Lossless Hi-Fi upgrade",
+  "Extra fee: $1.99 BASIC CHECK A one-time activation fee of $1.99 is charged at the end of the trial.",
+  "Extra fee: $2.49 ON DEVICE We add $2.49 to every bill for music licensing.",
+  "Renews automatically BASIC CHECK Your subscription renews automatically each month until you cancel.",
+  "Renews automatically: $14.99 ON DEVICE Your subscription renews automatically each month until you cancel.",
+  "Cancel or terms link BASIC CHECK Subscription terms",
+  "Cancel or terms link BASIC CHECK How to cancel"
+ ],
+ "on_device_badges": 15,
+ "panel#summary": "Free today, then $14.99 from Dec 6; $11.97 more for 3 add-ons that were already ticked; fees: $1.99, $2.49.",
+ "panel#costToday": "$0.00",
+ "panel#costTotal": "$355.39",
+ "panel#costGap": "The basic check alone adds up to $277.63. Reading the whole page found $77.76 more in the first year.",
+ "panel#dlDate": "Sat, Dec 5",
+ "panel#dlText": "Cancel by then to avoid the first charge of $31.44 on Dec 6. That is one day early, because the page does not say what time it charges. Read the cancellation terms below to check how much notice they need.",
+ "panel#demoNote": "Demo date fixed to Sun, Nov 22, 2026 to match the video. Real pages use today's date.",
+ "panel#route": "This page has your name, your email and card details, so it stays on this device. Gemini Nano reads it here.",
+ "raw_nano": [
+  {
+   "part": 1,
+   "of": 1,
+   "findings": [
+    {
+     "kind": "due_today",
+     "quote": "$0.00 due today",
+     "amount": "$0.00",
+     "period": "day",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "trial_conversion",
+     "quote": "After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
+     "amount": "$14.99/month",
+     "period": "month",
+     "trialLength": 14,
+     "trialUnit": "day"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Add Priority Support for $4.99/month",
+     "amount": "$4.99/month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Add Family Sharing for $2.99/month",
+     "amount": "$2.99/month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Lossless Hi-Fi upgrade",
+     "amount": "$3.99 each month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "auto_renew",
+     "quote": "Your subscription renews automatically each month until you cancel.",
+     "amount": "$14.99/month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "[x] Add Priority Support for $4.99/month",
+     "amount": "$4.99/month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "[x] Add Family Sharing for $2.99/month",
+     "amount": "$2.99/month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "[x] Lossless Hi-Fi upgrade",
+     "amount": "$3.99/month",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "fee",
+     "quote": "We add $2.49 to every bill for music licensing.",
+     "amount": "$2.49",
+     "period": "day",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "cancel_path",
+     "quote": "Cancel anytime in a few taps",
+     "amount": "$0.00",
+     "period": "day",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    }
+   ]
+  }
+ ],
+ "cost_lines": [
+  "Plan, after the free trial $179.88 $14.99 a month \u00d7 12 ON DEVICE",
+  "Add-on that was already ticked $59.88 $4.99 a month \u00d7 12 ON DEVICE",
+  "Add-on that was already ticked $35.88 $2.99 a month \u00d7 12 ON DEVICE",
+  "Add-on that was already ticked $47.88 $3.99 a month \u00d7 12 ON DEVICE",
+  "Extra charge $1.99 $1.99 once BASIC CHECK",
+  "Extra charge $29.88 $2.49 a month \u00d7 12 ON DEVICE",
+  "First year $355.39"
+ ],
+ "terms_out": "IN CLOUD\nSign in\nOpen Account\nChoose Membership\nSelect End membership\n\nAt least 24 hours before your renewal date Payments are non-refundable, and no refunds or credits are provided for partial billing periods.\n\nTo cancel, sign in, open Account, choose Membership, then select End membership.\nYou must cancel at least 24 hours before your renewal date to avoid being charged for the next period.\nPayments are non-refundable, and we do not provide refunds or credits for partial billing periods.\n\nThis is the saved answer from a real cloud read of this exact demo page on Nov 22, shown to save the fre",
+ "after_terms#dlDate": "Fri, Dec 4",
+ "after_terms#dlText": "Cancel by then to avoid the first charge of $31.44 on Dec 6. The terms ask for 24 hours of notice, plus one day of margin because the page does not say what time it charges. The terms also say payments are not refunded, so missing it costs the full amount.",
+ "after_terms#costTotal": "$355.39",
+ "after_terms#costGap": "The basic check alone adds up to $277.63. Reading the whole page found $77.76 more in the first year.",
+ "second_read_wall_s": 109.45,
+ "second_read_status": "Read on this computer in 109.0 s. The page was not sent anywhere.",
+ "second_read_total": "$355.39"
+}

@@ -2,7 +2,7 @@
 
 A Chrome side panel that reads a checkout page before you click the button, and tells you what you are really agreeing to: when the free trial turns into a charge, which paid add-ons were already ticked for you, what fees sit in the small print, whether it renews on its own, and how to cancel.
 
-**The page you are about to pay on has your name, email and card on it, so it is read on your device and only leaves it if you say yes to a redacted copy.** Gemini Nano reads it there, and the read is built to work with Wi-Fi off. I have not been able to run it on real Gemini Nano yet, because the only machine I have cannot run it; the on-device path is tested with a stand-in for the model, see [What is tested and what is not](#what-is-tested-and-what-is-not). The store's public terms page has nothing about you on it, so that one goes to Gemini in the cloud. Both run through Firebase AI Logic, and the app picks the mode for each request based on how private the text is.
+**The page you are about to pay on has your name, email and card on it, so it is read on your device and only leaves it if you say yes to a redacted copy.** Gemini Nano reads it there, and the read is built to work with Wi-Fi off. My own machine cannot run Gemini Nano, so I ran the real thing on a Kaggle CPU machine: it read the demo store on the device and added up the same first-year total as the cloud, slowly. See [Real Gemini Nano run](#real-gemini-nano-run). The store's public terms page has nothing about you on it, so that one goes to Gemini in the cloud. Both run through Firebase AI Logic, and the app picks the mode for each request based on how private the text is.
 
 ![Where your text goes](docs/architecture.png)
 
@@ -13,7 +13,7 @@ Demo store (fake, made for this project): https://before-you-pay-9b8c6.web.app/d
 
 The checkout page is private, so it is read on your device. The terms page is public, so the cloud reads it. Each half alone is a normal AI feature. Joining them on your device, where (with Gemini Nano) the cloud never sees the checkout page, is the part I have not seen elsewhere. That join is the cancel-by date below. The first-year total and the receipt are what make it worth trusting.
 
-The examples use the demo store with a trial started on Nov 22, so the dates move if you try it on another day.
+The examples use the demo store. It is always read as if it were opened on Nov 22, 2026, the day the video was made, so you see the same dates on any day. Real pages use today's date.
 
 **The first-year cost, added up.** "$0.00 due today" turns into "$355.39 in your first year, plus tax" on the demo store. Every line is a verified quote from the page, the billing period is read from the words next to each price ("each month", "every bill", "one-time"), and the math is plain code ([web/src/cost.ts](web/src/cost.ts)). Click a line and the words are marked on the page. It also says what the model added: the basic check alone gets to $277.63, because it cannot see the add-on whose price sits outside its checkbox or the $2.49 that never says "fee". A page that lists several plans and no trial gets no total instead of a guess, and anything without a clear period is listed as "not added". Bills are counted by date inside the 12 months from the day the page was read, so a 3-month trial leaves 9 monthly bills.
 
@@ -25,13 +25,40 @@ On the 10 real plan pages (cloud read, same runs as the table further down), the
 
 ![Cancel by](docs/cancel-by.png)
 
-**A receipt for what left your device.** Every read in the tab is listed with its mode, its size and a SHA-256 fingerprint. Cloud rows show the exact text that was sent, with what redaction removed marked in red, so you can see "[email]" and "[card ending]" where your details were. Each row also counts requests to the Gemini API made during that read, measured by the page itself with the browser's resource timing list ([web/src/receipt.ts](web/src/receipt.ts)). That is what the page can see, not a network capture, and the panel says so. For an on-device read the checkout row should say "Requests to Gemini during this read: 0". That number is a sanity check, not a proof: `ONLY_ON_DEVICE` never calls the cloud by design, and the page can only count requests it can see. The Wi-Fi off test is the stronger proof. I have only seen that row from the stand-in run below, so it is not pictured here.
+**A receipt for what left your device.** Every read in the tab is listed with its mode, its size and a SHA-256 fingerprint. Cloud rows show the exact text that was sent, with what redaction removed marked in red, so you can see "[email]" and "[card ending]" where your details were. Each row also counts requests to the Gemini API made during that read, measured by the page itself with the browser's resource timing list ([web/src/receipt.ts](web/src/receipt.ts)). That is what the page can see, not a network capture, and the panel says so. For an on-device read the checkout row should say "Requests to Gemini during this read: 0". That number is a sanity check, not a proof: `ONLY_ON_DEVICE` never calls the cloud by design, and the page can only count requests it can see. The Wi-Fi off test is the stronger proof. The real Nano run showed that row too, pictured in [Real Gemini Nano run](#real-gemini-nano-run).
 
 ![Receipt, cloud](docs/receipt-cloud.png)
 
 All three screenshots in this section come from fresh cloud reads on my machine: a redacted copy of the checkout page (I said yes to sending it) plus the terms page. So in these pictures the prices were read in the cloud, and the panel says so under the cancel-by card. With Gemini Nano the checkout half stays on the device.
 
 ![The hosted demo with the store open](docs/hosted-wow.png)
+
+## Real Gemini Nano run
+
+My laptop cannot run Gemini Nano, so on Nov 24, 2026 I used a free Kaggle notebook machine instead: with 4 CPU cores, 31 GB RAM and no GPU, running Chrome 158.0.8127.88 stable, headed on a virtual display, with the Prompt API turned on. Chrome's CPU path needs 16 GB RAM and 4 cores, so it qualifies. I also turned on Chrome's flag that skips its speed check. The script is [scripts/nano-kaggle.py](scripts/nano-kaggle.py). It opens the live panel, presses **Try the demo store** and **Check this page**, the same `ONLY_ON_DEVICE` code the extension uses, and saves everything it sees.
+
+What happened (all in [eval/nano-real/](eval/nano-real/): summary, log, the raw Nano answer and the full screen recording):
+
+| | Real Gemini Nano, Kaggle CPU | Cloud read of a redacted copy |
+|---|---|---|
+| Model ready | `downloadable`, then `available` after a 105 s download | n/a |
+| Time to read the demo checkout page | 144.0 s, then 109.0 s on a second press | not compared here |
+| First-year total | **$355.39** | $355.39 |
+| Due today, first charge | $0.00, $31.44 on Dec 6 | the same |
+| Requests to Gemini during the read | 0, as counted by the page | the redacted copy, after you say yes |
+| Cancel by | Fri, Dec 4, once the terms were read in the cloud | Fri, Dec 4 |
+
+![Real Nano read on Kaggle](docs/nano-real-panel.png)
+
+![What left the device, real Nano read](docs/nano-real-receipt.png)
+
+What is not as good, plainly:
+
+- It is slow on CPU. Two minutes or so for one short checkout page is too long for a real checkout. I have not measured it on a GPU.
+- The first real run, before I changed anything, added up only $277.63. Nano found the add-ons and the $2.49 per-bill line but left the amounts empty on some of them and called the ticked add-ons plain recurring charges. Now Nano gets three extra lines about amounts, and my code fills a missing amount from the quote, or from the price printed next to a ticked box, never from a guess ([web/src/verify.ts](web/src/verify.ts)). The second run above is after that change. Its raw answer is a unit test now.
+- Nano still writes some quotes as `[x] Add Priority Support...`, copying the checkbox mark from the prompt. Those words are not on the page, so they fail the quote check and never count on their own.
+- This is one page, read twice, on one machine. It is a check that the real model works through the real code, not an accuracy number. The eval numbers further down are still cloud only.
+- App Check refused that automated browser, so the terms half showed the saved real cloud answer, and the panel said so.
 
 ## What is tested and what is not
 
@@ -40,13 +67,14 @@ Plainly, so nobody has to guess:
 | Part | Tested how |
 |---|---|
 | Cloud reads (terms page, redacted checkout copy) | Real Gemini calls through Firebase AI Logic, on the live site, 16 + 6 test pages and 10 real plan pages |
-| Routing: checkout page only `ONLY_ON_DEVICE`, never a quiet cloud fallback | Code ([web/src/ai.ts](web/src/ai.ts)) and the Wi-Fi off run with a stand-in model: 0 requests to Gemini |
+| Routing: checkout page only `ONLY_ON_DEVICE`, never a quiet cloud fallback | Code ([web/src/ai.ts](web/src/ai.ts)), the Wi-Fi off run with a stand-in model, and the real Nano run: 0 requests to Gemini during the read |
 | Long pages, measuring and splitting for Nano | Unit tests with a fake `LanguageModel` |
 | Quote and amount checks, dates, first-year total, cancel-by date, .ics | Unit tests and the eval pages |
 | Firestore rules | Emulator tests in [rules-test/](rules-test/) |
-| Real Gemini Nano: accuracy, speed, output quality | **Not tested.** I built this on a machine where Chrome's on-device model is blocked, and I had no supported laptop to run it on before the deadline |
+| Real Gemini Nano on the demo store | **One real run**, Kaggle CPU machine, Chrome 158, Nov 24 2026: 144 s and 109 s, $355.39, same as the cloud ([above](#real-gemini-nano-run)) |
+| Real Gemini Nano: accuracy over many pages, speed on a GPU laptop | **Not tested.** The eval is cloud only |
 
-So the cards you see marked ON DEVICE in this README come from the stand-in run, and say so next to them. Everything marked IN CLOUD is a real model answer.
+The ON DEVICE cards in [Real Gemini Nano run](#real-gemini-nano-run) are from real Nano. The Wi-Fi off screenshot below is still the stand-in run and says so. Everything marked IN CLOUD is a real model answer.
 
 ## The Wi-Fi off test
 
@@ -54,7 +82,7 @@ This is the test I care about most. Open the side panel on a checkout page, turn
 
 ![Wi-Fi off check](docs/offline-stub.png)
 
-How that screenshot was made, honestly: the machine I built this on has Gemini Nano blocked by policy. So [scripts/offline-check.mjs](scripts/offline-check.mjs) loads the live panel page, swaps in a stand-in for Chrome's `LanguageModel`, goes offline and presses Check. The stand-in replays a real Gemini answer for the demo store (the saved cloud read in `web/public/demo-cache.json`), so the cards are real model output for this page, just not produced by Nano on this machine. It shows that once the panel is open, the app and the Firebase AI Logic SDK run the whole read with `ONLY_ON_DEVICE` and make no request to Gemini. (The only request Chrome logged while offline was Firestore closing its idle connection.) It does not test the real model, and the 1.2 seconds in the screenshot is the stand-in's fixed delay, not a real timing. I do not have a machine that can run Gemini Nano, so there are no real Nano runs or timings in this README.
+How that screenshot was made, honestly: the machine I built this on has Gemini Nano blocked by policy. So [scripts/offline-check.mjs](scripts/offline-check.mjs) loads the live panel page, swaps in a stand-in for Chrome's `LanguageModel`, goes offline and presses Check. The stand-in replays a real Gemini answer for the demo store (the saved cloud read in `web/public/demo-cache.json`), so the cards are real model output for this page, just not produced by Nano on this machine. It shows that once the panel is open, the app and the Firebase AI Logic SDK run the whole read with `ONLY_ON_DEVICE` and make no request to Gemini. (The only request Chrome logged while offline was Firestore closing its idle connection.) It does not test the real model, and the 1.2 seconds in the screenshot is the stand-in's fixed delay, not a real timing. The real Nano timings are in [Real Gemini Nano run](#real-gemini-nano-run). That run was online, so it does not replace this Wi-Fi off test.
 
 ## Try it in two minutes
 
@@ -242,7 +270,7 @@ The extension points at the hosted app. For local work, copy `extension/app-url.
 
 ### Turn on Gemini Nano
 
-1. Chrome 139+ on Windows, macOS or Linux with enough memory and a GPU (see [Chrome's hardware requirements](https://developer.chrome.com/docs/ai/get-started)).
+1. Chrome 139+ on Windows, macOS or Linux with a GPU with more than 4 GB of memory, or 16 GB RAM and 4 CPU cores, and 22 GB free disk (see [Chrome's hardware requirements](https://developer.chrome.com/docs/ai/prompt-api)). The real run above used the CPU path.
 2. In `chrome://flags`, search for "Gemma 4 for Built-in AI" (the flag the hackathon FAQ names) and for "Prompt API", enable what you find, and restart Chrome. Flag names change between Chrome versions.
 3. In DevTools on any page, `await LanguageModel.availability()` should say `available` or `downloadable`. The first **Check this page** click starts the download.
 
@@ -263,12 +291,13 @@ web/           Hosted app (Vite + TypeScript): panel, demo store, eval page
   public/eval/     16 labeled test pages
 firestore.rules    owner-only, create-only, size-checked
 rules-test/        emulator tests for the rules
-eval/              eval results
+eval/              eval results, and nano-real/ for the real Nano run on Kaggle
 scripts/           deploy, live check and eval runners
 ```
 
 ## Limits
 
+- On a CPU-only machine Gemini Nano took about two minutes for the demo checkout page. Fine for a test, too slow for a real checkout. GPU speed is not measured.
 - Very long pages are read in at most 6 parts, so text in the middle of a huge page can be skipped (the panel says when).
 - Gemini Nano on the web is single-turn and text only, so the page is turned into plain text plus a list of links and ticked boxes. Prices drawn as images are missed.
 - The first-year total assumes the plan keeps its current price for a year. The terms often say it renews "at the then-current price", and tax is never added, only mentioned.
