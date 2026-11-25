@@ -105,6 +105,15 @@ describe('first-year cost', () => {
     expect(full.find((f) => f.quote.startsWith('Lossless Hi-Fi upgrade'))).toMatchObject({ kind: 'prechecked_addon', amount: '$3.99' });
     expect(firstYear(full, page)!.total).toBe(355.39);
   });
+  it('does not count the per-bill line twice when Nano calls it both an add-on and a fee (fifth real run)', () => {
+    const page = demo();
+    const saved = JSON.parse(read('../../eval/nano-real/kaggle-2026-11-24-run5.json'));
+    const raw = saved.reads.flatMap((r: { findings: RawFinding[] }) => r.findings);
+    const basic = mergeFindings(verifyFindings(ruleFindings(page), page, 'rules'));
+    const full = mergeFindings(basic, verifyFindings(raw, page, 'on_device'));
+    expect(full.filter((f) => f.kind === 'prechecked_addon').map((f) => f.amount).sort()).toEqual(['$2.99', '$3.99', '$4.99']);
+    expect(firstYear(full, page)!.total).toBe(355.39);
+  });
   it('drops an amount of "unknown" instead of reading it as $0.00 (fourth real run)', () => {
     const page = demo();
     const [f] = verifyFindings([{ kind: 'auto_renew', quote: 'Your subscription renews automatically each month until you cancel.', amount: 'unknown' }], page, 'on_device');

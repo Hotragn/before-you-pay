@@ -93,11 +93,17 @@ export function fillFromPage(r: RawFinding, page: PageSnapshot): RawFinding {
   const q = normalize(f.quote);
   // The quote is a ticked box's label, part of it, or the label followed by
   // the price printed next to the box ("Lossless Hi-Fi upgrade +$3.99 each month").
-  const ticked = q.length >= 4 && page.checkboxes.some((c) => {
+  const isLabel = (c: PageSnapshot['checkboxes'][number]) => {
     const l = normalize(c.label);
-    return c.checked && (l === q || (q.length >= 12 && l.includes(q)) || (l.length >= 12 && q.startsWith(l)));
-  });
+    return l === q || (q.length >= 12 && l.includes(q)) || (l.length >= 12 && q.startsWith(l));
+  };
+  const ticked = q.length >= 4 && page.checkboxes.some((c) => c.checked && isLabel(c));
   if (ticked && f.kind === 'recurring_charge') f.kind = 'prechecked_addon';
+  // The other way round: Nano once called "We add $2.49 to every bill" a ticked
+  // add-on while also listing it as a fee, so it was counted twice. On a page
+  // with checkboxes, an "add-on" whose quote is no checkbox's label is a fee,
+  // and then it merges with the fee card.
+  if (f.kind === 'prechecked_addon' && page.checkboxes.length && !page.checkboxes.some(isLabel)) f.kind = 'fee';
   if (!f.amount) {
     const inQuote = [...new Set(amountsIn(f.quote).map((a) => amountValue(a).toFixed(2)))];
     if (inQuote.length === 1) f.amount = amountsIn(f.quote)[0];

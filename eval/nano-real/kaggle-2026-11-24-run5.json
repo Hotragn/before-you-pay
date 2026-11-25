@@ -1,0 +1,87 @@
+{
+ "what": "Raw findings from the first of two real Gemini Nano reads of the demo store in the fifth Kaggle run, before any checks. Chrome 158.0.8127.88 stable, Kaggle CPU machine (4 cores, 31 GB RAM, no GPU), live panel at commit 9902e1d, Nov 24 2026. With that code both reads added up to $385.27: Nano listed the $2.49 per-bill line twice, once as a ticked add-on and once as a fee.",
+ "status": "Read on this computer in 119.1 s. The page was not sent anywhere.",
+ "panel_total_first_read": "$385.27",
+ "second_read_status": "Read on this computer in 92.9 s. The page was not sent anywhere.",
+ "second_read_total": "$385.27",
+ "reads": [
+  {
+   "part": 1,
+   "of": 1,
+   "findings": [
+    {
+     "kind": "due_today",
+     "quote": "$0.00 due today",
+     "amount": "$0.00",
+     "period": "day",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "trial_conversion",
+     "quote": "After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
+     "amount": "$14.99",
+     "period": "month",
+     "trialLength": 14,
+     "trialUnit": "day"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Add Priority Support for $4.99/month",
+     "amount": "$4.99",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Add Family Sharing for $2.99/month",
+     "amount": "$2.99",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "recurring_charge",
+     "quote": "Lossless Hi-Fi upgrade",
+     "amount": "$3.99",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "prechecked_addon",
+     "quote": "We add $2.49 to every bill for music licensing.",
+     "amount": "$2.49",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "fee",
+     "quote": "A one-time activation fee of $1.99 is charged at the end of the trial.",
+     "amount": "$1.99",
+     "period": "day",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "fee",
+     "quote": "$2.49 to every bill for music licensing.",
+     "amount": "$2.49",
+     "period": "month",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    },
+    {
+     "kind": "cancel_path",
+     "quote": "Cancel anytime in a few taps",
+     "amount": "$0.00",
+     "period": "day",
+     "trialLength": 0,
+     "trialUnit": "unknown"
+    }
+   ]
+  }
+ ]
+}
