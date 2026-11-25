@@ -1,0 +1,47 @@
+{
+ "typeof": "function",
+ "availability_first": "downloadable",
+ "create": "ok",
+ "download_s": 120,
+ "availability_after": "available",
+ "sanity": {
+  "create_ms": 3.8999999999650754,
+  "prompt_ms": 4224.900000000023,
+  "out": "Blue\n"
+ },
+ "panel_wall_s": 60.39,
+ "panel_status_timeline": [
+  [
+   0.11,
+   "Reading on your device..."
+  ],
+  [
+   60.38,
+   "Read on this computer in 60.0 s. The page was not sent anywhere."
+  ]
+ ],
+ "panel_cards": [
+  "Due today ON DEVICE $0.00 due today",
+  "Becomes $14.99 on Dec 6 BASIC CHECK Your 14-day free trial starts today.",
+  "Trial turns paid ON DEVICE After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
+  "Recurring charge: $4.99 ON DEVICE Add Priority Support for $4.99/month",
+  "Recurring charge: $2.99 ON DEVICE Add Family Sharing for $2.99/month",
+  "Recurring charge: $3.99 ON DEVICE Lossless Hi-Fi upgrade",
+  "Add-on already ticked: $4.99 BASIC CHECK Add Priority Support for $4.99/month",
+  "Add-on already ticked: $2.99 BASIC CHECK Add Family Sharing for $2.99/month",
+  "Extra fee: $1.99 BASIC CHECK A one-time activation fee of $1.99 is charged at the end of the trial.",
+  "Extra fee ON DEVICE We add $2.49 to every bill for music licensing.",
+  "Renews automatically ON DEVICE Your subscription renews automatically each month until you cancel.",
+  "Cancel or terms link BASIC CHECK Subscription terms",
+  "Cancel or terms link BASIC CHECK How to cancel"
+ ],
+ "on_device_badges": 9,
+ "panel#summary": "Free today, then $14.99 from Dec 6; $7.98 more for 2 add-ons that were already ticked; fees: $1.99.",
+ "panel#costToday": "not shown",
+ "panel#costTotal": "$277.63",
+ "panel#costGap": "",
+ "panel#dlDate": "Sat, Dec 5",
+ "panel#dlText": "Cancel by then to avoid the first charge of $24.96 on Dec 6. That is one day early, because the page does not say what time it charges. Read the cancellation terms below to check how much notice they need.",
+ "panel#demoNote": "Demo date fixed to Sun, Nov 22, 2026 to match the video. Real pages use today's date.",
+ "panel#route": "This page has your name, your email and card details, so it stays on this device. Gemini Nano reads it here."
+}

@@ -34,6 +34,8 @@ function amountValue(a: string): number {
 // An amount from the model only counts if the same amount is written on the
 // page. Returns the amount as the page prints it (models often drop the "$").
 export function amountOnPage(amount: string, page: PageSnapshot): string | undefined {
+  // Nano sometimes writes "unknown" as the amount. No digits, no amount.
+  if (!/\d/.test(amount)) return undefined;
   const v = amountValue(amount);
   if (!Number.isFinite(v)) return undefined;
   const all = [page.text, ...page.checkboxes.map((c) => c.label)].join('\n');
@@ -87,6 +89,7 @@ const NO_RENEW = /\bno (?:automatic|auto)[- ]?renewal\b|\b(?:does|will) not (?:a
 // only changes when the quote is the label of a box that is ticked on the page.
 export function fillFromPage(r: RawFinding, page: PageSnapshot): RawFinding {
   const f: RawFinding = { ...r };
+  if (f.amount !== undefined && !/\d/.test(f.amount)) delete f.amount;
   const q = normalize(f.quote);
   // The quote is a ticked box's label, part of it, or the label followed by
   // the price printed next to the box ("Lossless Hi-Fi upgrade +$3.99 each month").

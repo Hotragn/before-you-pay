@@ -37,27 +37,27 @@ All three screenshots in this section come from fresh cloud reads on my machine:
 
 My laptop cannot run Gemini Nano, so on Nov 24, 2026 I used a free Kaggle notebook machine instead: with 4 CPU cores, 31 GB RAM and no GPU, running Chrome 158.0.8127.88 stable, headed on a virtual display, with the Prompt API turned on. Chrome's CPU path needs 16 GB RAM and 4 cores, so it qualifies. I also turned on Chrome's flag that skips its speed check. The script is [scripts/nano-kaggle.py](scripts/nano-kaggle.py). It opens the live panel, presses **Try the demo store** and **Check this page**, the same `ONLY_ON_DEVICE` code the extension uses, and saves everything it sees.
 
-What happened (all in [eval/nano-real/](eval/nano-real/): summary, log, the raw Nano answer and the full screen recording):
+What happened. Four runs, two reads each after the first, all in [eval/nano-real/](eval/nano-real/) with the summaries, logs, Nano's raw answers and the full screen recording of run 2:
 
 | | Real Gemini Nano, Kaggle CPU | Cloud read of a redacted copy |
 |---|---|---|
-| Model ready | `downloadable`, then `available` after a 105 s download | n/a |
-| Time to read the demo checkout page | 144.0 s, then 109.0 s on a second press | not compared here |
-| First-year total | **$355.39** | $355.39 |
+| Model ready | `downloadable`, then `available` after a 90 to 151 s download | n/a |
+| Time to read the demo checkout page | 60 to 144 s across the 6 reads with a captured time | not compared here |
+| First-year total, after the fixes below | **$355.39** on 5 of 6 reads | $355.39 |
 | Due today, first charge | $0.00, $31.44 on Dec 6 | the same |
 | Requests to Gemini during the read | 0, as counted by the page | the redacted copy, after you say yes |
 | Cancel by | Fri, Dec 4, once the terms were read in the cloud | Fri, Dec 4 |
 
-![Real Nano read on Kaggle](docs/nano-real-panel.png)
+![Real Nano read on Kaggle, run 2](docs/nano-real-panel.png)
 
 ![What left the device, real Nano read](docs/nano-real-receipt.png)
 
 What is not as good, plainly:
 
-- It is slow on CPU. Two minutes or so for one short checkout page is too long for a real checkout. I have not measured it on a GPU.
-- The first real run, before I changed anything, added up only $277.63. Nano found the add-ons and the $2.49 per-bill line but left the amounts empty on some of them and called the ticked add-ons plain recurring charges. Now Nano gets three extra lines about amounts, and my code fills a missing amount from the quote, or from the price printed next to a ticked box, never from a guess ([web/src/verify.ts](web/src/verify.ts)). The second run above is after that change. Its raw answer is a unit test now.
-- Nano still writes some quotes as `[x] Add Priority Support...`, copying the checkbox mark from the prompt. Those words are not on the page, so they fail the quote check and never count on their own.
-- This is one page, read twice, on one machine. It is a check that the real model works through the real code, not an accuracy number. The eval numbers further down are still cloud only.
+- It is slow on CPU. One to two and a half minutes for one short checkout page is too long for a real checkout. I have not measured it on a GPU.
+- Nano is not consistent from read to read, and each run turned up a new way to get an amount wrong. Run 1, before I changed anything, added up only $277.63: Nano left some amounts empty and called the ticked add-ons plain recurring charges. In run 3 the first read quoted "Lossless Hi-Fi upgrade +$3.99 each month" as a plain recurring charge, so that add-on was left out ($307.51). In run 4 it wrote "unknown" as an amount, which my code read as $0.00 on the renewal card. Each one is fixed in code that only uses the page ([web/src/verify.ts](web/src/verify.ts)): a missing amount comes from the quote or from the price printed next to a ticked box, a quote that is a ticked box's label (with or without its price) counts as a ticked add-on, and an amount with no digits is dropped. Nano also gets three extra lines about amounts. The raw answers from runs 2 and 3 are unit tests now. The fix for "unknown" came after run 4, so no Nano read has run on it yet.
+- Nano sometimes writes quotes as `[x] Add Priority Support...`, copying the checkbox mark from the prompt. Those words are not on the page, so they fail the quote check and never count on their own.
+- This is one page on one machine. It is a check that the real model works through the real code, not an accuracy number. The eval numbers further down are still cloud only.
 - App Check refused that automated browser, so the terms half showed the saved real cloud answer, and the panel said so.
 
 ## What is tested and what is not
@@ -71,7 +71,7 @@ Plainly, so nobody has to guess:
 | Long pages, measuring and splitting for Nano | Unit tests with a fake `LanguageModel` |
 | Quote and amount checks, dates, first-year total, cancel-by date, .ics | Unit tests and the eval pages |
 | Firestore rules | Emulator tests in [rules-test/](rules-test/) |
-| Real Gemini Nano on the demo store | **One real run**, Kaggle CPU machine, Chrome 158, Nov 24 2026: 144 s and 109 s, $355.39, same as the cloud ([above](#real-gemini-nano-run)) |
+| Real Gemini Nano on the demo store | **Four real runs**, Kaggle CPU machine, Chrome 158, Nov 24 2026: 60 to 144 s per read, $355.39 on 5 of 6 reads after the fixes ([above](#real-gemini-nano-run)) |
 | Real Gemini Nano: accuracy over many pages, speed on a GPU laptop | **Not tested.** The eval is cloud only |
 
 The ON DEVICE cards in [Real Gemini Nano run](#real-gemini-nano-run) are from real Nano. The Wi-Fi off screenshot below is still the stand-in run and says so. Everything marked IN CLOUD is a real model answer.
@@ -297,7 +297,7 @@ scripts/           deploy, live check and eval runners
 
 ## Limits
 
-- On a CPU-only machine Gemini Nano took about two minutes for the demo checkout page. Fine for a test, too slow for a real checkout. GPU speed is not measured.
+- On a CPU-only machine Gemini Nano took one to two and a half minutes for the demo checkout page. Fine for a test, too slow for a real checkout. GPU speed is not measured.
 - Very long pages are read in at most 6 parts, so text in the middle of a huge page can be skipped (the panel says when).
 - Gemini Nano on the web is single-turn and text only, so the page is turned into plain text plus a list of links and ticked boxes. Prices drawn as images are missed.
 - The first-year total assumes the plan keeps its current price for a year. The terms often say it renews "at the then-current price", and tax is never added, only mentioned.

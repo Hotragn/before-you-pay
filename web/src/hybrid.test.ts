@@ -87,7 +87,7 @@ describe('first-year cost', () => {
   });
   it('turns the saved real Nano answer (Kaggle, Nov 24) into the same total as the cloud', () => {
     const page = demo();
-    const saved = JSON.parse(read('../../eval/nano-real/kaggle-2026-11-24.json'));
+    const saved = JSON.parse(read('../../eval/nano-real/kaggle-2026-11-24-run2.json'));
     const raw = saved.reads.flatMap((r: { findings: RawFinding[] }) => r.findings);
     const basic = mergeFindings(verifyFindings(ruleFindings(page), page, 'rules'));
     const full = mergeFindings(basic, verifyFindings(raw, page, 'on_device'));
@@ -104,6 +104,12 @@ describe('first-year cost', () => {
     const full = mergeFindings(basic, verifyFindings(raw, page, 'on_device'));
     expect(full.find((f) => f.quote.startsWith('Lossless Hi-Fi upgrade'))).toMatchObject({ kind: 'prechecked_addon', amount: '$3.99' });
     expect(firstYear(full, page)!.total).toBe(355.39);
+  });
+  it('drops an amount of "unknown" instead of reading it as $0.00 (fourth real run)', () => {
+    const page = demo();
+    const [f] = verifyFindings([{ kind: 'auto_renew', quote: 'Your subscription renews automatically each month until you cancel.', amount: 'unknown' }], page, 'on_device');
+    expect(f.amount).toBeUndefined();
+    expect(f.verification).toBe('verified');
   });
   it('fills amounts only from the page, never by guessing', () => {
     const page = demo();

@@ -1,0 +1,107 @@
+$ nproc; free -g; df -h / /tmp /kaggle/working; nvidia-smi || true; uname -a; date -u -> 0 4
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          26           0           4          30
+Swap:              0           0           0
+Filesystem      Size  Used Avail Use% Mounted on
+overlay         8.0T  5.6T  2.5T  70% /
+overlay         8.0T  5.6T  2.5T  70% /
+/dev/loop2       20G  112K   20G   1% /kaggle/working
+Linux 6d3bbdf095e1 6.18.55+ #1 SMP Thu Oct 22 16:37:21 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+Wed Nov 25 01:21:24 AM UTC 2026
+/bin/sh: 1: nvidia-smi: not found
+
+$ apt-get update -qq && apt-get install -y -qq xvfb ffmpeg wget >/dev/null 2>&1; echo done -> 0 done
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+
+$ wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && apt-get install -y -qq /tmp/chrome.deb >/dev/null 2>&1; google-chrome --version -> 0 Google Chrome 158.0.8127.88 
+
+$ pip install -q playwright==1.48.0 2>&1 | tail -1 -> 0 
+profile on /tmp free GB 2697.564327936
+--- internals-start ---
+ 
+console: Failed to load resource: the server responded with a status of 404 ()
+typeof LanguageModel function
+console: No output language was specified in a LanguageModel API request. An output language should be specified to ensure optimal output quality and properly attest to output safety. Please specify a supported output language code: [de, en, es, fr, ja]
+availability first: downloadable
+console: This page uses Chrome's Built-In AI features (LanguageModel)! We're always improving our models; please submit your feedback here: https://issues.chromium.org/issues/new?component=1583624
+download 0 s {'c': None, 'd': None, 'n': 0}
+download 60 s {'c': None, 'd': 0.897918701171875, 'n': 783}
+download 120 s {'c': 'ok', 'd': 1, 'n': 785}
+create result ok
+availability after: available
+--- internals-after ---
+ 
+sanity {'create_ms': 3.8999999999650754, 'prompt_ms': 4224.900000000023, 'out': 'Blue\n'}
+panel console: Failed to load resource: the server responded with a status of 403 ()
+panel console: [2026-11-25T01:24:31.573Z]  @firebase/app-check: AppCheck: 403 error. Attempts allowed again after 01d:00m:00s (appCheck/initial-throttle).
+panel console: [2026-11-25T01:24:31.574Z]  @firebase/app-check: AppCheck: 403 error. Attempts allowed again after 01d:00m:00s (appCheck/initial-throttle).
+panel console: [2026-11-25T01:24:31.574Z]  @firebase/auth: Auth (13.4.0): Error while retrieving App Check token: FirebaseError: AppCheck: 403 error. Attempts allowed again after 01d:00m:00s (appCheck/initial-throttle).
+panel console: [2026-11-25T01:24:32.020Z]  @firebase/app-check: AppCheck: Requests throttled due to previous 403 error. Attempts allowed again after 01d:00m:00s (appCheck/throttled).
+panel console: [2026-11-25T01:24:32.020Z]  @firebase/auth: Auth (13.4.0): Error while retrieving App Check token: FirebaseError: AppCheck: Requests throttled due to previous 403 error. Attempts allowed again after 01d:00m:00s (appCheck/throttled).
+panel console: [2026-11-25T01:24:32.066Z]  @firebase/app-check: AppCheck: Requests throttled due to previous 403 error. Attempts allowed again after 01d:00m:00s (appCheck/throttled).
+panel console: This page uses Chrome's Built-In AI features (LanguageModel)! We're always improving our models; please submit your feedback here: https://issues.chromium.org/issues/new?component=1583624
+status 0.11 Reading on your device...
+panel console: [2026-11-25T01:25:01.575Z]  @firebase/app-check: AppCheck: Requests throttled due to previous 403 error. Attempts allowed again after 23h:59m:30s (appCheck/throttled).
+panel console: [2026-11-25T01:25:04.670Z]  @firebase/auth: Auth (13.4.0): Firebase Auth cross-tab polling failed with error: Error: DB_TIMEOUT
+status 60.38 Read on this computer in 60.0 s. The page was not sent anywhere.
+SUMMARY {
+ "typeof": "function",
+ "availability_first": "downloadable",
+ "create": "ok",
+ "download_s": 120,
+ "availability_after": "available",
+ "sanity": {
+  "create_ms": 3.8999999999650754,
+  "prompt_ms": 4224.900000000023,
+  "out": "Blue\n"
+ },
+ "panel_wall_s": 60.39,
+ "panel_status_timeline": [
+  [
+   0.11,
+   "Reading on your device..."
+  ],
+  [
+   60.38,
+   "Read on this computer in 60.0 s. The page was not sent anywhere."
+  ]
+ ],
+ "panel_cards": [
+  "Due today ON DEVICE $0.00 due today",
+  "Becomes $14.99 on Dec 6 BASIC CHECK Your 14-day free trial starts today.",
+  "Trial turns paid ON DEVICE After your trial, Tunebox Plus is $14.99/month plus any add-ons you selected.",
+  "Recurring charge: $4.99 ON DEVICE Add Priority Support for $4.99/month",
+  "Recurring charge: $2.99 ON DEVICE Add Family Sharing for $2.99/month",
+  "Recurring charge: $3.99 ON DEVICE Lossless Hi-Fi upgrade",
+  "Add-on already ticked: $4.99 BASIC CHECK Add Priority Support for $4.99/month",
+  "Add-on already ticked: $2.99 BASIC CHECK Add Family Sharing for $2.99/month",
+  "Extra fee: $1.99 BASIC CHECK A one-time activation fee of $1.99 is charged at the end of the trial.",
+  "Extra fee ON DEVICE We add $2.49 to every bill for music licensing.",
+  "Renews automatically ON DEVICE Your subscription renews automatically each month until you cancel.",
+  "Cancel or terms link BASIC CHECK Subscription terms",
+  "Cancel or terms link BASIC CHECK How to cancel"
+ ],
+ "on_device_badges": 9,
+ "panel#summary": "Free today, then $14.99 from Dec 6; $7.98 more for 2 add-ons that were already ticked; fees: $1.99.",
+ "panel#costToday": "not shown",
+ "panel#costTotal": "$277.63",
+ "panel#costGap": "",
+ "panel#dlDate": "Sat, Dec 5",
+ "panel#dlText": "Cancel by then to avoid the first charge of $24.96 on Dec 6. That is one day early, because the page does not say what time it charges. Read the cancellation terms below to check how much notice they need.",
+ "panel#demoNote": "Demo date fixed to Sun, Nov 22, 2026 to match the video. Real pages use today's date.",
+ "panel#route": "This page has your name, your email and card details, so it stays on this device. Gemini Nano reads it here."
+}
+$ ls -la /kaggle/working; rm -rf /tmp/nano-profile 2>/dev/null; true -> 0 total 4068
+drwxr-xr-x 2 root root    4096 Nov 25 01:25 .
+drwxr-xr-x 8 root root    4096 Nov 25 01:21 ..
+-rw-r--r-- 1 root root   18322 Nov 25 01:25 chrome-stdout.txt
+-rw-r--r-- 1 root root   39107 Nov 25 01:24 internals-after.png
+-rw-r--r-- 1 root root       0 Nov 25 01:24 internals-after.txt
+-rw-r--r-- 1 root root   39107 Nov 25 01:22 internals-start.png
+-rw-r--r-- 1 root root       0 Nov 25 01:22 internals-start.txt
+-rw-r--r-- 1 root root    6242 Nov 25 01:25 log.txt
+-rw-r--r-- 1 root root  498056 Nov 25 01:24 panel-1-basic.png
+-rw-r--r-- 1 root root  578617 Nov 25 01:25 panel-2-on-device.png
+-rw-r--r-- 1 root root 2959487 Nov 25 01:25 screen.mp4
+-rw-r--r-- 1 root root    2175 Nov 25 01:25 summary.json
+
