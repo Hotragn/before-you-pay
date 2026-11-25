@@ -15,7 +15,7 @@ The checkout page is private, so it is read on your device. The terms page is pu
 
 The examples use the demo store with a trial started on Nov 22, so the dates move if you try it on another day.
 
-**The first-year cost, added up.** "$0.00 due today" turns into "$355.39 in your first year, plus tax" on the demo store. Every line is a verified quote from the page, the billing period is read from the words next to each price ("each month", "every bill", "one-time"), and the math is plain code ([web/src/cost.ts](web/src/cost.ts)). Click a line and the words are marked on the page. It also says what the model added: the basic check alone gets to $277.63, because it cannot see the add-on whose price sits outside its checkbox or the $2.49 that never says "fee". A page that lists several plans and no trial gets no total instead of a guess, and anything without a clear period is listed as "not added". Bills are counted by date inside the 12 months from today, so a 3-month trial leaves 9 monthly bills.
+**The first-year cost, added up.** "$0.00 due today" turns into "$355.39 in your first year, plus tax" on the demo store. Every line is a verified quote from the page, the billing period is read from the words next to each price ("each month", "every bill", "one-time"), and the math is plain code ([web/src/cost.ts](web/src/cost.ts)). Click a line and the words are marked on the page. It also says what the model added: the basic check alone gets to $277.63, because it cannot see the add-on whose price sits outside its checkbox or the $2.49 that never says "fee". A page that lists several plans and no trial gets no total instead of a guess, and anything without a clear period is listed as "not added". Bills are counted by date inside the 12 months from the day the page was read, so a 3-month trial leaves 9 monthly bills.
 
 On the 10 real plan pages (cloud read, same runs as the table further down), the first-year card appeared on 5 and the cancel-by card on 6. Four of the 5 totals used the price my labels give for the plan with the trial. One used a student price instead, the same mistake as in the trial row. These pages list several plans, so the total covers the plan the trial belongs to and lists the other prices as not added.
 
@@ -63,7 +63,7 @@ How that screenshot was made, honestly: the machine I built this on has Gemini N
 3. Without it, you get the basic check plus a consent box. Press **Send a redacted copy** to see the cloud read, then **Read the cancellation terms**.
 4. With Chrome 139+ and the Prompt API turned on (steps below), the same button reads the page on your device and the cards say ON DEVICE.
 5. The first press of each cloud button on the demo store shows a saved answer from a real cloud read, with its date, to save the free quota. Press again for a fresh read. If the fresh read fails (busy quota, or App Check not accepting the browser), the saved answer stays and the panel says why.
-6. The demo trial starts today, so the dates you see move with the day you try it.
+6. The demo store is read as if it were opened on Sun, Nov 22, 2026, the day the video was made, so you see the same numbers as the video: trial ends Dec 6, cancel by Fri, Dec 4, $355.39 in the first year. The panel says so under the button. Real pages, and anything the extension reads, use today's date.
 
 | No on-device model: it asks first | After a cloud read of a redacted copy (the saved answer from a real read, as its status line says) |
 |---|---|

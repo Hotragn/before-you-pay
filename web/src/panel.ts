@@ -383,8 +383,14 @@ async function demo() {
   document.body.classList.add('demo-open');
   frame.removeAttribute('aria-hidden');
   frame.tabIndex = 0;
-  load(snapshotDocument(frame.contentDocument!, new URL('/demo-store/index.html', location.href).href));
+  // The demo store always reads as if it were opened on the day the video was
+  // made, so the trial end, cancel-by date and first-year total match it.
+  // Real pages (and the extension) always use today's date.
+  load({ ...snapshotDocument(frame.contentDocument!, new URL('/demo-store/index.html', location.href).href), capturedAt: DEMO_DATE });
+  $('demoNote').textContent = `Demo date fixed to ${new Date(DEMO_DATE).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} to match the video. Real pages use today's date.`;
+  $('demoNote').hidden = false;
 }
+const DEMO_DATE = '2026-11-22T15:00:00.000Z';
 
 const amountOf = (a?: string) => (a ? Number(a.replace(/[^\d.]/g, '')) : NaN);
 const WHERE_WORDS: Record<string, string> = { on_device: 'read on this device', in_cloud: 'read in the cloud from a redacted copy', rules: 'found by the basic check on this device' };
